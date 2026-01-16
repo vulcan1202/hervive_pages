@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   // --- 新增內容開始 ---
-
+  css: ['~/css/main.css'],
   // 1. 註冊模組
   modules: [
     '@nuxtjs/tailwindcss', // 處理樣式
