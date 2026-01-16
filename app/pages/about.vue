@@ -107,15 +107,30 @@ useSeoMeta({
         </div>
       </div>
 
-      <div class="mt-8 flex flex-col items-center justify-center gap-4 relative z-10">
-        <button class="bg-rose-500 hover:bg-rose-600 text-white px-10 py-3 rounded-full font-bold transition shadow-lg hover:shadow-rose-500/30 flex items-center gap-2">
-          <Icon name="mdi:calendar-check" />
-          立即預約 LINE / IG
-        </button>
-        <span class="text-xs text-gray-500 flex items-center gap-1">
-          <Icon name="mdi:qrcode-scan" /> 掃描 QR Code 立即預約
-        </span>
-      </div>
+      <div class="mt-8 flex flex-col md:flex-row items-center justify-center gap-4 relative z-10">
+      <a
+        href="https://line.me/R/ti/p/您的LineID"
+        target="_blank"
+        class="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-bold transition shadow-lg hover:shadow-rose-500/30 flex items-center gap-2 w-full md:w-auto justify-center"
+      >
+        <Icon name="mdi:calendar-check" />
+        立即預約 LINE
+      </a>
+
+      <a
+        href="https://www.instagram.com/hervive_studio/"
+        target="_blank"
+        class="bg-white text-gray-700 border border-gray-200 hover:border-rose-400 hover:text-rose-500 px-8 py-3 rounded-full font-bold transition shadow-sm hover:shadow-md flex items-center gap-2 w-full md:w-auto justify-center"
+      >
+        <Icon name="mdi:instagram" />
+        追蹤 Instagram
+      </a>
+
+    </div>
+
+    <div class="mt-4 text-xs text-gray-500 flex items-center justify-center gap-1 relative z-10">
+      <Icon name="mdi:qrcode-scan" /> 點擊按鈕或掃描 QR Code
+    </div>
     </section>
 
   </div>
