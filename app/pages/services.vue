@@ -19,31 +19,54 @@ const extraServices = ['眼周管理', '臉部經絡調理', '中胚導入', 'SE
     <section class="max-w-5xl mx-auto px-4">
       <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#C7CDCE]">
         <div class="grid md:grid-cols-2 items-center">
-          <div class="w-full bg-[#FAF4EE] flex items-center justify-center p-4">
+          <div class="w-full h-full bg-[#FAF4EE] flex items-center justify-center p-4 min-h-[300px]">
             <img
               src="/service_glow.jpg"
               alt="水光透亮管理"
-              class="max-w-full h-auto rounded-xl shadow-md"
+              class="max-w-full h-auto rounded-xl shadow-md object-cover"
             />
           </div>
+
           <div class="p-8 md:p-12 space-y-8">
             <div class="space-y-2">
               <h2 class="text-3xl md:text-4xl font-bold text-[#154337]">水光透亮</h2>
               <p class="text-[#C7CDCE] font-bold text-xl">價格 $1800 起</p>
             </div>
+
             <div class="space-y-6 text-gray-600">
-              <div class="flex gap-4">
-                <div class="text-[#154337] font-bold text-lg">➡️</div>
-                <div class="font-medium text-gray-700">水潤透亮、上妝服貼</div>
+
+              <div class="flex gap-4 items-start">
+                <div class="text-[#154337] font-bold text-xl mt-1">➡️</div>
+                <div class="space-y-1">
+                  <h4 class="font-bold text-gray-800 text-lg">水潤透亮、上妝服貼</h4>
+                  <p class="text-sm text-gray-500 leading-relaxed">
+                    深層補水，讓肌膚細緻有光澤，妝感更自然。
+                  </p>
+                </div>
               </div>
-              <div class="flex gap-4">
-                <div class="text-[#154337] font-bold text-lg">➡️</div>
-                <div class="font-medium text-gray-700">毛孔粉刺清潔、膚況穩定</div>
+
+              <div class="flex gap-4 items-start">
+                <div class="text-[#154337] font-bold text-xl mt-1">➡️</div>
+                <div class="space-y-1">
+                  <h4 class="font-bold text-gray-800 text-lg">毛孔粉刺清潔、膚況穩定</h4>
+                  <p class="text-sm font-medium text-[#154337]">水飛梭清潔＋手工清粉刺</p>
+                  <p class="text-sm text-gray-500 leading-relaxed">
+                    溫和代謝老廢角質，毛孔乾淨不刺激。
+                  </p>
+                </div>
               </div>
-              <div class="flex gap-4">
-                <div class="text-[#154337] font-bold text-lg">➡️</div>
-                <div class="font-medium text-gray-700">提亮氣色、放鬆身心</div>
+
+              <div class="flex gap-4 items-start">
+                <div class="text-[#154337] font-bold text-xl mt-1">➡️</div>
+                <div class="space-y-1">
+                  <h4 class="font-bold text-gray-800 text-lg">提亮氣色、放鬆身心</h4>
+                  <p class="text-sm font-medium text-[#154337]">精華安瓶導入＋修護軟膜（含肩頸放鬆）</p>
+                  <p class="text-sm text-gray-500 leading-relaxed">
+                    肌膚發光，同時好好休息一下。
+                  </p>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
