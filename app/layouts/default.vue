@@ -51,7 +51,7 @@ const closeMenu = () => {
     <footer class="bg-[#154337] text-[#FAF4EE] py-12 text-center text-sm relative overflow-hidden">
         <div class="relative z-10 container mx-auto px-4 space-y-4">
             <h4 class="title-serif text-lg font-bold tracking-widest text-[#C7CDCE]">HERVIVE STUDIO</h4>
-            <p class="opacity-80 text-xs">專屬客製化美容護膚服務</p>
+            <p class="opacity-80 text-xs">妳的「肌膚專屬療癒所」客製化專業美容護膚</p>
         </div>
     </footer>
   </div>

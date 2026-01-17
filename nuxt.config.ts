@@ -15,9 +15,9 @@ export default defineNuxtConfig({
 
   // 2. SEO 全域設定 (Nuxt SEO 模組需要這些資訊)
   site: {
-    url: 'https://www.your-company.com', // 【必填】未來上線後的網址，這對 SEO 很重要
-    name: '您的公司名稱',                  // 網站名稱
-    description: '這裡是網站的預設描述，有助於 Google 搜尋結果顯示。',
+    url: 'https://hervive-pages.pages.dev', // 【必填】未來上線後的網址，這對 SEO 很重要
+    name: '赫琟美學 Hervie STUDIO',                  // 網站名稱
+    description: '赫琟美學，專注於提供客製化的美容護膚服務。',
     defaultLocale: 'zh-TW',              // 預設語系
   },
 

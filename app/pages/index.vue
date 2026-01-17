@@ -1,6 +1,6 @@
 <script setup>
 useSeoMeta({
-  title: '赫琟美學 HEAVIVE STUDIO - 首頁',
+  title: '首頁',
   description: '專屬您的肌膚療癒空間，提供客製化美容護膚服務。',
 })
 </script>
@@ -10,22 +10,46 @@ useSeoMeta({
     <div class="max-w-xl mx-auto px-4 fade-in">
       <img
         src="/home-banner.png"
-        alt="HEAVIVE STUDIO Banner"
+        alt="Hervie STUDIO Banner"
         class="w-full h-auto object-cover block"
       />
     </div>
 
-    <section class="text-center px-6 py-4 max-w-4xl mx-auto space-y-6">
-      <span class="text-[#C7CDCE] tracking-[0.2em] font-medium uppercase text-sm">Heavive Studio</span>
-      <h1 class="title-serif text-3xl md:text-5xl font-bold text-[#154337] leading-tight md:leading-[1.2]">
-        喚醒肌膚<br>
-        <span class="text-[#C7CDCE]">原本的光采</span>
-      </h1>
-      <p class="text-lg text-gray-600 leading-relaxed max-w-xl mx-auto">
-        我們相信真正的保養，是一場與自己對話的過程。<br>
-        在這裡，放下繁雜的思緒，享受專屬於妳的療癒時光。
-      </p>
+    <section class="text-center px-6 py-4 max-w-4xl mx-auto space-y-8">
+      <div class="space-y-4">
+        <span class="text-[#C7CDCE] tracking-[0.2em] font-medium uppercase text-sm">Hervie Studio</span>
+        <h1 class="title-serif text-3xl md:text-5xl font-bold text-[#154337] leading-tight md:leading-[1.2]">
+          喚醒肌膚<br>
+          <span class="text-[#C7CDCE]">原本的光采</span>
+        </h1>
+      </div>
+
+      <div class="max-w-2xl mx-auto space-y-6">
+        <div class="text-gray-600 leading-relaxed">
+          <p class="mb-4">
+            <span class="font-bold text-[#154337]">Hervie</span> 的名字，是由 <span class="text-[#154337] font-medium">“Her”（她）</span>和 <span class="text-[#154337] font-medium">“Vive”（生活）</span>結合而來。<br>
+            Vive 是西班牙語中「活；生活」的意思。
+          </p>
+          <p class="text-sm md:text-base italic text-gray-500">
+            Hervie 希望每一位女性都能夠在生活中找到屬於自己的節奏，活出最真實的自我。<br>
+            在赫琟，每個人都能擁有自信且舒適的氛圍。
+          </p>
+        </div>
+
+        <div class="py-8 flex flex-col items-center">
+          <div class="w-12 h-[1px] bg-[#C7CDCE] mb-6"></div>
+          <p class="text-[#154337] font-medium tracking-widest leading-loose text-center">
+            每個女人都擁有屬於自己的氛圍，從內而外擁有無限可能。<br>
+            讓您內在充滿自信，外在展現美麗✨
+          </p>
+          <div class="w-12 h-[1px] bg-[#C7CDCE] mt-6"></div>
+        </div>
+      </div>
+
       <div class="pt-4 flex gap-4 justify-center">
+        <NuxtLink to="/services" class="px-8 py-3 bg-white text-[#154337] border border-[#154337] rounded-full font-medium hover:bg-[#FAF4EE] transition shadow-md">
+          服務項目
+        </NuxtLink>
         <NuxtLink to="/about" class="px-8 py-3 bg-[#154337] text-[#FAF4EE] rounded-full font-medium hover:opacity-90 transition shadow-lg">
           認識我們
         </NuxtLink>

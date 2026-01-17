@@ -1,6 +1,6 @@
 <script setup>
 useSeoMeta({
-  title: '關於赫琟美學 - HEAVIVE STUDIO',
+  title: '關於我們',
   description: '赫琟美學專注於提供客製化的美容護膚服務，由姐妹經營的有溫度美學空間。',
 })
 </script>
@@ -11,7 +11,7 @@ useSeoMeta({
       <h1 class="text-4xl font-bold text-gray-900 tracking-wide">
         關於 <span class="text-[#154337]">赫琟美學</span>
       </h1>
-      <h2 class="text-xl text-[#C7CDCE] font-medium tracking-widest uppercase">Heavive Studio</h2>
+      <h2 class="text-xl text-[#C7CDCE] font-medium tracking-widest uppercase">Hervive Studio</h2>
 
       <div class="max-w-3xl mx-auto space-y-4 text-lg text-gray-600 leading-relaxed">
         <p>赫琟美學，專注於提供 <span class="text-[#154337] font-bold">客製化的美容護膚服務</span>。</p>
@@ -32,6 +32,32 @@ useSeoMeta({
           <div class="text-xl font-bold text-[#154337] mb-2">妹妹・容容</div>
           <p class="text-gray-600 text-sm leading-relaxed">活潑熱情，溫暖陪伴，<br>像始終在身旁支持妳的家人。</p>
         </div>
+      </div>
+    </section>
+
+    <section class="max-w-4xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white border border-[#C7CDCE] p-6 rounded-2xl flex items-center gap-4">
+          <div class="w-12 h-12 bg-[#FAF4EE] rounded-full flex items-center justify-center text-[#154337]">
+            <Icon name="mdi:clock-outline" size="24" />
+          </div>
+          <div>
+            <p class="text-sm text-gray-400 font-medium">營業時間</p>
+            <p class="text-[#154337] font-bold text-lg">11:00 AM - 21:00 PM(採預約制)</p>
+          </div>
+        </div>
+
+        <a href="https://maps.app.goo.gl/XFr72zB2CA26n8A68" target="_blank"
+           class="bg-white border border-[#C7CDCE] p-6 rounded-2xl flex items-center gap-4 hover:bg-[#FAF4EE] transition-colors group">
+          <div class="w-12 h-12 bg-[#FAF4EE] rounded-full flex items-center justify-center text-[#154337] group-hover:bg-[#154337] group-hover:text-white transition-colors">
+            <Icon name="mdi:map-marker-radius-outline" size="24" />
+          </div>
+          <div>
+            <p class="text-sm text-gray-400 font-medium">地址資訊</p>
+            <p class="text-[#154337] font-bold text-lg leading-tight">新北市三重區三和路三段103號1樓</p>
+            <p class="text-xs text-[#C7CDCE] mt-1 italic underline">點擊開啟 Google Maps 導航</p>
+          </div>
+        </a>
       </div>
     </section>
 
