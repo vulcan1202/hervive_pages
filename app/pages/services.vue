@@ -3,7 +3,9 @@ import { ref } from 'vue' // 引入 ref 以處理點選狀態
 
 useSeoMeta({
   title: '服務項目',
-  description: '主打水光透亮護理，提供纖敏、藻針、緊顏及客製化訂製管理，專業針對性皮膚護理。',
+  description: '赫琟美學提供專業皮膚管理課程：主打 Basic/Pro 水光透亮護理、藻針管理、緊顏管理及纖敏管理、訂製管理。針對毛孔粉刺清潔、肌膚暗沈、輪廓線雕塑提供客製化方案。新北三重推薦皮膚管理，讓您重拾自信美麗。',
+  ogTitle: '赫琟美學 Hervive STUDIO - 專業客製化皮膚管理課程',
+  ogDescription: '從基礎補水到進階緊顏，針對您的膚況量身訂製管理方案。立即查看服務內容。',
 })
 const activeIndex = ref(2)
 

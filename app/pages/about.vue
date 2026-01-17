@@ -1,8 +1,33 @@
 <script setup>
 useSeoMeta({
   title: '關於我們',
-  description: '赫琟美學專注於提供客製化的美容護膚服務，由姐妹經營的有溫度美學空間。',
+  description: '赫琟美學 Hervive STUDIO 位於新北三重，由寧寧與容容姐妹共同經營。專注於客製化皮膚管理、水光透亮護理、緊顏管理與藻針修復。提供溫暖且專業的療癒空間，針對敏感肌、粉刺痘痘及臉部拉提，為您打造專屬的美學方案。',
+  ogTitle: '關於赫琟美學 Hervive STUDIO - 找回肌膚原本的光采',
+  ogDescription: '專業三重皮膚管理，姐妹經營的有溫度美學空間，立即預約您的客製化護理課程。',
 })
+
+useSchemaOrg([
+  defineLocalBusiness({
+    name: '赫琟美學 HEAVIVE STUDIO',
+    image: '/logo.png', // 建議更換為您的店面 Logo 或門店照片路徑
+    address: {
+      streetAddress: '三和路三段103號1樓',
+      addressLocality: '三重區',
+      addressRegion: '新北市',
+      postalCode: '241',
+      addressCountry: 'TW',
+    },
+    geo: {
+      latitude: '25.0726592', // 三重三和路三段約略緯度
+      longitude: '121.491917', // 三重三和路三段約略經度
+    },
+    url: 'https://hervive-pages.pages.dev', // 請替換為您的正式網址
+    openingHours: [
+      { opens: '11:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }
+    ],
+    description: '赫琟美學專注於提供客製化的美容護膚服務，包含水光透亮、緊顏管理、皮膚管理、霧眉等服務。',
+  })
+])
 </script>
 
 <template>

@@ -1,7 +1,9 @@
 <script setup>
 useSeoMeta({
   title: '首頁',
-  description: '專屬您的肌膚療癒空間，提供客製化美容護膚服務。',
+  description: 'Hervive STUDIO 位於新北三重，提供專屬您的客製化美容護膚與皮膚管理。品牌結合了 Her 與 Vive（生活）之意，致力於讓每位女性在生活中找到屬於自己的節奏。提供水光透亮、緊顏管理等專業課程，讓您由內而外散發自信美麗。',
+  ogTitle: 'Hervive STUDIO - 每個女人都擁有屬於自己的氛圍',
+  ogDescription: '專注於客製化皮膚管理與療癒手技。在 Hervive STUDIO，我們陪您一起活出最真實、最自信的自我。立即預約您的水光之旅。',
 })
 </script>
 
