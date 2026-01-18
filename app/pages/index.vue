@@ -11,7 +11,7 @@ useSeoMeta({
   <div class="space-y-12">
     <div class="max-w-xl mx-auto px-4 fade-in">
       <img
-        src="/home-banner.png"
+        src="/index/home-banner.png"
         alt="Hervie STUDIO Banner"
         class="w-full h-auto object-cover block"
       />
@@ -29,19 +29,19 @@ useSeoMeta({
       <div class="max-w-2xl mx-auto space-y-6">
         <div class="text-gray-600 leading-relaxed">
           <p class="mb-4">
-            <span class="font-bold text-[#154337]">Hervie</span> 的名字，是由 <span class="text-[#154337] font-medium">“Her”（她）</span>和 <span class="text-[#154337] font-medium">“Vive”（生活）</span>結合而來。<br>
-            Vive 是西班牙語中「活；生活」的意思。
+            <span class="font-bold text-[#154337]">Hervie</span> 的名字，是由 <span class="text-[#154337] font-medium">“Her”（她）</span>和 <span class="text-[#154337] font-medium">“Vive”（生活）</span>結合而來<br>
+            Vive 是西班牙語中「活；生活」的意思
           </p>
           <p class="text-sm md:text-base italic text-gray-500">
-            Hervie 希望每一位女性都能夠在生活中找到屬於自己的節奏，活出最真實的自我。<br>
-            在赫琟，每個人都能擁有自信且舒適的氛圍。
+            Hervie 希望每一位女性都能夠在生活中找到屬於自己的節奏，活出最真實的自我<br>
+            在赫琟，每個人都能擁有自信且舒適的氛圍
           </p>
         </div>
 
         <div class="py-8 flex flex-col items-center">
           <div class="w-12 h-[1px] bg-[#C7CDCE] mb-6"></div>
           <p class="text-[#154337] font-medium tracking-widest leading-loose text-center">
-            每個女人都擁有屬於自己的氛圍，從內而外擁有無限可能。<br>
+            每個女人都擁有屬於自己的氛圍，從內而外擁有無限可能<br>
             讓您內在充滿自信，外在展現美麗✨
           </p>
           <div class="w-12 h-[1px] bg-[#C7CDCE] mt-6"></div>

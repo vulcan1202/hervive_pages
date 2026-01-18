@@ -7,15 +7,15 @@ useSeoMeta({
   ogTitle: '赫琟美學 Hervive STUDIO - 專業客製化皮膚管理課程',
   ogDescription: '從基礎補水到進階緊顏，針對您的膚況量身訂製管理方案。立即查看服務內容。',
 })
-const activeIndex = ref(2)
+const activeIndex = ref(0)
 
 const targetedManagements = [
   {
     name: '緊顏管理',
     desc: '彈力提拉，雕塑緊緻輪廓線',
-    content: '透過深層緊緻按摩手技，結合手技儀器，打造氣色自然紅潤的小V臉。',
+    content: '透過深層緊緻按摩手技，結合手技儀器，打造氣色自然紅潤的小V臉',
     price: '2900',
-    image: '/service_face.jpg', // 插入指定的圖片路徑
+    image: '/services/service_face.jpg', // 插入指定的圖片路徑
     icon: 'mdi:face-woman-outline'
   },
   {
@@ -56,7 +56,7 @@ const extraServices = [
         <div class="grid md:grid-cols-2 items-center">
           <div class="w-full h-full bg-[#FAF4EE] flex items-center justify-center p-4 min-h-[300px]">
             <img
-              src="/service_glow.jpg"
+              src="/services/service_glow.jpg"
               alt="水光透亮管理"
               class="max-w-full h-auto rounded-xl shadow-md object-cover"
             />
@@ -76,7 +76,7 @@ const extraServices = [
                   <h4 class="font-bold text-gray-800 text-lg">毛孔粉刺清潔、膚況穩定</h4>
                   <p class="text-sm font-medium text-[#154337]">水飛梭清潔＋手工清粉刺</p>
                   <p class="text-sm text-gray-500 leading-relaxed">
-                    溫和代謝老廢角質，毛孔乾淨不刺激。
+                    溫和代謝老廢角質，毛孔乾淨不刺激
                   </p>
                 </div>
               </div>
@@ -87,7 +87,7 @@ const extraServices = [
                 <div class="space-y-1">
                   <h4 class="font-bold text-gray-800 text-lg">水潤透亮、上妝服貼</h4>
                   <p class="text-sm text-gray-500 leading-relaxed">
-                    深層補水，讓肌膚細緻有光澤，妝感更自然。
+                    深層補水，讓肌膚細緻有光澤，妝感更自然
                   </p>
                 </div>
               </div>
@@ -98,7 +98,7 @@ const extraServices = [
                   <h4 class="font-bold text-gray-800 text-lg">提亮氣色、放鬆身心</h4>
                   <p class="text-sm font-medium text-[#154337]">精華安瓶導入＋修護軟膜（含肩頸放鬆）</p>
                   <p class="text-sm text-gray-500 leading-relaxed">
-                    肌膚發光，同時好好休息一下。
+                    肌膚發光，同時好好休息一下
                   </p>
                 </div>
               </div>
