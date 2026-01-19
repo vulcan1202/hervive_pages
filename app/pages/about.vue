@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 useSeoMeta({
-  title: '關於赫琟美學 | 三重專業皮膚管理與水光透亮護理',
+  title: '關於赫琟美學',
   description: 'Hervive STUDIO 位於新北三重，由寧寧與容容姐妹共同經營。專注於客製化皮膚管理、水光透亮護理、緊顏管理與藻針修復。提供溫暖且專業的療癒空間，針對敏感肌、粉刺痘痘及臉部拉提，為您打造專屬的美學方案。',
   ogTitle: '關於赫琟美學 HEAVIVE STUDIO - 找回肌膚原本的光采',
   ogDescription: '專業三重皮膚管理，姐妹經營的有溫度美學空間，立即預約您的客製化護理課程。',
@@ -41,7 +41,7 @@ const resetTimer = () => {
   if (timer) clearInterval(timer)
   timer = setInterval(() => {
     currentImage.value = (currentImage.value + 1) % photos.length
-  }, 5000)
+  }, 4000)
 }
 
 onMounted(() => { resetTimer() })
