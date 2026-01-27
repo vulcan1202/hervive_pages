@@ -1,6 +1,7 @@
 ## 赫琟美學 HERVIVE STUDIO 官方網站
 ![Static Badge](https://img.shields.io/badge/Nuxt-4.2.2-%2300DC82?style=for-the-badge&logo=nuxt&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/Vue-3.5.26-%234FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)
+![Static Badge](https://img.shields.io/badge/Tailwind%20CSS-6.14.0-%2306B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/JS-22.16.0-%23F7DF1E?style=for-the-badge&logo=javascript&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/Deploy-cloudflare%20pages-%23F38020?style=for-the-badge&logo=cloudflare&logoColor=white)
 
