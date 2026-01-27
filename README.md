@@ -1,75 +1,11 @@
-# Nuxt Minimal Starter
+## 赫琟美學 HERVIVE STUDIO 官方網站
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+本專案為美容產業形象網站，採用現代化前端技術堆疊，致力於提供最佳的使用者體驗與搜尋引擎友善度。
 
-## Setup
+核心框架： 使用 Nuxt.js (基於 Vue.js) 開發，兼具開發效率與效能。
 
-Make sure to install dependencies:
+渲染策略： 支援 SSR (伺服器端渲染)，具有SEO優化優勢；頁面載入後自動切換為 SPA (單頁應用) 模式，確保換頁流暢無刷新。
 
-```bash
-# npm
-npm install
+視覺設計： 採用 Tailwind CSS 打造完全 RWD (響應式) 介面，在手機、平板與桌機上皆能完美呈現。
 
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+部署架構： 架設於 Cloudflare Pages，以0成本部署網站。
