@@ -1,4 +1,8 @@
 ## 赫琟美學 HERVIVE STUDIO 官方網站
+![Static Badge](https://img.shields.io/badge/Nuxt-4.2.2-%2300DC82?style=for-the-badge&logo=nuxt&logoColor=white)
+![Static Badge](https://img.shields.io/badge/Vue-3.5.26-%234FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)
+![Static Badge](https://img.shields.io/badge/JS-22.16.0-%23F7DF1E?style=for-the-badge&logo=javascript&logoColor=white)
+![Static Badge](https://img.shields.io/badge/Deploy-cloudflare%20pages-%23F38020?style=for-the-badge&logo=cloudflare&logoColor=white)
 
 本專案為美容產業形象網站，採用現代化前端技術堆疊，致力於提供最佳的使用者體驗與搜尋引擎友善度。
 
