@@ -58,15 +58,22 @@ useSeoMeta({
       </div>
     </section>
 
-    <section class="grid md:grid-cols-3 gap-8 text-center px-4">
+    <section class="grid md:grid-cols-3 gap-8 text-center px-4 py-8 relative z-10">
+      <div class="absolute inset-0 bg-gradient-to-tr from-[#FAF4EE]/40 via-transparent to-[#C7CDCE]/30 -z-10 blur-3xl mx-4"></div>
+
       <div v-for="card in [
         { icon: 'mdi:face-woman-shimmer', title: '客製化護理', desc: '不使用制式菜單，根據當日膚況量身調配專屬課程。' },
         { icon: 'mdi:hand-heart', title: '溫柔手技', desc: '獨家淋巴引流按摩，讓緊繃的線條與情緒同步釋放。' },
         { icon: 'mdi:shield-check', title: '嚴選產品', desc: '全系列使用國際認證安全產品，敏感肌也能安心享受。' }
-      ]" :key="card.title" class="space-y-4 p-6 rounded-2xl border border-transparent hover:border-[#C7CDCE] hover:bg-white transition duration-300">
-        <Icon :name="card.icon" size="48" class="text-[#154337]" />
-        <h3 class="text-xl font-bold text-gray-900">{{ card.title }}</h3>
-        <p class="text-gray-500 text-sm">{{ card.desc }}</p>
+      ]" :key="card.title"
+      class="space-y-6 p-8
+             bg-white/50 backdrop-blur-md border border-white/60 shadow-lg">
+        <div class="inline-block p-4 rounded-full bg-white/60 shadow-sm">
+           <Icon :name="card.icon" size="40" class="text-[#154337]" />
+        </div>
+
+        <h3 class="text-xl font-bold text-[#154337] tracking-wide">{{ card.title }}</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">{{ card.desc }}</p>
       </div>
     </section>
   </div>

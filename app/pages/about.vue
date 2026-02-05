@@ -57,8 +57,13 @@ const selectImage = (index) => {
   <div class="space-y-12">
     <section class="max-w-5xl mx-auto px-4 py-8">
       <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-        <div class="w-full md:w-2/5">
-          <img :src="'/about/about_logo.jpg'" alt="Hervive Studio Logo" class="w-full h-auto rounded-3xl shadow-lg object-cover" />
+        <div class="w-full md:w-2/5 relative">
+          <img
+            :src="'/about/about_logo.jpg'"
+            alt="Hervive Studio Logo"
+            class="w-full h-auto object-cover shadow-2xl border border-white/50 relative z-10"
+          />
+          <div class="absolute top-4 left-4 w-full h-full bg-[#C7CDCE]/20 -z-10"></div>
         </div>
         <div class="w-full md:w-3/5 space-y-8 flex flex-col justify-center slide-in-from-left">
           <div class="space-y-2 text-left">
