@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const isLoginMode = ref(true)
+const config = useRuntimeConfig()
 
 // 表單狀態
 const loginForm = reactive({ phone: '', password: '' })
@@ -18,14 +19,14 @@ const errorMessage = ref('')
 const infoMessage = ref('')
 const successMessage = ref('')
 
-const backendUrl = 'https://reserve-backend.gta510564.workers.dev'
-const LINE_CHANNEL_ID = '2010853479' // 記得換成你的真實 ID
+const backendUrl = config.public.backendUrl
+const LINE_CHANNEL_ID = config.public.lineChannelId
 const redirectUri = typeof window !== 'undefined' ? `${window.location.origin}/login` : ''
 
 // 1. 點擊 LINE 登入/註冊按鈕
 const handleLineLogin = () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
-  const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(targetPath)}&bot_prompt=aggressive&prompt=consent&scope=profile%20openid`
+  const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(targetPath)}&bot_prompt=normal&scope=profile%20openid`
   window.location.href = lineAuthUrl
 }
 

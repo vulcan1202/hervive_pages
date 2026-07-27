@@ -186,7 +186,7 @@ const selectImage = (index) => {
       <h3 class="text-2xl font-bold mb-2 tracking-widest">HERVIVE STUDIO 專屬療癒空間</h3>
       <p class="text-[#C7CDCE] mb-8 font-light">「讓肌膚與心靈都被溫柔對待，找回發光的自己」</p>
       <div class="flex flex-col md:flex-row items-center justify-center gap-4">
-        <a href="http://lin.ee/HmMJftl" target="_blank" class="bg-[#C7CDCE] text-[#154337] px-8 py-3 rounded-full font-bold transition hover:bg-white w-full md:w-auto flex items-center justify-center gap-2 shadow-md"><Icon name="mdi:calendar-check" /> 立即預約 LINE</a>
+        <a href="https://lin.ee/HmMJftl" target="_blank" class="bg-[#C7CDCE] text-[#154337] px-8 py-3 rounded-full font-bold transition hover:bg-white w-full md:w-auto flex items-center justify-center gap-2 shadow-md"><Icon name="mdi:calendar-check" /> 立即預約 LINE</a>
         <a href="https://www.instagram.com/hervive_studio/" target="_blank" class="bg-transparent border border-[#FAF4EE] text-[#FAF4EE] px-8 py-3 rounded-full font-bold transition hover:bg-[#FAF4EE]/10 w-full md:w-auto flex items-center justify-center gap-2"><Icon name="mdi:instagram" /> 追蹤 Instagram</a>
       </div>
     </section>

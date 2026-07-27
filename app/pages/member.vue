@@ -19,7 +19,8 @@ const profileForm = reactive({
 })
 
 // 🌟 統一設定後端網址
-const backendUrl = 'https://reserve-backend.gta510564.workers.dev'
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl
 
 // 1. 畫面載入時：檢查登入狀態並載入資料
 onMounted(async () => {

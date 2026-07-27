@@ -3,7 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const backendUrl = 'https://reserve-backend.gta510564.workers.dev'
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl
 
 const appointments = ref<any[]>([])
 const loading = ref(true)
