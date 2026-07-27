@@ -14,7 +14,8 @@ const profileForm = reactive({
   lastName: '',
   firstName: '',
   gender: '',
-  email: ''
+  email: '',
+  password: ''
 })
 
 // 🌟 統一設定後端網址
@@ -74,7 +75,8 @@ const updateProfile = async () => {
         last_name: profileForm.lastName,
         first_name: profileForm.firstName,
         gender: profileForm.gender,
-        email: profileForm.email
+        email: profileForm.email,
+        password: profileForm.password || undefined // 🌟 如果有填才送出
       })
     })
 
@@ -150,6 +152,10 @@ const updateProfile = async () => {
           <label class="text-sm font-medium text-gray-700">電子信箱</label>
           <input v-model="profileForm.email" type="email" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-[#154337]" />
         </div>
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-gray-700">重設密碼 (若不修改請留空)</label>
+          <input v-model="profileForm.password" type="password" placeholder="請輸入新密碼..." class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-[#154337]" />
+        </div>
         
         <button type="submit" :disabled="status === 'loading'" class="bg-[#154337] text-white font-bold py-3 px-8 rounded-xl hover:bg-opacity-90 transition mt-4 disabled:opacity-50">
           儲存修改
@@ -166,20 +172,30 @@ const updateProfile = async () => {
       </div>
       
       <div v-else class="space-y-4">
-        <div v-for="appt in bookingHistory" :key="appt.appointment_id" class="flex justify-between items-center p-4 border border-gray-100 rounded-lg hover:shadow-sm transition">
+        <!-- 🌟 將 key 改為 appt.id，因為資料庫裡沒有 appointment_id -->
+        <div v-for="appt in bookingHistory" :key="appt.id" class="flex justify-between items-center p-4 border border-gray-100 rounded-lg hover:shadow-sm transition">
           <div class="flex items-center gap-4">
-            <div class="bg-[#FAF4EE] text-[#154337] p-3 rounded-lg flex flex-col items-center justify-center min-w-[80px]">
-              <span class="text-xs font-bold">{{ appt.appointment_time.split(' ')[0] }}</span>
-              <span class="text-lg font-bold">{{ appt.appointment_time.split(' ')[1] }}</span>
+            <div class="bg-[#FAF4EE] text-[#154337] p-3 rounded-lg flex flex-col items-center justify-center min-w-[90px]">
+              <!-- 🌟 換成讀取新欄位 date 與 start_time -->
+              <span class="text-xs font-bold">{{ appt.date }}</span>
+              <span class="text-lg font-bold">{{ appt.start_time }}</span>
             </div>
             <div>
               <h4 class="font-bold text-gray-800">專屬保養療程</h4>
-              <p class="text-sm text-gray-500">預約編號：#{{ appt.appointment_id }}</p>
+              <!-- 🌟 更新編號顯示 -->
+              <p class="text-sm text-gray-500">預約編號：#{{ appt.id }}</p>
             </div>
           </div>
           <div>
-            <!-- 可以根據狀態顯示不同顏色，這裡先預設為即將到來 -->
-            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">預約成功</span>
+            <!-- 🌟 根據預約狀態顯示不同文字 -->
+            <span :class="[
+              'px-3 py-1 rounded-full text-xs font-bold',
+              appt.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+              appt.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-gray-100 text-gray-500'
+            ]">
+              {{ appt.status === 'confirmed' ? '預約成功' : appt.status === 'pending' ? '審核中' : '已取消' }}
+            </span>
           </div>
         </div>
       </div>
