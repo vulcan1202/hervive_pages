@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// 🌟 引入 useNuxtApp 來取得我們剛剛寫的 liff 外掛
 const { $liff } = useNuxtApp() 
 
 const route = useRoute()
@@ -24,9 +23,28 @@ const backendUrl = config.public.backendUrl
 const LINE_CHANNEL_ID = config.public.lineChannelId
 const redirectUri = typeof window !== 'undefined' ? `${window.location.origin}/login` : ''
 
-// 1. 傳統 Web 版：點擊 LINE 登入按鈕 (跳轉授權)[cite: 9]
-const handleLineLogin = () => {
+// 🌟 1. 修復核心：點擊 LINE 登入/註冊按鈕的分流邏輯
+const handleLineLogin = async () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
+  
+  // 🛡️ 如果在 LIFF 裡面，絕對不能跳轉網址！直接呼叫 LIFF 原生方法取得資料
+  if ($liff && $liff.isInClient()) {
+    if (!$liff.isLoggedIn()) {
+      $liff.login({ redirectUri: window.location.href })
+      return
+    }
+    try {
+      status.value = 'loading'
+      const profile = await $liff.getProfile()
+      await processLineUser(profile.userId, targetPath)
+    } catch (err) {
+      errorMessage.value = '讀取 LINE 資料失敗，請重試'
+      status.value = 'error'
+    }
+    return // 處理完直接結束
+  }
+
+  // 🌐 如果是一般瀏覽器 (Chrome/Safari)，才走傳統的跳轉授權
   const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(targetPath)}&bot_prompt=normal&scope=profile%20openid`
   window.location.href = lineAuthUrl
 }
@@ -36,7 +54,6 @@ const processLineUser = async (lineId: string, actionRedirect: string) => {
   try {
     status.value = 'loading'
     
-    // 呼叫我們剛剛在 index.ts 寫的靜默登入 API[cite: 7]
     const res = await fetch(`${backendUrl}/api/liff-login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,17 +70,19 @@ const processLineUser = async (lineId: string, actionRedirect: string) => {
       successMessage.value = 'LINE 登入成功！正在跳轉...'
       router.push(actionRedirect)
     } else if (data.action === 'require_register') {
-      // 新客切換到註冊
+      // 新客切換到註冊 (或是舊客但尚未綁定 LINE)
       isLoginMode.value = false
       registerForm.lineId = data.line_id
       status.value = 'idle'
-      infoMessage.value = '✅ LINE 授權成功！請填寫下方資料以完成帳號建立。'
-      router.replace('/login') // 消除網址上的亂碼
+      // 🌟 優化提示詞，讓已經是會員的人知道要切換
+      infoMessage.value = '✅ LINE 授權成功！若您是新朋友請填寫資料；若已有帳號請切換上方「會員登入」。'
+      // 🌟 保留 route.query，才不會把原本想去的 redirect 網址洗掉
+      router.replace({ path: '/login', query: route.query }) 
     }
   } catch (error: any) {
     status.value = 'error'
     errorMessage.value = error.message
-    router.replace('/login')
+    router.replace({ path: '/login', query: route.query })
   }
 }
 
@@ -75,32 +94,28 @@ onMounted(async () => {
   // 🌟 情境 A：使用者是在 LINE APP 裡面打開網頁 (LIFF 環境)
   if ($liff && $liff.isInClient()) {
     try {
-      // 確保已授權，沒授權就跳轉授權頁面
       if (!$liff.isLoggedIn()) {
         $liff.login({ redirectUri: window.location.href })
         return
       }
       
-      // 取得 LINE 使用者資訊
       const profile = await $liff.getProfile()
-      infoMessage.value = '正在透過 LINE 自動為您登入...'
+      infoMessage.value = '正在為您確認會員狀態...'
       
-      // 呼叫共用邏輯打 API
       await processLineUser(profile.userId, state)
 
     } catch (err) {
       console.error('LIFF 處理失敗', err)
-      errorMessage.value = 'LINE 自動登入失敗，請嘗試手動登入。'
+      errorMessage.value = 'LINE 自動連線失敗，請嘗試手動登入。'
     }
-    return // 處理完 LIFF 就結束，不往下跑
+    return 
   }
 
-  // 🌟 情境 B：一般瀏覽器，且剛從 LINE Web Login 授權跳轉回來[cite: 9]
+  // 🌟 情境 B：一般瀏覽器，剛從 LINE Web Login 授權跳轉回來
   const code = route.query.code
   if (code) {
     status.value = 'loading'
     try {
-      // 打你原本寫的 Web 版 API 換 Token[cite: 9]
       const res = await fetch(`${backendUrl}/api/line-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,18 +134,18 @@ onMounted(async () => {
         isLoginMode.value = false
         registerForm.lineId = data.line_id
         status.value = 'idle'
-        infoMessage.value = '✅ LINE 授權成功！請填寫下方資料以完成帳號建立。'
-        router.replace('/login')
+        infoMessage.value = '✅ LINE 授權成功！若您是新朋友請填寫資料；若已有帳號請切換上方「會員登入」。'
+        router.replace({ path: '/login', query: route.query })
       }
     } catch (error: any) {
       status.value = 'error'
       errorMessage.value = error.message
-      router.replace('/login')
+      router.replace({ path: '/login', query: route.query })
     }
   }
 })
 
-// 4. 傳統手機密碼表單送出[cite: 9]
+// 4. 傳統手機密碼表單送出
 const handleSubmit = async () => {
   status.value = 'loading'
   errorMessage.value = ''
@@ -138,7 +153,6 @@ const handleSubmit = async () => {
 
   try {
     if (isLoginMode.value) {
-      // 傳統手機密碼登入[cite: 9]
       const res = await fetch(`${backendUrl}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -153,12 +167,10 @@ const handleSubmit = async () => {
       const redirectPath = route.query.redirect ? String(route.query.redirect) : '/member'
       navigateTo(redirectPath)
     } else {
-      // 檢查是否擁有 lineId[cite: 9]
       if (!registerForm.lineId) {
         throw new Error('請先完成 LINE 授權！')
       }
 
-      // 新客完成註冊[cite: 9]
       const res = await fetch(`${backendUrl}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -178,8 +190,9 @@ const handleSubmit = async () => {
       status.value = 'success'
       successMessage.value = '註冊成功！系統將自動為您登入...'
       
-      // 註冊成功後，因為已經綁定了 line_id，直接走自動登入流程讓他進去預約！
-      await processLineUser(registerForm.lineId, '/booking')
+      // 註冊成功後，直接使用 lineId 自動登入
+      const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
+      await processLineUser(registerForm.lineId, targetPath)
     }
   } catch (error: any) {
     status.value = 'error'
