@@ -10,19 +10,21 @@ const backendUrl = config.public.backendUrl
 const form = reactive({
   serviceName: '精緻美學管理 (2.5小時)',
   date: '',      
-  startTime: ''
+  startTime: '',
+  beauticianId: '' // 🌟 選填美容師 ID
 })
 
 const selectedDateObj = ref<Date | null>(null)
 const existingAppointments = ref<any[]>([])
+const beauticians = ref<any[]>([]) // 🌟 美容師名單
 const status = ref('idle')
 const errorMessage = ref('')
 const showSuccessModal = ref(false)
 const appointmentCode = ref('')
+const isRefreshingSlots = ref(false)
 
-// 存放店家休假設定
 const holidays = ref<any[]>([])
-const { $liff } = useNuxtApp() // 🌟 引入 liff
+const { $liff } = useNuxtApp()
 
 onMounted(() => {
   const storedUser = localStorage.getItem('hervive_user')
@@ -32,48 +34,33 @@ onMounted(() => {
   }
   currentUser.value = JSON.parse(storedUser)
   
-  // 載入休假設定
   fetchHolidays()
+  fetchBeauticians() // 🌟 載入美容師名單
 })
 
-// 計算明天的 Date 物件 (用來阻擋過去與今天)
 const minDateObj = computed(() => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   return tomorrow
 })
 
-// 🌟 將後端的休假設定轉換為 V-Calendar 標準的禁用格式
 const disabledDates = computed(() => {
   const dates = []
-
-  // 🌟 把所有固定公休的星期幾，先合併成同一個 weekdays 陣列
-  // （原本的寫法是每一筆 weekly 各自 push 一個物件，
-  //   一旦其中一筆的 day_of_week 是 undefined/NaN/超出範圍，
-  //   就會整組 disabled-dates 失效，讓 V-Calendar 直接鎖死整個日曆）
   const weeklyWeekdays = new Set()
 
-  // 處理老闆的休假設定
   for (const h of holidays.value) {
     if (h.type === 'weekly') {
       const dow = Number(h.day_of_week)
-      // ⚠️ 防呆：day_of_week 必須是 0~6 的整數，不是的話直接跳過、不要塞進陣列
       if (Number.isInteger(dow) && dow >= 0 && dow <= 6) {
-        // V-Calendar: 1=週日, 2=週一... | 資料庫: 0=週日, 1=週一...
         weeklyWeekdays.add(dow + 1)
       } else {
         console.warn('⚠️ 忽略無效的 day_of_week：', h)
       }
     } else if (h.type === 'full_day' && h.date) {
-      // ✅ 單日全天公休：直接鎖死該日期
       dates.push(new Date(h.date.replace(/-/g, '/')))
     }
   }
 
-  // ✅ 所有固定公休的星期幾合併成「一個」weekdays 物件，一次鎖住對應的星期
-  // ⚠️ 重點修正：v-calendar v3 的語法要求 weekdays 必須包在 repeat 底下，
-  //    寫成 { weekdays: [...] }（v2 舊語法）在 v3 會無法正確解析，
-  //    導致整個日曆被鎖死，而不是只鎖對應的星期幾。
   if (weeklyWeekdays.size > 0) {
     dates.push({ repeat: { weekdays: Array.from(weeklyWeekdays) } })
   }
@@ -81,13 +68,22 @@ const disabledDates = computed(() => {
   return dates
 })
 
-
 const fetchHolidays = async () => {
   try {
     const res = await fetch(`${backendUrl}/api/holidays`)
     if (res.ok) holidays.value = await res.json()
   } catch (e) {
     console.error('取得休假設定失敗', e)
+  }
+}
+
+// 🌟 取得美容師列表
+const fetchBeauticians = async () => {
+  try {
+    const res = await fetch(`${backendUrl}/api/beauticians`)
+    if (res.ok) beauticians.value = await res.json()
+  } catch (e) {
+    console.error('取得美容師列表失敗', e)
   }
 }
 
@@ -108,6 +104,7 @@ watch(selectedDateObj, (newDateObj) => {
 })
 
 const fetchDayAppointments = async (selectedDate: string) => {
+  isRefreshingSlots.value = true
   try {
     const res = await fetch(`${backendUrl}/api/appointments?date=${selectedDate}`)
     if (res.ok) {
@@ -115,6 +112,14 @@ const fetchDayAppointments = async (selectedDate: string) => {
     }
   } catch (e) {
     console.error('取得當日預約失敗', e)
+  } finally {
+    isRefreshingSlots.value = false
+  }
+}
+
+const handleRefreshSlots = () => {
+  if (form.date) {
+    fetchDayAppointments(form.date)
   }
 }
 
@@ -123,7 +128,7 @@ const timeSlots = computed(() => {
   const startHour = 10
   const endHour = 19
   for (let h = startHour; h <= endHour; h++) {
-    for (let m = 0; m < 60; m += 15) {
+    for (let m = 0; m < 60; m += 30) {
       if (h === 19 && m > 30) break
       slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
     }
@@ -131,11 +136,9 @@ const timeSlots = computed(() => {
   return slots
 })
 
-// 🌟 核心防禦：判斷按鈕是否該禁用 (直接變成灰色不可點擊)
 const isSlotDisabled = (slotTime: string) => {
   if (!form.date) return true
 
-  // 1. 將客人的預約時間轉為分鐘數 (管理固定 150 分鐘)
   const [h, m] = slotTime.split(':').map(Number)
   const slotStartMin = h * 60 + m
   const slotEndMin = slotStartMin + 150 
@@ -143,27 +146,22 @@ const isSlotDisabled = (slotTime: string) => {
   const reqDateObj = new Date(form.date)
   const dayOfWeek = reqDateObj.getDay()
 
-  // 🛡️ 檢查老闆是否設定了休假/休息時段
   for (const h of holidays.value) {
-    // 遇到固定公休或單日全天休假，該日所有按鈕直接鎖死
     if (h.type === 'weekly' && h.day_of_week === dayOfWeek) return true
     if (h.type === 'full_day' && h.date === form.date) return true
     
-    // 遇到特定時段休息 (檢查是否有重疊)
     if (h.type === 'time_range' && h.date === form.date) {
       const [hhStart, hmStart] = h.start_time.split(':').map(Number)
       const holidayStartMin = hhStart * 60 + hmStart
       const [hhEnd, hmEnd] = h.end_time.split(':').map(Number)
       const holidayEndMin = hhEnd * 60 + hmEnd
       
-      // 若預約時段與休息時段有交集，按鈕直接禁用！
       if (slotStartMin < holidayEndMin && slotEndMin > holidayStartMin) {
         return true
       }
     }
   }
 
-  // 🛡️ 檢查是否與已存在的預約撞期
   for (const appt of existingAppointments.value) {
     const [ah, am] = appt.start_time.split(':').map(Number)
     const [ae, em] = appt.end_time.split(':').map(Number)
@@ -175,7 +173,6 @@ const isSlotDisabled = (slotTime: string) => {
   return false
 }
 
-// 判斷這一天是不是「整天公休」或「每週固定公休」，用來顯示大字提示
 const isFullDayOff = computed(() => {
   if (!form.date) return false
   const reqDateObj = new Date(form.date)
@@ -197,7 +194,8 @@ const handleBooking = async () => {
       body: JSON.stringify({
         user_id: currentUser.value.id,
         date: form.date,
-        start_time: form.startTime
+        start_time: form.startTime,
+        beautician_id: form.beauticianId || null // 🌟 傳送可選的美容師 ID
       })
     })
     const data = await res.json()
@@ -214,26 +212,20 @@ const handleBooking = async () => {
 }
 
 const handleSendLineMessage = async () => {
-  // 如果是在 LINE 裡面
   if ($liff && $liff.isInClient()) {
     try {
-      // 呼叫 liff.sendMessages 自動把文字傳到聊天室
       await $liff.sendMessages([
         {
           type: 'text',
-          text: appointmentCode.value // 只傳送編號，讓後端 Webhook 好抓取
+          text: appointmentCode.value
         }
       ])
-      
-      // 傳送成功後，直接關閉 LIFF 網頁，讓客人回到聊天室看結果！
       $liff.closeWindow() 
-      
     } catch (err) {
       console.error('傳送訊息失敗', err)
       alert('自動傳送失敗，請手動複製編號')
     }
   } else {
-    // 如果是用一般電腦網頁開啟，就走原本的複製邏輯
     try {
       await navigator.clipboard.writeText(appointmentCode.value)
       alert('✅ 預約編號已複製！請前往 LINE 貼上發送。')
@@ -241,6 +233,15 @@ const handleSendLineMessage = async () => {
     } catch (err) {
       alert('複製失敗，請手動選取複製')
     }
+  }
+}
+
+const copyCode = async () => {
+  try {
+    await navigator.clipboard.writeText(appointmentCode.value)
+    alert('✅ 預約編號已複製！')
+  } catch (err) {
+    alert('複製失敗，請手動複製')
   }
 }
 
@@ -254,7 +255,7 @@ const finishAndRedirect = () => {
   <div class="max-w-2xl mx-auto px-4 py-12">
     <div class="bg-white rounded-2xl shadow-sm border border-[#C7CDCE] p-8">
       <h2 class="text-2xl font-bold text-[#154337] mb-2 title-serif">線上預約管理</h2>
-      <p class="text-gray-500 text-sm mb-6">每次管理固定為 2.5 小時，您可以自由選擇 15 分鐘為間距的開始時間。</p>
+      <p class="text-gray-500 text-sm mb-6">預計時間為 2.5 小時。</p>
 
       <div v-if="errorMessage" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
         {{ errorMessage }}
@@ -262,6 +263,7 @@ const finishAndRedirect = () => {
 
       <form @submit.prevent="handleBooking" class="space-y-6">
         
+        <!-- 選擇日期 -->
         <div class="space-y-2 relative z-40">
           <label class="text-sm font-medium text-gray-700">選擇預約日期 <span class="text-red-500">*</span></label>
           <MyCalendar 
@@ -270,15 +272,26 @@ const finishAndRedirect = () => {
             :disabled-dates="disabledDates" 
             placeholder="請選擇日期"
           />
-          <p class="text-xs text-gray-400 mt-1">僅開放預約明日起之日期，若需當日緊急預約請來電。</p>
+          <p class="text-xs text-gray-400 mt-1">僅開放預約明日起之日期，若有需當日預約請Line聯絡。</p>
         </div>
 
+        <!-- 選擇時段 -->
         <div class="space-y-2">
-          <label class="text-sm font-medium text-gray-700">選擇開始時間 <span class="text-red-500">*</span></label>
+          <div class="flex items-center justify-between">
+            <button 
+              v-if="form.date && !isFullDayOff"
+              type="button" 
+              @click="handleRefreshSlots" 
+              :disabled="isRefreshingSlots"
+              class="text-xs text-[#154337] hover:underline flex items-center gap-1 font-bold disabled:opacity-50"
+            >
+              <Icon name="mdi:refresh" size="14" :class="{ 'animate-spin': isRefreshingSlots }" />
+              刷新
+            </button>
+          </div>
           
           <div v-if="!form.date" class="text-gray-400 text-sm">請先選擇上方日期</div>
           
-          <!-- 老闆整天公休的大提示 -->
           <div v-else-if="isFullDayOff" class="text-red-500 text-sm font-bold bg-red-50 p-4 rounded-lg border border-red-100 text-center">
             老闆本日公休，請選擇其他日期！
           </div>
@@ -292,13 +305,45 @@ const finishAndRedirect = () => {
               @click="form.startTime = time"
               :class="[
                 'py-2.5 rounded-lg text-sm font-medium transition border',
-                // 🌟 當 isSlotDisabled 回傳 true 時，按鈕直接變灰、加上刪除線，無法點擊
                 isSlotDisabled(time) ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed line-through' :
                 form.startTime === time ? 'bg-[#154337] text-white border-[#154337] shadow-sm' :
                 'bg-white text-gray-700 border-gray-300 hover:border-[#154337]'
               ]"
             >
               {{ time }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 🌟 放置於時段下方：選擇美容師區塊 -->
+        <div class="space-y-2 pt-2 border-t border-gray-100">
+          <div class="grid grid-cols-3 gap-2">
+            <!-- 不指定選項 -->
+            <button
+              type="button"
+              @click="form.beauticianId = ''"
+              :class="[
+                'py-2.5 px-3 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1',
+                form.beauticianId === '' ? 'bg-[#154337] text-white border-[#154337] shadow-xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300'
+              ]"
+            >
+              <Icon name="mdi:account-question-outline" size="16" />
+              不指定
+            </button>
+
+            <!-- 各個美容師選項 -->
+            <button
+              v-for="b in beauticians"
+              :key="b.id"
+              type="button"
+              @click="form.beauticianId = String(b.id)"
+              :class="[
+                'py-2.5 px-3 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1',
+                form.beauticianId === String(b.id) ? 'bg-[#154337] text-white border-[#154337] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-[#154337]'
+              ]"
+            >
+              <Icon name="mdi:account-heart-outline" size="16" />
+              {{ b.name }}
             </button>
           </div>
         </div>
@@ -313,7 +358,7 @@ const finishAndRedirect = () => {
       </form>
     </div>
 
-    <!-- 預約成功後的引導畫面 -->
+    <!-- 預約成功引導視窗 -->
     <div v-if="showSuccessModal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center space-y-6">
         
@@ -333,7 +378,6 @@ const finishAndRedirect = () => {
           <div class="text-3xl font-black text-[#154337] tracking-wider mb-4">
             {{ appointmentCode }}
           </div>
-          <!-- 🌟 在一般網頁版保留複製按鈕作備用，但在 LIFF 模式下自動隱藏 -->
           <button 
             v-if="!($liff && $liff.isInClient())"
             @click="copyCode"
@@ -344,7 +388,6 @@ const finishAndRedirect = () => {
         </div>
 
         <div class="space-y-4 pt-2">
-          <!-- 🌟 聰明的主要按鈕：觸發自動傳送或是複製跳轉 -->
           <button 
             @click="handleSendLineMessage"
             class="block w-full bg-[#06C755] text-white font-bold py-3.5 rounded-xl hover:bg-[#05b34c] transition shadow-md"
@@ -352,7 +395,6 @@ const finishAndRedirect = () => {
             {{ $liff && $liff.isInClient() ? '自動傳送編號並返回聊天室' : '複製編號並前往 LINE 驗證' }}
           </button>
           
-          <!-- 🌟 保留的退路：讓客人隨時可以回到會員中心 -->
           <button 
             @click="finishAndRedirect"
             class="text-sm text-gray-500 hover:text-gray-800 underline transition"
