@@ -23,51 +23,33 @@ const backendUrl = config.public.backendUrl
 const LINE_CHANNEL_ID = config.public.lineChannelId
 const redirectUri = typeof window !== 'undefined' ? `${window.location.origin}/login` : ''
 
-// 🌟 1. 終極除錯版：帶有 alert 的按鈕邏輯
+// 🌟 1. 修復核心：點擊 LINE 登入/註冊按鈕的分流邏輯
 const handleLineLogin = async () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
   
-  alert('測試點 1：按鈕已成功點擊！')
-
-  if ($liff) {
-    try {
-      alert('測試點 2：偵測到 liff，正在等待 ready...')
-      await $liff.ready; 
-      
-      alert('測試點 3：liff 準備完畢！是否在 LINE 內: ' + $liff.isInClient())
-      
-      if ($liff.isInClient()) {
-        
-        if (!$liff.isLoggedIn()) {
-          alert('測試點 4：在 LINE 內但未授權，呼叫 login()...')
-          $liff.login({ redirectUri: window.location.href })
-          return
-        }
-        
-        alert('測試點 5：已登入！準備讀取使用者資料...')
-        status.value = 'loading'
-        const profile = await $liff.getProfile()
-        
-        alert('測試點 6：成功讀取！您的 LINE ID 是: ' + profile.userId)
-        await processLineUser(profile.userId, targetPath)
-        return 
-      }
-    } catch (err: any) {
-      alert('🚨 發生嚴重錯誤：' + (err.message || String(err)))
-      errorMessage.value = 'LIFF 錯誤: ' + (err.message || String(err))
-      status.value = 'error'
-      return 
+  // 🛡️ 如果在 LIFF 裡面，絕對不能跳轉網址！直接呼叫 LIFF 原生方法取得資料
+  if ($liff && $liff.isInClient()) {
+    if (!$liff.isLoggedIn()) {
+      $liff.login({ redirectUri: window.location.href })
+      return
     }
-  } else {
-    alert('🚨 警告：系統完全沒有偵測到 $liff 物件！')
+    try {
+      status.value = 'loading'
+      const profile = await $liff.getProfile()
+      await processLineUser(profile.userId, targetPath)
+    } catch (err) {
+      errorMessage.value = '讀取 LINE 資料失敗，請重試'
+      status.value = 'error'
+    }
+    return // 處理完直接結束
   }
 
-  alert('測試點 7：非 LIFF 環境，準備跳轉一般網頁版授權！')
+  // 🌐 如果是一般瀏覽器 (Chrome/Safari)，才走傳統的跳轉授權
   const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(targetPath)}&bot_prompt=normal&scope=profile%20openid`
   window.location.href = lineAuthUrl
 }
 
-// 2. 共用邏輯
+// 2. 共用邏輯：把拿到 line_id 後打後端 API 的動作抽出來
 const processLineUser = async (lineId: string, actionRedirect: string) => {
   try {
     status.value = 'loading'
@@ -82,19 +64,22 @@ const processLineUser = async (lineId: string, actionRedirect: string) => {
     if (!res.ok) throw new Error(data.error || 'LINE 驗證失敗')
 
     if (data.action === 'login') {
+      // 老客登入成功
       localStorage.setItem('hervive_user', JSON.stringify(data.user))
       status.value = 'success'
       successMessage.value = 'LINE 登入成功！正在跳轉...'
       router.push(actionRedirect)
     } else if (data.action === 'require_register') {
+      // 新客切換到註冊 (或是舊客但尚未綁定 LINE)
       isLoginMode.value = false
       registerForm.lineId = data.line_id
       status.value = 'idle'
+      // 🌟 優化提示詞，讓已經是會員的人知道要切換
       infoMessage.value = '✅ LINE 授權成功！若您是新朋友請填寫資料；若已有帳號請切換上方「會員登入」。'
+      // 🌟 保留 route.query，才不會把原本想去的 redirect 網址洗掉
       router.replace({ path: '/login', query: route.query }) 
     }
   } catch (error: any) {
-    alert('🚨 後端 API 錯誤：' + error.message)
     status.value = 'error'
     errorMessage.value = error.message
     router.replace({ path: '/login', query: route.query })
@@ -106,26 +91,27 @@ onMounted(async () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
   const state = route.query.state ? String(route.query.state) : targetPath
 
-  if ($liff) {
+  // 🌟 情境 A：使用者是在 LINE APP 裡面打開網頁 (LIFF 環境)
+  if ($liff && $liff.isInClient()) {
     try {
-      await $liff.ready; 
-      
-      if ($liff.isInClient()) {
-        if (!$liff.isLoggedIn()) {
-          $liff.login({ redirectUri: window.location.href })
-          return
-        }
-        infoMessage.value = '正在為您確認會員狀態...'
-        const profile = await $liff.getProfile()
-        await processLineUser(profile.userId, state)
-        return 
+      if (!$liff.isLoggedIn()) {
+        $liff.login({ redirectUri: window.location.href })
+        return
       }
-    } catch (err: any) {
-      console.error('LIFF 載入失敗', err)
-      // 這裡不放 alert，避免一般網頁載入時一直跳視窗
+      
+      const profile = await $liff.getProfile()
+      infoMessage.value = '正在為您確認會員狀態...'
+      
+      await processLineUser(profile.userId, state)
+
+    } catch (err) {
+      console.error('LIFF 處理失敗', err)
+      errorMessage.value = 'LINE 自動連線失敗，請嘗試手動登入。'
     }
+    return 
   }
 
+  // 🌟 情境 B：一般瀏覽器，剛從 LINE Web Login 授權跳轉回來
   const code = route.query.code
   if (code) {
     status.value = 'loading'
@@ -204,6 +190,7 @@ const handleSubmit = async () => {
       status.value = 'success'
       successMessage.value = '註冊成功！系統將自動為您登入...'
       
+      // 註冊成功後，直接使用 lineId 自動登入
       const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
       await processLineUser(registerForm.lineId, targetPath)
     }
