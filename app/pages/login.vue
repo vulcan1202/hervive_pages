@@ -27,24 +27,33 @@ const redirectUri = typeof window !== 'undefined' ? `${window.location.origin}/l
 const handleLineLogin = async () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
   
-  // 🛡️ 如果在 LIFF 裡面，絕對不能跳轉網址！直接呼叫 LIFF 原生方法取得資料
-  if ($liff && $liff.isInClient()) {
-    if (!$liff.isLoggedIn()) {
-      $liff.login({ redirectUri: window.location.href })
-      return
-    }
+  // 🛡️ 確保 LIFF 已經初始化完畢
+  if ($liff) {
     try {
-      status.value = 'loading'
-      const profile = await $liff.getProfile()
-      await processLineUser(profile.userId, targetPath)
-    } catch (err) {
-      errorMessage.value = '讀取 LINE 資料失敗，請重試'
-      status.value = 'error'
+      await $liff.ready; // 🌟 等待 LIFF 準備就緒
+      
+      if ($liff.isInClient()) {
+        if (!$liff.isLoggedIn()) {
+          // 告訴 LIFF 授權後要回到目前的網址
+          $liff.login({ redirectUri: window.location.href })
+          return
+        }
+        try {
+          status.value = 'loading'
+          const profile = await $liff.getProfile()
+          await processLineUser(profile.userId, targetPath)
+        } catch (err) {
+          errorMessage.value = '讀取 LINE 資料失敗，請重試'
+          status.value = 'error'
+        }
+        return // 處理完直接結束
+      }
+    } catch (e) {
+        console.error("LIFF Ready 失敗", e)
     }
-    return // 處理完直接結束
   }
 
-  // 🌐 如果是一般瀏覽器 (Chrome/Safari)，才走傳統的跳轉授權
+  // 🌐 如果是一般瀏覽器 (Chrome/Safari)，或 LIFF 初始化失敗，才走傳統跳轉
   const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(targetPath)}&bot_prompt=normal&scope=profile%20openid`
   window.location.href = lineAuthUrl
 }
@@ -92,23 +101,27 @@ onMounted(async () => {
   const state = route.query.state ? String(route.query.state) : targetPath
 
   // 🌟 情境 A：使用者是在 LINE APP 裡面打開網頁 (LIFF 環境)
-  if ($liff && $liff.isInClient()) {
+  if ($liff) {
     try {
-      if (!$liff.isLoggedIn()) {
-        $liff.login({ redirectUri: window.location.href })
-        return
-      }
-      
-      const profile = await $liff.getProfile()
-      infoMessage.value = '正在為您確認會員狀態...'
-      
-      await processLineUser(profile.userId, state)
+      await $liff.ready; // 🌟 確保 LIFF 準備好
 
+      if ($liff.isInClient()) {
+        if (!$liff.isLoggedIn()) {
+           // 尚未授權，引導授權
+          $liff.login({ redirectUri: window.location.href })
+          return
+        }
+        
+        const profile = await $liff.getProfile()
+        infoMessage.value = '正在為您確認會員狀態...'
+        
+        await processLineUser(profile.userId, state)
+        return // 🌟 LIFF 處理完就結束
+      }
     } catch (err) {
       console.error('LIFF 處理失敗', err)
       errorMessage.value = 'LINE 自動連線失敗，請嘗試手動登入。'
     }
-    return 
   }
 
   // 🌟 情境 B：一般瀏覽器，剛從 LINE Web Login 授權跳轉回來
