@@ -40,7 +40,8 @@ export default defineNuxtConfig({
     public: {
       // 🌟 修正：為了避免某些環境下自動替換失敗，改為明確要求讀取 process.env，並加上 || '' 作為安全防呆
       backendUrl: process.env.NUXT_PUBLIC_BACKEND_URL || '', 
-      lineChannelId: process.env.NUXT_PUBLIC_LINE_CHANNEL_ID || '' 
+      lineChannelId: process.env.NUXT_PUBLIC_LINE_CHANNEL_ID || '' ,
+      liffId: process.env.NUXT_PUBLIC_LIFF_ID || ''
     }
   }
 })
