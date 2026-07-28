@@ -8,7 +8,7 @@ const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl
 
 const form = reactive({
-  serviceName: '精緻美學療程 (2.5小時)',
+  serviceName: '精緻美學管理 (2.5小時)',
   date: '',      
   startTime: ''
 })
@@ -135,7 +135,7 @@ const timeSlots = computed(() => {
 const isSlotDisabled = (slotTime: string) => {
   if (!form.date) return true
 
-  // 1. 將客人的預約時間轉為分鐘數 (療程固定 150 分鐘)
+  // 1. 將客人的預約時間轉為分鐘數 (管理固定 150 分鐘)
   const [h, m] = slotTime.split(':').map(Number)
   const slotStartMin = h * 60 + m
   const slotEndMin = slotStartMin + 150 
@@ -253,8 +253,8 @@ const finishAndRedirect = () => {
 <template>
   <div class="max-w-2xl mx-auto px-4 py-12">
     <div class="bg-white rounded-2xl shadow-sm border border-[#C7CDCE] p-8">
-      <h2 class="text-2xl font-bold text-[#154337] mb-2 title-serif">線上預約療程</h2>
-      <p class="text-gray-500 text-sm mb-6">每次療程固定為 2.5 小時，您可以自由選擇 15 分鐘為間距的開始時間。</p>
+      <h2 class="text-2xl font-bold text-[#154337] mb-2 title-serif">線上預約管理</h2>
+      <p class="text-gray-500 text-sm mb-6">每次管理固定為 2.5 小時，您可以自由選擇 15 分鐘為間距的開始時間。</p>
 
       <div v-if="errorMessage" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
         {{ errorMessage }}

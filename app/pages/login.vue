@@ -226,7 +226,7 @@ const switchMode = (mode: boolean) => {
       <div class="p-8">
         <div class="text-center mb-8">
           <h2 class="text-2xl font-bold text-[#154337] title-serif">{{ isLoginMode ? '歡迎回來' : '加入 HERVIVE' }}</h2>
-          <p class="text-gray-500 text-sm mt-2">{{ isLoginMode ? '請登入以預約您的專屬療程' : '請先完成 LINE 驗證，並填寫會員資料' }}</p>
+          <p class="text-gray-500 text-sm mt-2">{{ isLoginMode ? '請登入以預約您的專屬管理' : '請先完成 LINE 驗證，並填寫會員資料' }}</p>
         </div>
 
         <!-- 提示訊息 -->

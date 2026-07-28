@@ -182,7 +182,7 @@ const updateProfile = async () => {
               <span class="text-lg font-bold">{{ appt.start_time }}</span>
             </div>
             <div>
-              <h4 class="font-bold text-gray-800">專屬保養療程</h4>
+              <h4 class="font-bold text-gray-800">專屬保養管理</h4>
               <!-- 🌟 更新編號顯示 -->
               <p class="text-sm text-gray-500">預約編號：#{{ appt.id }}</p>
             </div>
