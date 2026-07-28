@@ -22,6 +22,7 @@ const appointmentCode = ref('')
 
 // 存放店家休假設定
 const holidays = ref<any[]>([])
+const { $liff } = useNuxtApp() // 🌟 引入 liff
 
 onMounted(() => {
   const storedUser = localStorage.getItem('hervive_user')
@@ -212,12 +213,34 @@ const handleBooking = async () => {
   }
 }
 
-const copyCode = async () => {
-  try {
-    await navigator.clipboard.writeText(appointmentCode.value)
-    alert('✅ 預約編號已複製！請前往 LINE 貼上發送。')
-  } catch (err) {
-    alert('複製失敗，請手動選取複製')
+const handleSendLineMessage = async () => {
+  // 如果是在 LINE 裡面
+  if ($liff && $liff.isInClient()) {
+    try {
+      // 呼叫 liff.sendMessages 自動把文字傳到聊天室
+      await $liff.sendMessages([
+        {
+          type: 'text',
+          text: appointmentCode.value // 只傳送編號，讓後端 Webhook 好抓取
+        }
+      ])
+      
+      // 傳送成功後，直接關閉 LIFF 網頁，讓客人回到聊天室看結果！
+      $liff.closeWindow() 
+      
+    } catch (err) {
+      console.error('傳送訊息失敗', err)
+      alert('自動傳送失敗，請手動複製編號')
+    }
+  } else {
+    // 如果是用一般電腦網頁開啟，就走原本的複製邏輯
+    try {
+      await navigator.clipboard.writeText(appointmentCode.value)
+      alert('✅ 預約編號已複製！請前往 LINE 貼上發送。')
+      window.open('https://lin.ee/HmMJftl', '_blank')
+    } catch (err) {
+      alert('複製失敗，請手動選取複製')
+    }
   }
 }
 
@@ -310,7 +333,9 @@ const finishAndRedirect = () => {
           <div class="text-3xl font-black text-[#154337] tracking-wider mb-4">
             {{ appointmentCode }}
           </div>
+          <!-- 🌟 在一般網頁版保留複製按鈕作備用，但在 LIFF 模式下自動隱藏 -->
           <button 
+            v-if="!($liff && $liff.isInClient())"
             @click="copyCode"
             class="bg-[#154337] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-opacity-90 transition shadow-sm"
           >
@@ -319,14 +344,15 @@ const finishAndRedirect = () => {
         </div>
 
         <div class="space-y-4 pt-2">
-          <a 
-            href="https://lin.ee/HmMJftl"
-            target="_blank"
+          <!-- 🌟 聰明的主要按鈕：觸發自動傳送或是複製跳轉 -->
+          <button 
+            @click="handleSendLineMessage"
             class="block w-full bg-[#06C755] text-white font-bold py-3.5 rounded-xl hover:bg-[#05b34c] transition shadow-md"
           >
-            前往 LINE 官方帳號發送編號
-          </a>
+            {{ $liff && $liff.isInClient() ? '自動傳送編號並返回聊天室' : '複製編號並前往 LINE 驗證' }}
+          </button>
           
+          <!-- 🌟 保留的退路：讓客人隨時可以回到會員中心 -->
           <button 
             @click="finishAndRedirect"
             class="text-sm text-gray-500 hover:text-gray-800 underline transition"
