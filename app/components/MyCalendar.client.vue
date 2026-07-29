@@ -14,6 +14,7 @@ const selectedDate = defineModel<Date | null>()
       visibility: 'click', 
       placement: 'bottom-start' 
     }"
+    @dayclick="(_day: any, event: MouseEvent) => (event.target as HTMLElement)?.blur()"
   >
     <template #default="{ inputValue, inputEvents }">
       <input
