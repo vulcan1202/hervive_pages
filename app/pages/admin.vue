@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -23,8 +23,29 @@ const mobileModalTab = ref<'appts' | 'holidays'>('appts')
 // 🌟 搜尋與篩選條件
 const searchQuery = ref('')         // 顧客姓名或電話
 const searchCodeSuffix = ref('')    // 預約單號後六碼
+
+// 🌟 日期選擇器專用 Date 物件與字串同步
+const startDateObj = ref<Date | null>(null)
+const endDateObj = ref<Date | null>(null)
 const startDateFilter = ref('')     // 篩選開始日期 YYYY-MM-DD
 const endDateFilter = ref('')       // 篩選結束日期 YYYY-MM-DD
+
+// 將 Date 物件轉為 YYYY-MM-DD 字串 (考慮當地時區)
+const formatDateToString = (d: Date | null) => {
+  if (!d) return ''
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
+watch(startDateObj, (newVal) => {
+  startDateFilter.value = formatDateToString(newVal)
+})
+
+watch(endDateObj, (newVal) => {
+  endDateFilter.value = formatDateToString(newVal)
+})
 
 // 美容師管理表單狀態
 const newBeauticianName = ref('')
@@ -290,6 +311,8 @@ const filteredAppointments = computed(() => {
 const clearAllFilters = () => {
   searchQuery.value = ''
   searchCodeSuffix.value = ''
+  startDateObj.value = null
+  endDateObj.value = null
   startDateFilter.value = ''
   endDateFilter.value = ''
 }
@@ -576,7 +599,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
         </div>
 
         <!-- 🌟 進階搜尋工具列 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 items-end">
           
           <!-- 1. 顧客姓名/電話 -->
           <div>
@@ -587,7 +610,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
                 type="text" 
                 v-model="searchQuery" 
                 placeholder="搜尋姓名或電話..." 
-                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-[#154337] bg-white"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-[#154337] bg-white h-[38px]"
               />
             </div>
           </div>
@@ -595,7 +618,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
           <!-- 2. 固定 RV- 輸入後六碼 -->
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">預約單號 (六碼)</label>
-            <div class="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-[#154337]">
+            <div class="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-[#154337] h-[38px]">
               <span class="bg-gray-100 text-gray-700 font-bold px-2.5 py-2 text-xs border-r border-gray-300 select-none">
                 RV-
               </span>
@@ -612,21 +635,25 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
           <!-- 3. 日期範圍 (開始) -->
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">日期 (開始)</label>
-            <input 
-              type="date" 
-              v-model="startDateFilter" 
-              class="w-full border border-gray-300 rounded-lg px-2.5 py-2 text-xs bg-white focus:ring-2 focus:ring-[#154337]"
-            />
+            <ClientOnly>
+              <MyCalendar 
+                v-model="startDateObj" 
+                placeholder="選擇開始日期" 
+                class="compact-date-picker"
+              />
+            </ClientOnly>
           </div>
 
           <!-- 4. 日期範圍 (結束) -->
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">日期 (結束)</label>
-            <input 
-              type="date" 
-              v-model="endDateFilter" 
-              class="w-full border border-gray-300 rounded-lg px-2.5 py-2 text-xs bg-white focus:ring-2 focus:ring-[#154337]"
-            />
+            <ClientOnly>
+              <MyCalendar 
+                v-model="endDateObj" 
+                placeholder="選擇結束日期" 
+                class="compact-date-picker"
+              />
+            </ClientOnly>
           </div>
 
         </div>
@@ -1168,5 +1195,15 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🌟 管理端專用：微調日期選擇器輸入框尺寸以符合搜尋列高度 */
+.compact-date-picker input {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  font-size: 0.75rem !important; /* text-xs */
+  height: 38px !important;
 }
 </style>

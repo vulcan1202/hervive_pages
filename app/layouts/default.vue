@@ -43,7 +43,7 @@ watch(() => route.path, () => {
 
 <template>
   <!-- 🌟 4. 動態調整底部邊距：如果在 LIFF 模式，底部預留空間給固定選單以免擋住內容 -->
-  <div :class="['min-h-screen min-h-[100dvh] flex flex-col font-sans bg-[#FAF4EE]', isLiffMode ? 'pb-[calc(var(--liff-nav-h)+env(safe-area-inset-bottom))]' : '']">
+  <div :class="['min-h-screen flex flex-col font-sans bg-[#FAF4EE]', isLiffMode ? 'pb-[70px]' : '']">
 
     <!-- 🌟 5. 一般網頁版才顯示的 Header -->
     <header v-if="!isLiffMode" class="border-b border-[#C7CDCE] bg-white/95 backdrop-blur-sm sticky top-0 z-50">
@@ -116,10 +116,7 @@ watch(() => route.path, () => {
     </footer>
 
     <!-- 🌟 6. LIFF 專屬的底部導覽列 (僅在 LINE 中顯示) -->
-    <div
-      v-if="isLiffMode"
-      class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 px-6 py-3 flex justify-around items-center pb-[env(safe-area-inset-bottom)] [transform:translateZ(0)] [will-change:transform] [backface-visibility:hidden]"
-    >
+    <div v-if="isLiffMode" class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 px-6 py-3 flex justify-around items-center pb-[env(safe-area-inset-bottom)]">
       
       <NuxtLink to="/booking" active-class="text-[#154337]" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors">
         <Icon name="mdi:calendar-check" size="24" />
@@ -137,13 +134,6 @@ watch(() => route.path, () => {
 </template>
 
 <style>
-/* 🌟 LIFF 底部導覽列高度，供本檔案與 booking.vue 共用同一數值，
-   避免手機端上下滑動時，因兩處各自寫死不同 px 數字造成「確認預約」浮動列
-   與底部導覽列對不齊（出現縫隙露出內容，或反過來互相遮擋）的問題 */
-:root {
-  --liff-nav-h: 64px;
-}
-
 /* 選單淡入動畫 */
 .fade-enter-active,
 .fade-leave-active {

@@ -48,28 +48,29 @@ const minDateObj = computed(() => {
   return tomorrow
 })
 
+// 取得特定單日休假
 const disabledDates = computed(() => {
-  const dates = []
-  const weeklyWeekdays = new Set()
+  const dates: Date[] = []
+  for (const h of holidays.value) {
+    if (h.type === 'full_day' && h.date) {
+      dates.push(new Date(h.date.replace(/-/g, '/')))
+    }
+  }
+  return dates
+})
 
+// 取得每週固定公休 (0=週日, 1=週一...)
+const disabledWeekDays = computed(() => {
+  const days = new Set<number>()
   for (const h of holidays.value) {
     if (h.type === 'weekly') {
       const dow = Number(h.day_of_week)
       if (Number.isInteger(dow) && dow >= 0 && dow <= 6) {
-        weeklyWeekdays.add(dow + 1)
-      } else {
-        console.warn('⚠️ 忽略無效的 day_of_week：', h)
+        days.add(dow) 
       }
-    } else if (h.type === 'full_day' && h.date) {
-      dates.push(new Date(h.date.replace(/-/g, '/')))
     }
   }
-
-  if (weeklyWeekdays.size > 0) {
-    dates.push({ repeat: { weekdays: Array.from(weeklyWeekdays) } })
-  }
-
-  return dates
+  return Array.from(days)
 })
 
 const fetchHolidays = async () => {
@@ -246,8 +247,8 @@ const finishAndRedirect = () => {
 </script>
 
 <template>
-  <!-- 🌟 LIFF 環境底端間距保留不變 -->
-  <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-12', isLiffMode ? 'pb-36' : 'pb-28 sm:pb-12']">
+  <!-- 🌟 LIFF 模式保留大空間給 Button Bar，網頁版則只需要基本留白 -->
+  <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-12', isLiffMode ? 'pb-36' : 'pb-8 sm:pb-12']">
     
     <!-- 主卡片 -->
     <div class="bg-white rounded-2xl shadow-sm border border-[#C7CDCE] p-4 sm:p-8">
@@ -272,7 +273,7 @@ const finishAndRedirect = () => {
         {{ errorMessage }}
       </div>
 
-      <form @submit.prevent="handleBooking" class="space-y-5">
+      <form @submit.prevent="handleBooking" class="space-y-6">
         
         <!-- 步驟 1：選擇日期 -->
         <div class="space-y-2 relative z-40">
@@ -285,6 +286,7 @@ const finishAndRedirect = () => {
             v-model="selectedDateObj"
             :min-date="minDateObj"
             :disabled-dates="disabledDates" 
+            :disabled-week-days="disabledWeekDays"
             placeholder="點擊選擇預約日期"
           />
           
@@ -338,14 +340,13 @@ const finishAndRedirect = () => {
                 'bg-white text-gray-700 border-gray-200 hover:border-[#154337] shadow-2xs'
               ]"
             >
-  
               <span>{{ time }}</span>
             </button>
           </div>
         </div>
 
-        <!-- 🌟 桌機與手機通用版：預約內容預覽卡片與確認按鈕 (移除 hidden sm:block) -->
-        <div class="border-t border-gray-100 pt-5 mt-4">
+        <!-- 🌟 卡片式預約內容預覽 (網頁版所有裝置通用，LIFF 版僅在桌機模式保留) -->
+        <div :class="[!isLiffMode ? 'block' : 'hidden sm:block', 'border-t border-gray-100 pt-5 mt-4']">
           <div class="bg-gray-50/80 border border-gray-200 rounded-xl p-4 space-y-2 mb-5">
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
               <Icon name="mdi:clipboard-text-outline" size="15" />
@@ -363,7 +364,7 @@ const finishAndRedirect = () => {
             </div>
           </div>
 
-          <!-- 通用提交按鈕 -->
+          <!-- 網頁版提交按鈕 -->
           <button 
             type="submit" 
             :disabled="!form.startTime || status === 'loading' || isFullDayOff"
@@ -374,6 +375,28 @@ const finishAndRedirect = () => {
         </div>
 
       </form>
+    </div>
+
+    <!-- 🌟 僅 LIFF 環境顯示：手機版確認預約 Bar (維持不動) -->
+    <div 
+      v-if="isLiffMode"
+      class="sm:hidden sticky z-40 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)] transition-all -mx-3 mt-6 bottom-[calc(var(--liff-nav-h)+env(safe-area-inset-bottom))]"
+    >
+      <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+        <div class="text-xs">
+          <p class="text-gray-400 text-[10px]">已選預約時段：</p>
+          <p class="font-bold text-[#154337] text-xs sm:text-sm">
+            {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '請選擇時間' }}
+          </p>
+        </div>
+        <button 
+          @click="handleBooking"
+          :disabled="!form.startTime || status === 'loading' || isFullDayOff"
+          class="bg-[#154337] text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md hover:bg-opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
+        >
+          {{ status === 'loading' ? '處理中...' : '確認預約' }}
+        </button>
+      </div>
     </div>
 
     <!-- 🌟 預約成功引導 Bottom Sheet -->
