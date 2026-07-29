@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue' // 🌟 記得引入 computed
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-// 🌟 1. 直接引入繁體中文語系物件
 import { zhTW } from 'date-fns/locale'
 
 const props = defineProps<{
@@ -30,6 +30,16 @@ const isDateDisabled = (date: Date) => {
 
   return false
 }
+
+// 🌟 暴力破解：我們自己監聽選中的日期，並強制轉為 YYYY-MM-DD
+const displayDate = computed(() => {
+  if (!selectedDate.value) return '';
+  const d = new Date(selectedDate.value);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+})
 </script>
 
 <template>
@@ -42,12 +52,12 @@ const isDateDisabled = (date: Date) => {
     :enable-time-picker="false"
     :auto-apply="true"
     :teleport="false"
-    format="yyyy-MM-dd"
   >
-    <template #dp-input="{ value, onClick }">
+    <!-- 🌟 重點：不再使用套件插槽給的 value，改綁定我們自己寫的 displayDate -->
+    <template #dp-input="{ onClick }">
       <input
         class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#154337] cursor-pointer bg-white relative z-10"
-        :value="value"
+        :value="displayDate"
         @click="onClick"
         :placeholder="placeholder || '請點擊選擇日期'"
         readonly
