@@ -10,13 +10,11 @@ const backendUrl = config.public.backendUrl
 const form = reactive({
   serviceName: '精緻美學管理 (2.5小時)',
   date: '',      
-  startTime: '',
-  beauticianId: '' // 🌟 選填美容師 ID
+  startTime: ''
 })
 
 const selectedDateObj = ref<Date | null>(null)
 const existingAppointments = ref<any[]>([])
-const beauticians = ref<any[]>([]) // 🌟 美容師名單
 const status = ref('idle')
 const errorMessage = ref('')
 const showSuccessModal = ref(false)
@@ -35,7 +33,6 @@ onMounted(() => {
   currentUser.value = JSON.parse(storedUser)
   
   fetchHolidays()
-  fetchBeauticians() // 🌟 載入美容師名單
 })
 
 const minDateObj = computed(() => {
@@ -74,16 +71,6 @@ const fetchHolidays = async () => {
     if (res.ok) holidays.value = await res.json()
   } catch (e) {
     console.error('取得休假設定失敗', e)
-  }
-}
-
-// 🌟 取得美容師列表
-const fetchBeauticians = async () => {
-  try {
-    const res = await fetch(`${backendUrl}/api/beauticians`)
-    if (res.ok) beauticians.value = await res.json()
-  } catch (e) {
-    console.error('取得美容師列表失敗', e)
   }
 }
 
@@ -195,7 +182,7 @@ const handleBooking = async () => {
         user_id: currentUser.value.id,
         date: form.date,
         start_time: form.startTime,
-        beautician_id: form.beauticianId || null // 🌟 傳送可選的美容師 ID
+        beautician_id: null // 🌟 預設 NULL，由店家後台指派
       })
     })
     const data = await res.json()
@@ -272,12 +259,13 @@ const finishAndRedirect = () => {
             :disabled-dates="disabledDates" 
             placeholder="請選擇日期"
           />
-          <p class="text-xs text-gray-400 mt-1">僅開放預約明日起之日期，若有需當日預約請Line聯絡。</p>
+          <p class="text-xs text-gray-400 mt-1">僅開放預約明日起之日期，若有需當日預約請 Line 聯絡。</p>
         </div>
 
         <!-- 選擇時段 -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
+            <label class="text-sm font-medium text-gray-700">選擇開始時間 (30分鐘一段) <span class="text-red-500">*</span></label>
             <button 
               v-if="form.date && !isFullDayOff"
               type="button" 
@@ -286,7 +274,7 @@ const finishAndRedirect = () => {
               class="text-xs text-[#154337] hover:underline flex items-center gap-1 font-bold disabled:opacity-50"
             >
               <Icon name="mdi:refresh" size="14" :class="{ 'animate-spin': isRefreshingSlots }" />
-              刷新
+              刷新當日剩餘時間
             </button>
           </div>
           
@@ -311,39 +299,6 @@ const finishAndRedirect = () => {
               ]"
             >
               {{ time }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 🌟 放置於時段下方：選擇美容師區塊 -->
-        <div class="space-y-2 pt-2 border-t border-gray-100">
-          <div class="grid grid-cols-3 gap-2">
-            <!-- 不指定選項 -->
-            <button
-              type="button"
-              @click="form.beauticianId = ''"
-              :class="[
-                'py-2.5 px-3 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1',
-                form.beauticianId === '' ? 'bg-[#154337] text-white border-[#154337] shadow-xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300'
-              ]"
-            >
-              <Icon name="mdi:account-question-outline" size="16" />
-              不指定
-            </button>
-
-            <!-- 各個美容師選項 -->
-            <button
-              v-for="b in beauticians"
-              :key="b.id"
-              type="button"
-              @click="form.beauticianId = String(b.id)"
-              :class="[
-                'py-2.5 px-3 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1',
-                form.beauticianId === String(b.id) ? 'bg-[#154337] text-white border-[#154337] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-[#154337]'
-              ]"
-            >
-              <Icon name="mdi:account-heart-outline" size="16" />
-              {{ b.name }}
             </button>
           </div>
         </div>
