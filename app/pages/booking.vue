@@ -400,7 +400,7 @@ const finishAndRedirect = () => {
     </div>
 
     <!-- 🌟 預約成功引導 Bottom Sheet -->
-    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 z-[100]">
       <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-7 text-center space-y-4 animate-slide-up relative">
         
         <!-- 手機頂部拖曳視覺條 -->
