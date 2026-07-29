@@ -1,4 +1,11 @@
 <script setup lang="ts">
+// 台灣 22 縣市清單
+const locationOptions = [
+  '基隆市', '台北市', '新北市', '桃園市', '新竹市', '新竹縣', '苗栗縣',
+  '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市',
+  '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣',
+  '其他'
+]
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const { $liff } = useNuxtApp() 
@@ -10,8 +17,31 @@ const config = useRuntimeConfig()
 
 const loginForm = reactive({ phone: '', password: '' })
 const registerForm = reactive({
-  lastName: '', firstName: '', phone: '', password: '', gender: '', email: '',
+  lastName: '',
+  firstName: '',
+  phone: '',
+  password: '',
+  gender: '',
+  dateOfBirth: '',
+  location: '', // 🌟 新增可選欄位
+  email: '',
   lineId: '' 
+})
+
+// 生日專用 Date 物件
+const dobDateObj = ref<Date | null>(null)
+const maxDobDate = computed(() => new Date()) //限制生日不能超過今天
+
+// 當選擇生日時，格式化為 YYYY-MM-DD 字串
+watch(dobDateObj, (newVal) => {
+  if (newVal) {
+    const yyyy = newVal.getFullYear()
+    const mm = String(newVal.getMonth() + 1).padStart(2, '0')
+    const dd = String(newVal.getDate()).padStart(2, '0')
+    registerForm.dateOfBirth = `${yyyy}-${mm}-${dd}`
+  } else {
+    registerForm.dateOfBirth = ''
+  }
 })
 
 const status = ref('idle') 
@@ -23,11 +53,9 @@ const backendUrl = config.public.backendUrl
 const LINE_CHANNEL_ID = config.public.lineChannelId
 const redirectUri = typeof window !== 'undefined' ? `${window.location.origin}/login` : ''
 
-// 🌟 1. 修復核心：點擊 LINE 登入/註冊按鈕的分流邏輯
 const handleLineLogin = async () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
   
-  // 🛡️ 如果在 LIFF 裡面，絕對不能跳轉網址！直接呼叫 LIFF 原生方法取得資料
   if ($liff && $liff.isInClient()) {
     if (!$liff.isLoggedIn()) {
       $liff.login({ redirectUri: window.location.href })
@@ -41,15 +69,13 @@ const handleLineLogin = async () => {
       errorMessage.value = '讀取 LINE 資料失敗，請重試'
       status.value = 'error'
     }
-    return // 處理完直接結束
+    return
   }
 
-  // 🌐 如果是一般瀏覽器 (Chrome/Safari)，才走傳統的跳轉授權
   const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(targetPath)}&bot_prompt=normal&scope=profile%20openid`
   window.location.href = lineAuthUrl
 }
 
-// 2. 共用邏輯：把拿到 line_id 後打後端 API 的動作抽出來
 const processLineUser = async (lineId: string, actionRedirect: string) => {
   try {
     status.value = 'loading'
@@ -64,19 +90,15 @@ const processLineUser = async (lineId: string, actionRedirect: string) => {
     if (!res.ok) throw new Error(data.error || 'LINE 驗證失敗')
 
     if (data.action === 'login') {
-      // 老客登入成功
       localStorage.setItem('hervive_user', JSON.stringify(data.user))
       status.value = 'success'
       successMessage.value = 'LINE 登入成功！正在跳轉...'
       router.push(actionRedirect)
     } else if (data.action === 'require_register') {
-      // 新客切換到註冊 (或是舊客但尚未綁定 LINE)
       isLoginMode.value = false
       registerForm.lineId = data.line_id
       status.value = 'idle'
-      // 🌟 優化提示詞，讓已經是會員的人知道要切換
       infoMessage.value = '✅ LINE 授權成功！若您是新朋友請填寫資料；若已有帳號請切換上方「會員登入」。'
-      // 🌟 保留 route.query，才不會把原本想去的 redirect 網址洗掉
       router.replace({ path: '/login', query: route.query }) 
     }
   } catch (error: any) {
@@ -86,12 +108,10 @@ const processLineUser = async (lineId: string, actionRedirect: string) => {
   }
 }
 
-// 3. 頁面載入時的「自動判斷分流」
 onMounted(async () => {
   const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
   const state = route.query.state ? String(route.query.state) : targetPath
 
-  // 🌟 情境 A：使用者是在 LINE APP 裡面打開網頁 (LIFF 環境)
   if ($liff && $liff.isInClient()) {
     try {
       if (!$liff.isLoggedIn()) {
@@ -101,7 +121,6 @@ onMounted(async () => {
       
       const profile = await $liff.getProfile()
       infoMessage.value = '正在為您確認會員狀態...'
-      
       await processLineUser(profile.userId, state)
 
     } catch (err) {
@@ -111,7 +130,6 @@ onMounted(async () => {
     return 
   }
 
-  // 🌟 情境 B：一般瀏覽器，剛從 LINE Web Login 授權跳轉回來
   const code = route.query.code
   if (code) {
     status.value = 'loading'
@@ -145,7 +163,6 @@ onMounted(async () => {
   }
 })
 
-// 4. 傳統手機密碼表單送出
 const handleSubmit = async () => {
   status.value = 'loading'
   errorMessage.value = ''
@@ -171,6 +188,11 @@ const handleSubmit = async () => {
         throw new Error('請先完成 LINE 授權！')
       }
 
+      // 🌟 前端欄位檢查
+      if (!registerForm.dateOfBirth) {
+        throw new Error('請選擇生日！')
+      }
+
       const res = await fetch(`${backendUrl}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -180,6 +202,8 @@ const handleSubmit = async () => {
           phone: registerForm.phone,
           password: registerForm.password,
           gender: registerForm.gender,
+          date_of_birth: registerForm.dateOfBirth, // 🌟 新增傳送生日
+          location: registerForm.location, // 🌟 新增傳送居住地區
           email: registerForm.email,
           line_id: registerForm.lineId
         })
@@ -190,7 +214,6 @@ const handleSubmit = async () => {
       status.value = 'success'
       successMessage.value = '註冊成功！系統將自動為您登入...'
       
-      // 註冊成功後，直接使用 lineId 自動登入
       const targetPath = route.query.redirect ? String(route.query.redirect) : '/member'
       await processLineUser(registerForm.lineId, targetPath)
     }
@@ -213,7 +236,6 @@ const switchMode = (mode: boolean) => {
   <div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
     <div class="bg-white max-w-md w-full rounded-2xl shadow-sm border border-[#C7CDCE] overflow-hidden">
       
-      <!-- 頂部切換頁籤 -->
       <div class="flex border-b border-[#C7CDCE]">
         <button @click="switchMode(true)" :class="['flex-1 py-4 text-center font-bold transition', isLoginMode ? 'text-[#154337] border-b-2 border-[#154337]' : 'text-gray-400 hover:text-gray-600']">
           會員登入
@@ -229,7 +251,6 @@ const switchMode = (mode: boolean) => {
           <p class="text-gray-500 text-sm mt-2">{{ isLoginMode ? '請登入以預約您的專屬管理' : '請先完成 LINE 驗證，並填寫會員資料' }}</p>
         </div>
 
-        <!-- 提示訊息 -->
         <div v-if="status === 'error'" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
           {{ errorMessage }}
         </div>
@@ -240,7 +261,6 @@ const switchMode = (mode: boolean) => {
           {{ successMessage }}
         </div>
 
-        <!-- 登入模式的 LINE 按鈕 -->
         <div v-if="isLoginMode" class="mb-6">
           <button @click="handleLineLogin" type="button" class="w-full bg-[#06C755] text-white font-bold py-3 rounded-xl hover:bg-opacity-90 transition flex justify-center items-center gap-2 shadow-sm">
             <Icon name="mdi:line" size="24" />
@@ -254,7 +274,6 @@ const switchMode = (mode: boolean) => {
           </div>
         </div>
 
-        <!-- 註冊模式：如果還沒透過 LINE 授權進來，強制顯示 LINE 驗證按鈕 -->
         <div v-else-if="!registerForm.lineId" class="mb-6 text-center bg-gray-50 p-6 rounded-xl border border-dashed border-gray-300">
           <p class="text-sm text-gray-600 mb-4">本系統採 LINE 帳號綁定制，請先進行驗證：</p>
           <button @click="handleLineLogin" type="button" class="w-full bg-[#06C755] text-white font-bold py-3 rounded-xl hover:bg-opacity-90 transition flex justify-center items-center gap-2 shadow-sm">
@@ -263,10 +282,8 @@ const switchMode = (mode: boolean) => {
           </button>
         </div>
 
-        <!-- 表單內容 -->
         <form @submit.prevent="handleSubmit" class="space-y-5">
           
-          <!-- 註冊專屬欄位 (必須擁有 lineId 才會顯示) -->
           <template v-if="!isLoginMode && registerForm.lineId">
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1">
@@ -278,6 +295,8 @@ const switchMode = (mode: boolean) => {
                 <input v-model="registerForm.firstName" type="text" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" placeholder="例如：小美" />
               </div>
             </div>
+
+            <!-- 性別 -->
             <div class="space-y-1">
               <label class="text-sm font-medium text-gray-700">性別 <span class="text-red-500">*</span></label>
               <select v-model="registerForm.gender" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]">
@@ -287,13 +306,34 @@ const switchMode = (mode: boolean) => {
                 <option value="other">其他</option>
               </select>
             </div>
+
+            <!-- 🌟 2. 新增出生日期 (Date of Birth) -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-gray-700">出生日期 <span class="text-red-500">*</span></label>
+              <ClientOnly>
+                <MyCalendar 
+                  v-model="dobDateObj" 
+                  :max-date="maxDobDate"
+                  placeholder="點擊選擇出生日期" 
+                />
+              </ClientOnly>
+            </div>
+
+            <!-- 電子信箱 -->
             <div class="space-y-1">
               <label class="text-sm font-medium text-gray-700">電子信箱</label>
               <input v-model="registerForm.email" type="email" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" placeholder="example@mail.com" />
             </div>
+            <!-- 🌟 居住地區/來自哪裡 (下拉選單 - 選填) -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-gray-700">來自哪裡 <span class="text-gray-400 text-xs">(選填)</span></label>
+              <select v-model="registerForm.location" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337] bg-white">
+                <option value="">請選擇縣市</option>
+                <option v-for="loc in locationOptions" :key="loc" :value="loc">{{ loc }}</option>
+              </select>
+            </div>
           </template>
 
-          <!-- 登入專屬欄位 -->
           <template v-if="isLoginMode">
             <div class="space-y-1">
               <label class="text-sm font-medium text-gray-700">手機號碼 <span class="text-red-500">*</span></label>
@@ -305,7 +345,6 @@ const switchMode = (mode: boolean) => {
             </div>
           </template>
 
-          <!-- 註冊專屬的密碼與手機欄位 (必須擁有 lineId 才會顯示) -->
           <template v-if="!isLoginMode && registerForm.lineId">
             <div class="space-y-1">
               <label class="text-sm font-medium text-gray-700">手機號碼 <span class="text-red-500">*</span></label>
@@ -316,14 +355,12 @@ const switchMode = (mode: boolean) => {
               <input v-model="registerForm.password" type="password" required placeholder="請包含至少一個英文與數字" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" />
             </div>
 
-            <!-- 送出註冊按鈕 -->
             <button type="submit" :disabled="status === 'loading'" class="w-full bg-[#154337] text-[#FAF4EE] font-bold py-3 rounded-xl hover:bg-opacity-90 transition mt-4 flex justify-center items-center gap-2 disabled:opacity-50">
               <Icon v-if="status === 'loading'" name="mdi:loading" class="animate-spin" size="20" />
               <span>{{ status === 'loading' ? '處理中...' : '完成註冊並綁定' }}</span>
             </button>
           </template>
 
-          <!-- 傳統登入按鈕 -->
           <button v-if="isLoginMode" type="submit" :disabled="status === 'loading'" class="w-full bg-[#154337] text-[#FAF4EE] font-bold py-3 rounded-xl hover:bg-opacity-90 transition mt-4 flex justify-center items-center gap-2 disabled:opacity-50">
             <Icon v-if="status === 'loading'" name="mdi:loading" class="animate-spin" size="20" />
             <span>{{ status === 'loading' ? '處理中...' : '登入' }}</span>

@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 
 const currentUser = ref<any>(null)
-const activeTab = ref('history') // 預設先看預約紀錄更直覺：'history' | 'profile'
+const activeTab = ref('history') 
 const status = ref('idle')
 const message = ref('')
+
+// 🌟 台灣 22 縣市 + 其他 下拉選單選項
+const locationOptions = [
+  '基隆市', '台北市', '新北市', '桃園市', '新竹市', '新竹縣', '苗栗縣',
+  '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市',
+  '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣',
+  '其他'
+]
 
 // 預約紀錄清單
 const bookingHistory = ref<any[]>([])
@@ -14,8 +22,26 @@ const profileForm = reactive({
   lastName: '',
   firstName: '',
   gender: '',
+  dateOfBirth: '', 
+  location: '',    
   email: '',
   password: ''
+})
+
+// 生日選擇器專用的 Date 物件
+const dobDateObj = ref<Date | null>(null)
+const maxDobDate = computed(() => new Date())
+
+// 監聽 dobDateObj 變更，轉成 YYYY-MM-DD 字串存給 profileForm
+watch(dobDateObj, (newVal) => {
+  if (newVal && !isNaN(newVal.getTime())) {
+    const yyyy = newVal.getFullYear()
+    const mm = String(newVal.getMonth() + 1).padStart(2, '0')
+    const dd = String(newVal.getDate()).padStart(2, '0')
+    profileForm.dateOfBirth = `${yyyy}-${mm}-${dd}`
+  } else {
+    profileForm.dateOfBirth = ''
+  }
 })
 
 const config = useRuntimeConfig()
@@ -34,7 +60,21 @@ onMounted(async () => {
   profileForm.firstName = currentUser.value.firstName || ''
   profileForm.gender = currentUser.value.gender || ''
   profileForm.email = currentUser.value.email || ''
-  
+
+  // 🌟 確保資料庫傳來的居住地有在我們的清單選項內，否則重置為空
+  const savedLocation = currentUser.value.location || ''
+  profileForm.location = locationOptions.includes(savedLocation) ? savedLocation : ''
+
+  // 🌟 初始化生日：精準拆解年月日建立本地 Date 物件，避免時區偏移
+  const dobStr = currentUser.value.dateOfBirth || currentUser.value.date_of_birth
+  if (dobStr && typeof dobStr === 'string' && dobStr.includes('-')) {
+    profileForm.dateOfBirth = dobStr
+    const [y, m, d] = dobStr.split('-').map(num => parseInt(num, 10))
+    if (y && m && d) {
+      dobDateObj.value = new Date(y, m - 1, d)
+    }
+  }
+
   fetchBookingHistory()
 })
 
@@ -69,6 +109,8 @@ const updateProfile = async () => {
         last_name: profileForm.lastName,
         first_name: profileForm.firstName,
         gender: profileForm.gender,
+        date_of_birth: profileForm.dateOfBirth,
+        location: profileForm.location,
         email: profileForm.email,
         password: profileForm.password || undefined
       })
@@ -76,13 +118,16 @@ const updateProfile = async () => {
 
     if (!res.ok) throw new Error('更新失敗')
 
+    // 同步更新 currentUser 狀態與 localStorage
     currentUser.value.lastName = profileForm.lastName
     currentUser.value.firstName = profileForm.firstName
     currentUser.value.gender = profileForm.gender
+    currentUser.value.dateOfBirth = profileForm.dateOfBirth
+    currentUser.value.location = profileForm.location
     currentUser.value.email = profileForm.email
     localStorage.setItem('hervive_user', JSON.stringify(currentUser.value))
 
-    profileForm.password = '' // 成功後清空密碼欄位
+    profileForm.password = '' 
     status.value = 'success'
     message.value = '個人資料更新成功！'
   } catch (error: any) {
@@ -95,7 +140,7 @@ const updateProfile = async () => {
 <template>
   <div class="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4" v-if="currentUser">
     
-    <!-- 🌟 手機版體驗升級：個人英雄資訊卡 (Mobile Profile Hero Card) -->
+    <!-- 🌟 個人英雄資訊卡 -->
     <div class="bg-gradient-to-br from-[#154337] to-[#1e5847] text-[#FAF4EE] rounded-2xl p-5 sm:p-6 mb-6 shadow-md relative overflow-hidden">
       <div class="flex justify-between items-center relative z-10">
         <div class="flex items-center gap-3.5">
@@ -122,7 +167,7 @@ const updateProfile = async () => {
       </div>
     </div>
 
-    <!-- 🌟 手機分頁分流器 (Full Width Segmented Control) -->
+    <!-- 🌟 分頁切換列 -->
     <div class="bg-gray-100 p-1 rounded-2xl flex mb-6 border border-gray-200">
       <button 
         @click="activeTab = 'history'" 
@@ -159,10 +204,9 @@ const updateProfile = async () => {
       <span>{{ message }}</span>
     </div>
 
-    <!-- 🌟 區塊 A：預約紀錄查詢 (優先展示) -->
+    <!-- 🌟 區塊 A：預約紀錄查詢 -->
     <div v-if="activeTab === 'history'" class="space-y-4">
       
-      <!-- 無紀錄狀態 -->
       <div v-if="bookingHistory.length === 0" class="bg-white p-8 rounded-2xl shadow-sm border border-[#C7CDCE] text-center text-gray-500 py-12">
         <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
           <Icon name="mdi:calendar-blank" size="32" class="text-gray-300" />
@@ -178,14 +222,12 @@ const updateProfile = async () => {
         </NuxtLink>
       </div>
       
-      <!-- 有紀錄狀態：手機卡片化呈現 -->
       <div v-else class="space-y-3">
         <div 
           v-for="appt in bookingHistory" 
           :key="appt.id" 
           class="bg-white p-4 sm:p-5 rounded-2xl shadow-2xs border border-gray-200 hover:border-[#154337]/30 transition space-y-3"
         >
-          <!-- 卡片頂部：單號與狀態 -->
           <div class="flex justify-between items-center border-b border-gray-100 pb-3">
             <span class="text-xs font-mono font-bold text-gray-400">
               #{{ appt.appointment_code || appt.id }}
@@ -206,7 +248,6 @@ const updateProfile = async () => {
             </span>
           </div>
 
-          <!-- 卡片主要內容 -->
           <div class="flex items-center gap-3.5">
             <div class="bg-[#FAF4EE] text-[#154337] p-3 rounded-xl flex flex-col items-center justify-center shrink-0 min-w-[75px] border border-[#154337]/10">
               <span class="text-[10px] font-bold tracking-tight opacity-75">{{ appt.date }}</span>
@@ -226,7 +267,6 @@ const updateProfile = async () => {
             </div>
           </div>
 
-          <!-- 卡片底部備註 (若有) -->
           <div v-if="appt.notes" class="bg-gray-50 p-2.5 rounded-xl text-xs text-gray-600 border border-gray-100 flex items-start gap-1">
             <Icon name="mdi:note-text-outline" size="14" class="text-gray-400 shrink-0 mt-0.5" />
             <span class="truncate">{{ appt.notes }}</span>
@@ -269,6 +309,30 @@ const updateProfile = async () => {
             <option value="female">女</option>
             <option value="male">男</option>
             <option value="other">其他</option>
+          </select>
+        </div>
+
+        <!-- 🌟 出生日期選擇器 (MyCalendar) -->
+        <div class="space-y-1">
+          <label class="text-xs sm:text-sm font-bold text-gray-700">出生日期</label>
+          <ClientOnly>
+            <MyCalendar 
+              v-model="dobDateObj" 
+              :max-date="maxDobDate"
+              placeholder="選擇您的出生日期" 
+            />
+          </ClientOnly>
+        </div>
+
+        <!-- 🌟 來自哪裡 (縣市下拉選單) -->
+        <div class="space-y-1">
+          <label class="text-xs sm:text-sm font-bold text-gray-700">來自哪裡</label>
+          <select 
+            v-model="profileForm.location" 
+            class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] bg-gray-50/50 focus:bg-white transition"
+          >
+            <option value="">請選擇居住縣市</option>
+            <option v-for="loc in locationOptions" :key="loc" :value="loc">{{ loc }}</option>
           </select>
         </div>
 
