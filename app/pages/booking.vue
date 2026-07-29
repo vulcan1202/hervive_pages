@@ -90,7 +90,7 @@ watch(selectedDateObj, (newDateObj) => {
     const yyyy = newDateObj.getFullYear()
     const mm = String(newDateObj.getMonth() + 1).padStart(2, '0')
     const dd = String(newDateObj.getDate()).padStart(2, '0')
-    form.date = `${yyyy}-${mm}-${dd}`
+    form.date = `${yyyy}-${mm}-${dd}` // 🌟 這裡會存成純日期字串
     
     fetchDayAppointments(form.date)
   } else {
@@ -377,10 +377,10 @@ const finishAndRedirect = () => {
       </form>
     </div>
 
-    <!-- 🌟 LIFF 模式專用：固定在螢幕最底部的 Button Bar (覆蓋並顯示在 Layout 上方) -->
+    <!-- 🌟 LIFF 模式專用：吸附在 Layout 底部導覽列上方的 Button Bar -->
     <div 
       v-if="isLiffMode"
-      class="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-[calc(12px+env(safe-area-inset-bottom))]"
+      class="sm:hidden fixed bottom-[55px] left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-2.5 z-[60] shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
     >
       <div class="max-w-md mx-auto flex items-center justify-between gap-3">
         <div class="text-xs">
@@ -392,7 +392,7 @@ const finishAndRedirect = () => {
         <button 
           @click="handleBooking"
           :disabled="!form.startTime || status === 'loading' || isFullDayOff"
-          class="bg-[#154337] text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md hover:bg-opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
+          class="bg-[#154337] text-white font-bold px-5 py-2 rounded-xl text-xs sm:text-sm shadow-md hover:bg-opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
         >
           {{ status === 'loading' ? '處理中...' : '確認預約' }}
         </button>
