@@ -247,7 +247,7 @@ const finishAndRedirect = () => {
 </script>
 
 <template>
-  <!-- 🌟 LIFF 模式保留大空間給 Button Bar，網頁版則只需要基本留白 -->
+  <!-- 🌟 留白優化：LIFF 模式下預留足夠 pb 避免內容被底部吸底 Bar 遮擋 -->
   <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-12', isLiffMode ? 'pb-36' : 'pb-8 sm:pb-12']">
     
     <!-- 主卡片 -->
@@ -345,7 +345,7 @@ const finishAndRedirect = () => {
           </div>
         </div>
 
-        <!-- 🌟 卡片式預約內容預覽 (網頁版所有裝置通用，LIFF 版僅在桌機模式保留) -->
+        <!-- 🌟 卡片式預約內容預覽 (非 LIFF 或桌機模式保留) -->
         <div :class="[!isLiffMode ? 'block' : 'hidden sm:block', 'border-t border-gray-100 pt-5 mt-4']">
           <div class="bg-gray-50/80 border border-gray-200 rounded-xl p-4 space-y-2 mb-5">
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
@@ -377,10 +377,10 @@ const finishAndRedirect = () => {
       </form>
     </div>
 
-    <!-- 🌟 僅 LIFF 環境顯示：手機版確認預約 Bar (維持不動) -->
+    <!-- 🌟 LIFF 模式專用：固定在螢幕最底部的 Button Bar (覆蓋並顯示在 Layout 上方) -->
     <div 
       v-if="isLiffMode"
-      class="sm:hidden sticky z-40 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)] transition-all -mx-3 mt-6 bottom-[calc(var(--liff-nav-h)+env(safe-area-inset-bottom))]"
+      class="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-[calc(12px+env(safe-area-inset-bottom))]"
     >
       <div class="max-w-md mx-auto flex items-center justify-between gap-3">
         <div class="text-xs">
