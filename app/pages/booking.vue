@@ -246,7 +246,7 @@ const finishAndRedirect = () => {
 </script>
 
 <template>
-  <!-- 🌟 邊距動態優化：LIFF 模式下給予雙倍吸底空間，避免檔住按鈕 -->
+  <!-- 🌟 LIFF 環境底端間距保留不變 -->
   <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-12', isLiffMode ? 'pb-36' : 'pb-28 sm:pb-12']">
     
     <!-- 主卡片 -->
@@ -338,46 +338,42 @@ const finishAndRedirect = () => {
                 'bg-white text-gray-700 border-gray-200 hover:border-[#154337] shadow-2xs'
               ]"
             >
-              <Icon v-if="form.startTime === time" name="mdi:check-circle" size="14" class="text-emerald-300" />
+  
               <span>{{ time }}</span>
             </button>
           </div>
         </div>
 
-        <!-- 桌機版按鈕 -->
-        <button 
-          type="submit" 
-          :disabled="!form.startTime || status === 'loading' || isFullDayOff"
-          class="hidden sm:block w-full bg-[#154337] text-[#FAF4EE] font-bold py-3.5 rounded-xl hover:bg-opacity-90 transition disabled:opacity-50"
-        >
-          {{ status === 'loading' ? '處理預約中...' : '確認送出預約' }}
-        </button>
+        <!-- 🌟 桌機與手機通用版：預約內容預覽卡片與確認按鈕 (移除 hidden sm:block) -->
+        <div class="border-t border-gray-100 pt-5 mt-4">
+          <div class="bg-gray-50/80 border border-gray-200 rounded-xl p-4 space-y-2 mb-5">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+              <Icon name="mdi:clipboard-text-outline" size="15" />
+              預約內容預覽
+            </h3>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-600">服務項目：</span>
+              <span class="font-bold text-gray-800">{{ form.serviceName }}</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-600">選擇時間：</span>
+              <span class="font-bold text-[#154337]">
+                {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '尚未選擇完整時間' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 通用提交按鈕 -->
+          <button 
+            type="submit" 
+            :disabled="!form.startTime || status === 'loading' || isFullDayOff"
+            class="w-full bg-[#154337] text-[#FAF4EE] font-bold py-3.5 rounded-xl hover:bg-opacity-90 active:scale-95 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed shadow-md"
+          >
+            {{ status === 'loading' ? '處理預約中...' : '確認送出預約' }}
+          </button>
+        </div>
 
       </form>
-    </div>
-
-    <!-- 🌟 吸底固定提交 Bar (Bottom Bar) - 適應 Layout 底部 Menu -->
-    <div 
-      :class="[
-        'sm:hidden fixed left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 p-3 z-40 shadow-lg transition-all',
-        isLiffMode ? 'bottom-[60px] pb-[calc(env(safe-area-inset-bottom)+8px)]' : 'bottom-0 pb-[env(safe-area-inset-bottom)]'
-      ]"
-    >
-      <div class="max-w-md mx-auto flex items-center justify-between gap-3">
-        <div class="text-xs">
-          <p class="text-gray-400 text-[10px]">已選預約時段：</p>
-          <p class="font-bold text-[#154337] text-xs sm:text-sm">
-            {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '請選擇時間' }}
-          </p>
-        </div>
-        <button 
-          @click="handleBooking"
-          :disabled="!form.startTime || status === 'loading' || isFullDayOff"
-          class="bg-[#154337] text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md hover:bg-opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
-        >
-          {{ status === 'loading' ? '處理中...' : '確認預約' }}
-        </button>
-      </div>
     </div>
 
     <!-- 🌟 預約成功引導 Bottom Sheet -->
