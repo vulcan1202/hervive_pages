@@ -17,8 +17,11 @@ const showBeauticianModal = ref(false)
 const editingNotesId = ref<number | null>(null)
 const expandedClientId = ref<number | null>(null)
 
-// 🌟 顧客姓名搜尋關鍵字
-const searchQuery = ref('')
+// 🌟 搜尋與篩選條件
+const searchQuery = ref('')         // 顧客姓名或電話
+const searchCodeSuffix = ref('')    // 預約單號後六碼
+const startDateFilter = ref('')     // 篩選開始日期 YYYY-MM-DD
+const endDateFilter = ref('')       // 篩選結束日期 YYYY-MM-DD
 
 // 美容師管理表單狀態
 const newBeauticianName = ref('')
@@ -101,7 +104,7 @@ const fetchBeauticians = async () => {
   }
 }
 
-// 🌟 指派/修改預約的美容師
+// 指派/修改預約的美容師
 const updateAppointmentBeautician = async (apptId: number, beauticianId: any) => {
   try {
     const res = await fetch(`${backendUrl}/api/appointments`, {
@@ -213,7 +216,7 @@ const changeMonth = (offset: number) => {
   currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + offset, 1)
 }
 
-// 🌟 行事曆網格資料 (包含當日需顯示的外顯簡易卡片，排除 complete)
+// 行事曆網格資料
 const calendarDays = computed(() => {
   const year = currentDate.value.getFullYear()
   const month = currentDate.value.getMonth()
@@ -229,9 +232,7 @@ const calendarDays = computed(() => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`
     const dayOfWeek = new Date(year, month, i).getDay()
     
-    // 篩選當日預約 (日曆外顯不顯示 complete 已完成)
     const dayAppts = appointments.value.filter(a => a.date === dateStr && a.status !== 'complete')
-    
     const isWeeklyOff = holidays.value.some(h => h.type === 'weekly' && h.day_of_week === dayOfWeek)
     const isFullDayOff = holidays.value.some(h => h.type === 'full_day' && h.date === dateStr)
     const hasTimeOff = holidays.value.some(h => h.type === 'time_range' && h.date === dateStr)
@@ -249,14 +250,53 @@ const calendarDays = computed(() => {
   return days
 })
 
-// 🌟 依據搜尋關鍵字過濾後的預約總表
+// 🌟 核心過濾邏輯：多維度組合搜尋（姓名/電話 + 單號後六碼 + 日期/日期範圍）
 const filteredAppointments = computed(() => {
-  if (!searchQuery.value.trim()) return appointments.value
-  const q = searchQuery.value.trim().toLowerCase()
-  return appointments.value.filter(a => 
-    (a.client_name && a.client_name.toLowerCase().includes(q)) ||
-    (a.client_phone && a.client_phone.includes(q))
-  )
+  return appointments.value.filter(a => {
+    // 1. 搜尋姓名或電話
+    if (searchQuery.value.trim()) {
+      const q = searchQuery.value.trim().toLowerCase()
+      const matchName = a.client_name && a.client_name.toLowerCase().includes(q)
+      const matchPhone = a.client_phone && a.client_phone.includes(q)
+      if (!matchName && !matchPhone) return false
+    }
+
+    // 2. 搜尋預約單號後六碼 (固定 RV-)
+    if (searchCodeSuffix.value.trim()) {
+      const codeQ = searchCodeSuffix.value.trim().toUpperCase()
+      // 如果完整 code 是 RV-A8X9K2，匹配 A8X9K2
+      const fullCode = (a.appointment_code || '').toUpperCase()
+      if (!fullCode.endsWith(codeQ) && !fullCode.includes(codeQ)) {
+        return false
+      }
+    }
+
+    // 3. 日期與日期範圍過濾
+    if (startDateFilter.value && endDateFilter.value) {
+      // 指定日期範圍
+      if (a.date < startDateFilter.value || a.date > endDateFilter.value) return false
+    } else if (startDateFilter.value) {
+      // 僅指定單一開始日期
+      if (a.date < startDateFilter.value) return false
+    } else if (endDateFilter.value) {
+      // 僅指定單一結束日期
+      if (a.date > endDateFilter.value) return false
+    }
+
+    return true
+  })
+})
+
+// 🌟 一鍵清空所有搜尋條件
+const clearAllFilters = () => {
+  searchQuery.value = ''
+  searchCodeSuffix.value = ''
+  startDateFilter.value = ''
+  endDateFilter.value = ''
+}
+
+const hasActiveFilters = computed(() => {
+  return !!(searchQuery.value || searchCodeSuffix.value || startDateFilter.value || endDateFilter.value)
 })
 
 const showModal = ref(false)
@@ -474,7 +514,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
                 <span v-else-if="day.hasTimeOff" class="text-[9px] bg-orange-100 text-orange-700 px-1 py-0.5 rounded font-bold">時段休息</span>
               </div>
 
-              <!-- 🌟 日曆格子內簡易預約卡片顯示 (不顯示 complete) -->
+              <!-- 日曆格子內簡易預約卡片顯示 -->
               <div v-if="day.dayAppts && day.dayAppts.length > 0" class="space-y-1 mt-1 max-h-[90px] overflow-y-auto">
                 <div 
                   v-for="appt in day.dayAppts" 
@@ -500,27 +540,81 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
       </div>
     </div>
 
-    <!-- 模組 B：清單模式 (包含顧客搜尋) -->
+    <!-- 模組 B：清單模式 (進階搜尋與日期範圍篩選) -->
     <div v-if="showList" class="bg-white rounded-2xl shadow-sm border border-[#C7CDCE] p-8 animate-fade-in mb-8">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <h3 class="text-xl font-bold text-[#154337] flex items-center gap-2">
-          <Icon name="mdi:format-list-bulleted" size="24" /> 預約總表清單
-        </h3>
+      <div class="flex flex-col gap-4 mb-6 border-b border-gray-100 pb-6">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-bold text-[#154337] flex items-center gap-2">
+            <Icon name="mdi:format-list-bulleted" size="24" /> 預約總表清單
+          </h3>
+          <button 
+            v-if="hasActiveFilters" 
+            @click="clearAllFilters"
+            class="text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"
+          >
+            <Icon name="mdi:filter-off" size="14" /> 清除搜尋篩選
+          </button>
+        </div>
 
-        <!-- 🌟 搜尋顧客名字與電話框 -->
-        <div class="relative w-full md:w-72">
-          <Icon name="mdi:magnify" size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="搜尋顧客姓名或電話..." 
-            class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-[#154337] bg-gray-50 focus:bg-white transition"
-          />
+        <!-- 🌟 進階搜尋工具列（顧客搜尋 + RV-單號搜尋 + 日期範圍） -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+          
+          <!-- 1. 顧客姓名/電話 -->
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">顧客姓名 / 電話</label>
+            <div class="relative">
+              <Icon name="mdi:magnify" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                type="text" 
+                v-model="searchQuery" 
+                placeholder="搜尋姓名或電話..." 
+                class="w-full pl-8 pr-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-[#154337] bg-white"
+              />
+            </div>
+          </div>
+
+          <!-- 2. 🌟 固定 RV- 輸入後六碼 -->
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">預約單號 (六碼)</label>
+            <div class="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-[#154337]">
+              <span class="bg-gray-100 text-gray-700 font-bold px-2.5 py-1.5 text-xs border-r border-gray-300 select-none">
+                RV-
+              </span>
+              <input 
+                type="text" 
+                v-model="searchCodeSuffix" 
+                placeholder="例如：A8X9K2" 
+                maxlength="6"
+                class="w-full px-2.5 py-1.5 text-xs focus:outline-none font-mono uppercase"
+              />
+            </div>
+          </div>
+
+          <!-- 3. 日期範圍 (開始) -->
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">日期 (開始)</label>
+            <input 
+              type="date" 
+              v-model="startDateFilter" 
+              class="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs bg-white focus:ring-2 focus:ring-[#154337]"
+            />
+          </div>
+
+          <!-- 4. 日期範圍 (結束) -->
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">日期 (結束)</label>
+            <input 
+              type="date" 
+              v-model="endDateFilter" 
+              class="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs bg-white focus:ring-2 focus:ring-[#154337]"
+            />
+          </div>
+
         </div>
       </div>
       
       <div v-if="filteredAppointments.length === 0" class="text-center py-16 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-        {{ searchQuery ? '找不到符合關鍵字的預約紀錄。' : '目前沒有預約紀錄。' }}
+        {{ hasActiveFilters ? '找不到符合條件的預約紀錄。' : '目前沒有預約紀錄。' }}
       </div>
       
       <div v-else class="overflow-x-auto">
@@ -528,12 +622,13 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
           <thead>
             <tr class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider bg-gray-50">
               <th class="p-3.5 font-medium rounded-tl-lg">狀態</th>
+              <th class="p-3.5 font-medium">預約單號</th>
               <th class="p-3.5 font-medium">預約日期</th>
               <th class="p-3.5 font-medium">時間區間</th>
               <th class="p-3.5 font-medium">負責美容師</th>
               <th class="p-3.5 font-medium">客戶姓名</th>
               <th class="p-3.5 font-medium">聯絡電話</th>
-              <th class="p-3.5 font-medium min-w-[180px]">預約單筆備註</th>
+              <th class="p-3.5 font-medium min-w-[150px]">預約單筆備註</th>
               <th class="p-3.5 font-medium text-right rounded-tr-lg">操作</th>
             </tr>
           </thead>
@@ -551,10 +646,16 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
                     {{ appt.status === 'complete' ? '已完成' : appt.status === 'confirmed' ? '已確認' : appt.status === 'cancelled' ? '已取消' : '審核中' }}
                   </span>
                 </td>
+                
+                <!-- 🌟 顯示預約單號 -->
+                <td class="p-3.5 font-mono text-xs font-bold text-gray-700">
+                  {{ appt.appointment_code || '-' }}
+                </td>
+
                 <td class="p-3.5 font-semibold text-gray-800">{{ appt.date }}</td>
                 <td class="p-3.5 text-[#154337] font-bold">{{ appt.start_time }} ~ {{ appt.end_time }}</td>
                 
-                <!-- 🌟 指派美容師下拉選單 -->
+                <!-- 指派美容師下拉選單 -->
                 <td class="p-3.5">
                   <select 
                     :value="appt.beautician_id || ''"
@@ -583,7 +684,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
                 
                 <td class="p-3.5">
                   <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-700 bg-gray-50 px-2 py-1 rounded border border-gray-200 max-w-[130px] truncate" :title="appt.notes">
+                    <span class="text-xs text-gray-700 bg-gray-50 px-2 py-1 rounded border border-gray-200 max-w-[120px] truncate" :title="appt.notes">
                       {{ appt.notes || '無備註' }}
                     </span>
                     <button 
@@ -604,7 +705,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
 
               <!-- 展開：顧客詳細訊息 + Finish 歷史紀錄 -->
               <tr v-if="expandedClientId === appt.id" class="bg-blue-50/40">
-                <td colspan="8" class="p-4">
+                <td colspan="9" class="p-4">
                   <div class="p-4 bg-white rounded-xl border border-blue-100 text-xs text-gray-600 space-y-3 animate-fade-in shadow-sm">
                     <div class="flex justify-between items-center border-b border-gray-100 pb-2">
                       <p class="font-bold text-[#154337] flex items-center gap-1 text-sm">
@@ -653,7 +754,7 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
               </tr>
 
               <tr v-if="editingNotesId === appt.id" class="bg-gray-50/80">
-                <td colspan="8" class="p-4">
+                <td colspan="9" class="p-4">
                   <div class="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200 shadow-inner">
                     <span class="text-xs font-bold text-gray-500 whitespace-nowrap">修改此筆預約備註：</span>
                     <input 
@@ -702,7 +803,6 @@ const updateAppointmentStatus = async (id: number, newStatus: string) => {
                 </span>
               </div>
               
-              <!-- 🌟 彈出視窗內亦可指派美容師 -->
               <div class="mb-3 flex items-center gap-2">
                 <span class="text-xs font-bold text-gray-500">美容師：</span>
                 <select 
