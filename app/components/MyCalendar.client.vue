@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+// 🌟 1. 直接引入繁體中文語系物件
+import { zhTW } from 'date-fns/locale'
 
 const props = defineProps<{
   minDate?: Date | null
@@ -11,16 +13,13 @@ const props = defineProps<{
 
 const selectedDate = defineModel<Date | null>()
 
-// 🌟 新版過濾邏輯：乾淨地拆分「星期」與「日期」判斷
 const isDateDisabled = (date: Date) => {
-  // 1. 檢查每週固定公休 (0=週日, 1=週一...)
   if (props.disabledWeekDays?.length) {
     if (props.disabledWeekDays.includes(date.getDay())) {
       return true
     }
   }
 
-  // 2. 檢查特定單日公休
   if (props.disabledDates?.length) {
     return props.disabledDates.some(d => 
       d.getFullYear() === date.getFullYear() &&
@@ -37,11 +36,12 @@ const isDateDisabled = (date: Date) => {
   <VueDatePicker
     v-model="selectedDate"
     v-bind="$attrs"
+    :locale="zhTW"
     :min-date="minDate"
     :disabled-dates="isDateDisabled"
     :enable-time-picker="false"
     :auto-apply="true"
-    :teleport="true"
+    :teleport="false"
     format="yyyy-MM-dd"
   >
     <template #dp-input="{ value, onClick }">
