@@ -20,6 +20,29 @@ const showBeauticianModal = ref(false)
 const showClientModal = ref(false)
 const selectedClient = ref<any>(null)
 
+// 問卷相關
+const questionnaireData = ref<any>(null)
+const loadingQuestionnaire = ref(false)
+const showQuestionnaireModal = ref(false)
+const questionnaireForm = reactive({
+  how_to_know: '',
+  history_of_treatments: '',
+  allergies: '',
+  medical_history: '',
+  skin_type: '',
+  concerns: '',
+  Habit: '',
+  notes: '',
+  agreed_to_terms: false
+})
+const questionnaireSaving = ref(false)
+const howToKnowMap: Record<string, string> = {
+  'instagram': 'Instagram',
+  'friend': '朋友推薦',
+  'search': '搜尋引擎',
+  'other': '其他'
+}
+
 // 備註編輯彈窗
 const showNoteModal = ref(false)
 const editingNoteAppt = ref<any>(null)
@@ -536,11 +559,101 @@ const isWeeklyOff = (dayIndex: number) => {
   return holidays.value.some(h => h.type === 'weekly' && h.day_of_week === dayIndex)
 }
 
-const openClientModal = (appt: any) => {
+// ---------- 客戶詳情彈窗（含問卷） ----------
+const openClientModal = async (appt: any) => {
   selectedClient.value = appt
   showClientModal.value = true
+  // 載入問卷資料
+  await fetchQuestionnaire(appt.user_id)
 }
 
+// 取得問卷資料
+const fetchQuestionnaire = async (userId: number) => {
+  loadingQuestionnaire.value = true
+  try {
+    const res = await fetch(`${backendUrl}/api/questionnaires?user_id=${userId}`)
+    if (res.ok) {
+      const result = await res.json()
+      questionnaireData.value = result.data
+    } else {
+      questionnaireData.value = null
+    }
+  } catch (error) {
+    console.error('讀取問卷失敗', error)
+    questionnaireData.value = null
+  } finally {
+    loadingQuestionnaire.value = false
+  }
+}
+
+// 開啟問卷編輯彈窗（填入既有資料）
+const openQuestionnaireModal = () => {
+  if (questionnaireData.value) {
+    // 填寫既有資料
+    questionnaireForm.how_to_know = questionnaireData.value.how_to_know || ''
+    questionnaireForm.history_of_treatments = questionnaireData.value.history_of_treatments || ''
+    questionnaireForm.allergies = questionnaireData.value.allergies || ''
+    questionnaireForm.medical_history = questionnaireData.value.medical_history || ''
+    questionnaireForm.skin_type = questionnaireData.value.skin_type || ''
+    questionnaireForm.concerns = questionnaireData.value.concerns || ''
+    questionnaireForm.Habit = questionnaireData.value.Habit || ''
+    questionnaireForm.notes = questionnaireData.value.notes || ''
+    questionnaireForm.agreed_to_terms = !!questionnaireData.value.agreed_to_terms
+  } else {
+    // 清空表單
+    questionnaireForm.how_to_know = ''
+    questionnaireForm.history_of_treatments = ''
+    questionnaireForm.allergies = ''
+    questionnaireForm.medical_history = ''
+    questionnaireForm.skin_type = ''
+    questionnaireForm.concerns = ''
+    questionnaireForm.Habit = ''
+    questionnaireForm.notes = ''
+    questionnaireForm.agreed_to_terms = false
+  }
+  showQuestionnaireModal.value = true
+}
+
+// 儲存問卷
+const saveQuestionnaire = async () => {
+  const isNew = !questionnaireData.value || !questionnaireData.value.agreed_to_terms;
+  if (isNew && !questionnaireForm.agreedToTerms) {
+    alert('請先閱讀並同意「課程同意書」內容！');
+    return;
+  }
+  questionnaireSaving.value = true
+  try {
+    const payload = {
+      user_id: selectedClient.value.user_id,
+      how_to_know: questionnaireForm.how_to_know || 'other',
+      history_of_treatments: questionnaireForm.history_of_treatments || null,
+      allergies: questionnaireForm.allergies || null,
+      medical_history: questionnaireForm.medical_history || null,
+      skin_type: questionnaireForm.skin_type || null,
+      concerns: questionnaireForm.concerns || null,
+      Habit: questionnaireForm.Habit || null,
+      notes: questionnaireForm.notes || null,
+      agreed_to_terms: questionnaireForm.agreed_to_terms
+    }
+    const res = await fetch(`${backendUrl}/api/questionnaires`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    const result = await res.json()
+    if (!res.ok) throw new Error(result.error || '儲存失敗')
+    alert('✅ 問卷儲存成功！')
+    showQuestionnaireModal.value = false
+    // 重新載入問卷資料
+    await fetchQuestionnaire(selectedClient.value.user_id)
+  } catch (err: any) {
+    alert(err.message || '儲存失敗，請稍後再試')
+  } finally {
+    questionnaireSaving.value = false
+  }
+}
+
+// 開啟備註編輯彈窗
 const openNoteModal = (appt: any) => {
   editingNoteAppt.value = appt
   noteInput.value = appt.notes || ''
@@ -708,7 +821,6 @@ const openNoteModal = (appt: any) => {
               </div>
             </div>
             <div class="pt-2 border-t border-gray-100 flex flex-col gap-2">
-              <!-- ✅ 修改：移除備註文字顯示，只保留按鈕 -->
               <div class="flex items-center justify-center bg-gray-50 p-2 rounded border border-gray-200 text-xs">
                 <button @click="openNoteModal(appt)" class="text-[#154337] font-bold text-xs hover:underline flex items-center gap-1">
                   <Icon name="mdi:note-edit-outline" size="14" />
@@ -743,7 +855,6 @@ const openNoteModal = (appt: any) => {
                 <th class="p-3.5 font-medium">負責美容師</th>
                 <th class="p-3.5 font-medium">客戶姓名</th>
                 <th class="p-3.5 font-medium">聯絡電話</th>
-                <!-- ✅ 修改：備註欄位只顯示按鈕 -->
                 <th class="p-3.5 font-medium min-w-[120px]">預約單筆備註</th>
                 <th class="p-3.5 font-medium text-right rounded-tr-lg">操作</th>
               </tr>
@@ -772,7 +883,6 @@ const openNoteModal = (appt: any) => {
                   </button>
                 </td>
                 <td class="p-3.5 text-gray-600">{{ appt.client_phone }}</td>
-                <!-- ✅ 修改：只顯示查看備註按鈕，不顯示文字 -->
                 <td class="p-3.5">
                   <button @click="openNoteModal(appt)" class="text-xs text-[#154337] hover:underline font-bold px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition whitespace-nowrap flex items-center gap-1">
                     <Icon name="mdi:note-edit-outline" size="14" />
@@ -886,7 +996,7 @@ const openNoteModal = (appt: any) => {
       </div>
     </div>
 
-    <!-- 客戶詳情彈窗 -->
+    <!-- 客戶詳情彈窗（含問卷狀態與編輯功能） -->
     <div v-if="showClientModal && selectedClient" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
         <button @click="showClientModal = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full p-1 transition">
@@ -906,6 +1016,28 @@ const openNoteModal = (appt: any) => {
           <div><span class="text-gray-500">年齡：</span><span class="font-semibold">{{ selectedClient.age !== null ? selectedClient.age + ' 歲' : '無法計算' }}</span></div>
           <div><span class="text-gray-500">所在地：</span><span class="font-semibold">{{ selectedClient.client_location || '未填寫' }}</span></div>
           <div><span class="text-gray-500">到店履約次數：</span><span class="font-semibold">{{ selectedClient.visit_count || 0 }}</span></div>
+          
+          <!-- 問卷狀態區塊 -->
+          <div class="border-t border-gray-200 pt-3 mt-2">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-gray-700 text-sm">📋 初填問卷</span>
+              <button 
+                @click="openQuestionnaireModal" 
+                class="text-xs bg-[#154337] text-white px-3 py-1 rounded-lg hover:bg-opacity-90 transition font-bold"
+              >
+                {{ questionnaireData ? '編輯問卷' : '填寫問卷' }}
+              </button>
+            </div>
+            <div v-if="loadingQuestionnaire" class="text-xs text-gray-400">載入中...</div>
+            <div v-else-if="questionnaireData" class="bg-gray-50 p-2 rounded-lg border border-gray-200 text-xs space-y-1">
+              <p><span class="text-gray-500">如何得知：</span>{{ howToKnowMap[questionnaireData.how_to_know] || questionnaireData.how_to_know || '未填' }}</p>
+              <p><span class="text-gray-500">膚質：</span>{{ questionnaireData.skin_type || '未填' }}</p>
+              <p><span class="text-gray-500">主要困擾：</span>{{ questionnaireData.concerns || '未填' }}</p>
+              <p v-if="questionnaireData.notes"><span class="text-gray-500">備註：</span>{{ questionnaireData.notes }}</p>
+            </div>
+            <div v-else class="text-xs text-gray-400 italic">尚未填寫初次到店問卷</div>
+          </div>
+
           <div class="border-t border-gray-200 pt-3 mt-2">
             <div class="flex items-center justify-between mb-1">
               <span class="text-gray-500">會員備註：</span>
@@ -924,6 +1056,104 @@ const openNoteModal = (appt: any) => {
             </ul>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 問卷編輯彈窗 -->
+    <div v-if="showQuestionnaireModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
+        <button @click="showQuestionnaireModal = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full p-1 transition">
+          <Icon name="mdi:close" size="22" />
+        </button>
+        <h3 class="text-lg font-bold text-[#154337] mb-4 flex items-center gap-2">
+          <Icon name="mdi:clipboard-text" size="22" /> {{ questionnaireData ? '編輯初填問卷' : '填寫初填問卷' }}
+        </h3>
+        <form @submit.prevent="saveQuestionnaire" class="space-y-4">
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">如何得知本店</label>
+            <select v-model="questionnaireForm.how_to_know" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]">
+              <option value="instagram">Instagram</option>
+              <option value="friend">朋友推薦</option>
+              <option value="search">搜尋引擎</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">以往護膚經驗</label>
+            <input v-model="questionnaireForm.history_of_treatments" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="請簡述過去護膚經驗" />
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">過敏原 / 藥物過敏</label>
+            <input v-model="questionnaireForm.allergies" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="若有過敏請註明" />
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">特殊病史 / 近期醫美狀況</label>
+            <input v-model="questionnaireForm.medical_history" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="若有特殊狀況請註明" />
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">肌膚類型</label>
+            <input v-model="questionnaireForm.skin_type" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="例如：乾性、油性、混合肌" />
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">主要肌膚困擾</label>
+            <input v-model="questionnaireForm.concerns" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="例如：粉刺、毛孔粗大、細紋" />
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">日常保養習慣</label>
+            <input v-model="questionnaireForm.Habit" type="text" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="請簡述日常保養步驟" />
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-700 block mb-1">其他備註</label>
+            <textarea v-model="questionnaireForm.notes" rows="3" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#154337]" placeholder="其他想補充的事項..."></textarea>
+          </div>
+          <!-- 課程同意書 -->
+          <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60">
+            <details class="group">
+              <summary class="cursor-pointer text-sm font-bold text-[#154337] flex items-center gap-2">
+                <Icon name="mdi:file-document-outline" size="18" />
+                赫琟美學｜FACIAL 臉部肌膚管理課程 同意書
+                <Icon name="mdi:chevron-down" class="group-open:rotate-180 transition-transform ml-auto" size="20" />
+              </summary>
+              <div class="mt-3 text-xs text-gray-700 space-y-1.5 leading-relaxed bg-white p-3 rounded-lg border border-gray-200">
+                <p>本人已了解並同意以下事項：</p>
+                <ol class="list-decimal list-inside space-y-1 ml-2">
+                  <li>肌膚更新週期約28天，效果依個人體質不同。</li>
+                  <li>課程後可能出現短暫泛紅、乾燥、代謝反應，屬正常現象。</li>
+                  <li>本課程非醫療行為，無法保證立即改善。</li>
+                  <li>術後須加強保濕與防曬。</li>
+                  <li>已主動告知懷孕、服藥、皮膚疾病等狀況。</li>
+                  <li>如有不適將立即聯繫。</li>
+                </ol>
+                <p class="mt-2 font-semibold">本人確認資料屬實並同意接受課程。</p>
+              </div>
+            </details>
+
+            <div class="mt-3 flex items-start gap-2">
+              <input 
+                type="checkbox" 
+                v-model="questionnaireForm.agreedToTerms" 
+                :disabled="questionnaireData && questionnaireData.agreed_to_terms === 1"
+                class="mt-0.5 w-4 h-4 text-[#154337] focus:ring-[#154337] rounded border-gray-300"
+              />
+              <label class="text-xs text-gray-700 font-medium">
+                {{ questionnaireData && questionnaireData.agreed_to_terms === 1 ? '✅ 已同意課程同意書' : '本人確認資料屬實並同意接受課程（初次填寫需勾選）' }}
+              </label>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button type="button" @click="showQuestionnaireModal = false" class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">取消</button>
+            <button type="submit" :disabled="questionnaireSaving" class="px-4 py-2 text-sm bg-[#154337] text-white rounded-lg hover:bg-opacity-90 transition font-bold disabled:opacity-50">
+              {{ questionnaireSaving ? '儲存中...' : '儲存問卷' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
