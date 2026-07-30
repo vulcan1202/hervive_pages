@@ -131,9 +131,29 @@ const fetchDayAppointments = async (selectedDate: string) => {
   }
 }
 
-const handleRefreshSlots = () => {
-  if (form.date) {
-    fetchDayAppointments(form.date)
+const handleRefreshSlots = async () => {
+  isRefreshingSlots.value = true
+  try {
+    // 1. 平行重新獲取：休假資料、所有預約資料（這會觸發 disabledDates 重新計算，更新日曆）
+    await Promise.all([
+      fetchHolidays(),
+      fetchAllUpcomingAppointments()
+    ])
+
+    // 2. 若目前已經有選定日期，則一併重新獲取當日的詳細預約狀況（這會更新現有的可選擇時段）
+    if (form.date) {
+      const res = await fetch(`${backendUrl}/api/appointments?date=${form.date}`)
+      if (res.ok) {
+        const result = await res.json()
+        existingAppointments.value = result.data
+        // 同步更新快取，確保日曆判斷一致
+        cachedDayAppointments.value[form.date] = result.data
+      }
+    }
+  } catch (e) {
+    console.error('重新載入最新狀態失敗', e)
+  } finally {
+    isRefreshingSlots.value = false
   }
 }
 
@@ -368,14 +388,13 @@ const finishAndRedirect = () => {
             </label>
 
             <button 
-              v-if="form.date && !isFullDayOff"
               type="button" 
               @click="handleRefreshSlots" 
               :disabled="isRefreshingSlots"
               class="text-xs text-[#154337] bg-gray-50 hover:bg-[#154337]/5 px-2 py-1 rounded-lg transition flex items-center gap-1 font-bold disabled:opacity-50 active:scale-95"
             >
               <Icon name="mdi:refresh" size="13" :class="{ 'animate-spin': isRefreshingSlots }" />
-              <span>重新載入時段</span>
+              <span>重新載入</span>
             </button>
           </div>
           

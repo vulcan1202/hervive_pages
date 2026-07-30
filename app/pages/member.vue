@@ -14,6 +14,8 @@ const locationOptions = [
 ]
 
 const bookingHistory = ref<any[]>([])
+// ✅ 新增：控制重新整理按鈕的載入狀態
+const isRefreshingHistory = ref(false)
 
 const profileForm = reactive({
   lastName: '',
@@ -56,7 +58,7 @@ onMounted(async () => {
     const res = await fetch(`${backendUrl}/api/users?id=${currentUser.value.id}`)
     if (res.ok) {
       const result = await res.json()
-      const latestUser = result.data // 後端回傳單一物件 (蛇形命名)
+      const latestUser = result.data 
       
       if (latestUser) {
         currentUser.value = {
@@ -70,7 +72,6 @@ onMounted(async () => {
           email: latestUser.email,
           age: latestUser.age
         }
-        // 同步更新 localStorage 快取
         localStorage.setItem('hervive_user', JSON.stringify(currentUser.value))
       }
     }
@@ -78,7 +79,6 @@ onMounted(async () => {
     console.error('即時同步會員資料失敗，使用快取資料', error)
   }
   
-  // 填寫表單預設值（兼顧蛇形與駝峰命名）
   profileForm.lastName = currentUser.value.lastName || currentUser.value.last_name || ''
   profileForm.firstName = currentUser.value.firstName || currentUser.value.first_name || ''
   profileForm.gender = currentUser.value.gender || ''
@@ -106,16 +106,19 @@ const handleLogout = () => {
   }
 }
 
+// ✅ 修改：加入 isRefreshingHistory 狀態控制
 const fetchBookingHistory = async () => {
+  isRefreshingHistory.value = true
   try {
     const res = await fetch(`${backendUrl}/api/appointments?user_id=${currentUser.value.id}`)
     if (res.ok) {
       const result = await res.json()
-      // ✅ 取 data 欄位（陣列）
       bookingHistory.value = result.data
     }
   } catch (error) {
     console.error('讀取預約紀錄失敗', error)
+  } finally {
+    isRefreshingHistory.value = false
   }
 }
 
@@ -142,7 +145,6 @@ const updateProfile = async () => {
     const result = await res.json()
     if (!res.ok) throw new Error(result.error || '更新失敗')
 
-    // 更新 currentUser 與 localStorage（同步保留蛇形與駝峰，避免其他頁面讀取異常）
     currentUser.value.lastName = profileForm.lastName
     currentUser.value.firstName = profileForm.firstName
     currentUser.value.gender = profileForm.gender
@@ -162,7 +164,6 @@ const updateProfile = async () => {
 </script>
 
 <template>
-  <!-- 模板完全保持不變 -->
   <div class="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4" v-if="currentUser">
     
     <!-- 個人英雄資訊卡 -->
@@ -179,7 +180,6 @@ const updateProfile = async () => {
             <p class="text-xs sm:text-sm text-[#FAF4EE]/80 mt-0.5">
               Hervive 會員
             </p>
-            <!-- ✅ 顯示年齡 -->
             <p v-if="currentUser.age !== undefined && currentUser.age !== null" class="text-xs text-[#FAF4EE]/70 mt-0.5">
               年齡：{{ currentUser.age }} 歲
             </p>
@@ -236,6 +236,18 @@ const updateProfile = async () => {
     <!-- 預約紀錄 -->
     <div v-if="activeTab === 'history'" class="space-y-4">
       
+      <!-- ✅ 新增：重新整理按鈕 -->
+      <div class="flex justify-end mb-1">
+        <button 
+          @click="fetchBookingHistory" 
+          :disabled="isRefreshingHistory"
+          class="text-xs text-[#154337] bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-bold disabled:opacity-50 active:scale-95 shadow-2xs"
+        >
+          <Icon name="mdi:refresh" size="14" :class="{ 'animate-spin': isRefreshingHistory }" />
+          <span>{{ isRefreshingHistory ? '載入中...' : '重新整理' }}</span>
+        </button>
+      </div>
+
       <div v-if="bookingHistory.length === 0" class="bg-white p-8 rounded-2xl shadow-sm border border-[#C7CDCE] text-center text-gray-500 py-12">
         <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
           <Icon name="mdi:calendar-blank" size="32" class="text-gray-300" />
