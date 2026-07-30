@@ -22,12 +22,12 @@ const appointmentCode = ref('')
 const isRefreshingSlots = ref(false)
 
 const holidays = ref<any[]>([])
-const { $liff } = useNuxtApp()
+const cachedDayAppointments = ref<Record<string, any[]>>({})
 
-// 🌟 判斷 LIFF 環境
+const { $liff } = useNuxtApp()
 const isLiffMode = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
   const storedUser = localStorage.getItem('hervive_user')
   if (!storedUser) {
     alert('請先登入會員才能進行預約！')
@@ -39,7 +39,11 @@ onMounted(() => {
     isLiffMode.value = true
   }
 
-  fetchHolidays()
+  // 使用 Promise.all 平行獲取休假設定與預約資料，縮短總等待時間
+  await Promise.all([
+    fetchHolidays(),
+    fetchAllUpcomingAppointments()
+  ])
 })
 
 const minDateObj = computed(() => {
@@ -48,18 +52,6 @@ const minDateObj = computed(() => {
   return tomorrow
 })
 
-// 取得特定單日休假
-const disabledDates = computed(() => {
-  const dates: Date[] = []
-  for (const h of holidays.value) {
-    if (h.type === 'full_day' && h.date) {
-      dates.push(new Date(h.date.replace(/-/g, '/')))
-    }
-  }
-  return dates
-})
-
-// 取得每週固定公休 (0=週日, 1=週一...)
 const disabledWeekDays = computed(() => {
   const days = new Set<number>()
   for (const h of holidays.value) {
@@ -76,9 +68,30 @@ const disabledWeekDays = computed(() => {
 const fetchHolidays = async () => {
   try {
     const res = await fetch(`${backendUrl}/api/holidays`)
-    if (res.ok) holidays.value = await res.json()
+    if (res.ok) {
+      const result = await res.json()
+      holidays.value = result.data
+    }
   } catch (e) {
     console.error('取得休假設定失敗', e)
+  }
+}
+
+const fetchAllUpcomingAppointments = async () => {
+  try {
+    const res = await fetch(`${backendUrl}/api/appointments`)
+    if (res.ok) {
+      const result = await res.json()
+      const allAppts = result.data
+      const map: Record<string, any[]> = {}
+      for (const appt of allAppts) {
+        if (!map[appt.date]) map[appt.date] = []
+        map[appt.date].push(appt)
+      }
+      cachedDayAppointments.value = map
+    }
+  } catch (e) {
+    console.error('預載所有預約失敗', e)
   }
 }
 
@@ -90,9 +103,13 @@ watch(selectedDateObj, (newDateObj) => {
     const yyyy = newDateObj.getFullYear()
     const mm = String(newDateObj.getMonth() + 1).padStart(2, '0')
     const dd = String(newDateObj.getDate()).padStart(2, '0')
-    form.date = `${yyyy}-${mm}-${dd}` // 🌟 這裡會存成純日期字串
+    form.date = `${yyyy}-${mm}-${dd}` 
     
-    fetchDayAppointments(form.date)
+    if (cachedDayAppointments.value[form.date]) {
+      existingAppointments.value = cachedDayAppointments.value[form.date]
+    } else {
+      fetchDayAppointments(form.date)
+    }
   } else {
     form.date = ''
   }
@@ -103,7 +120,9 @@ const fetchDayAppointments = async (selectedDate: string) => {
   try {
     const res = await fetch(`${backendUrl}/api/appointments?date=${selectedDate}`)
     if (res.ok) {
-      existingAppointments.value = await res.json()
+      const result = await res.json()
+      existingAppointments.value = result.data
+      cachedDayAppointments.value[selectedDate] = result.data
     }
   } catch (e) {
     console.error('取得當日預約失敗', e)
@@ -131,21 +150,19 @@ const timeSlots = computed(() => {
   return slots
 })
 
-const isSlotDisabled = (slotTime: string) => {
-  if (!form.date) return true
-
+const checkSlotDisabledForDate = (dateStr: string, slotTime: string, apptsList: any[]) => {
   const [h, m] = slotTime.split(':').map(Number)
   const slotStartMin = h * 60 + m
   const slotEndMin = slotStartMin + 150 
   
-  const reqDateObj = new Date(form.date)
+  const reqDateObj = new Date(dateStr)
   const dayOfWeek = reqDateObj.getDay()
 
   for (const h of holidays.value) {
     if (h.type === 'weekly' && h.day_of_week === dayOfWeek) return true
-    if (h.type === 'full_day' && h.date === form.date) return true
+    if (h.type === 'full_day' && h.date === dateStr) return true
     
-    if (h.type === 'time_range' && h.date === form.date) {
+    if (h.type === 'time_range' && h.date === dateStr) {
       const [hhStart, hmStart] = h.start_time.split(':').map(Number)
       const holidayStartMin = hhStart * 60 + hmStart
       const [hhEnd, hmEnd] = h.end_time.split(':').map(Number)
@@ -157,7 +174,7 @@ const isSlotDisabled = (slotTime: string) => {
     }
   }
 
-  for (const appt of existingAppointments.value) {
+  for (const appt of apptsList) {
     const [ah, am] = appt.start_time.split(':').map(Number)
     const [ae, em] = appt.end_time.split(':').map(Number)
     if (slotStartMin < (ae * 60 + em) && slotEndMin > (ah * 60 + am)) {
@@ -167,6 +184,55 @@ const isSlotDisabled = (slotTime: string) => {
   
   return false
 }
+
+const isSlotDisabled = (slotTime: string) => {
+  if (!form.date) return true
+  return checkSlotDisabledForDate(form.date, slotTime, existingAppointments.value)
+}
+
+const disabledDates = computed(() => {
+  const dates: Date[] = []
+
+  for (const h of holidays.value) {
+    if (h.type === 'full_day' && h.date) {
+      dates.push(new Date(h.date.replace(/-/g, '/')))
+    }
+  }
+
+  const today = new Date()
+  for (let i = 1; i <= 60; i++) {
+    const d = new Date(today)
+    d.setDate(d.getDate() + i)
+    d.setHours(0, 0, 0, 0)
+    
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    const dateStr = `${yyyy}-${mm}-${dd}`
+
+    const dow = d.getDay()
+    const isFullOff = holidays.value.some(h => 
+      (h.type === 'weekly' && h.day_of_week === dow) || 
+      (h.type === 'full_day' && h.date === dateStr)
+    )
+
+    if (!isFullOff) {
+      const dayAppts = cachedDayAppointments.value[dateStr] || []
+      let allSlotsTaken = true
+      for (const time of timeSlots.value) {
+        if (!checkSlotDisabledForDate(dateStr, time, dayAppts)) {
+          allSlotsTaken = false
+          break
+        }
+      }
+      if (allSlotsTaken) {
+        dates.push(new Date(yyyy, Number(mm) - 1, Number(dd)))
+      }
+    }
+  }
+
+  return dates
+})
 
 const isFullDayOff = computed(() => {
   if (!form.date) return false
@@ -193,10 +259,11 @@ const handleBooking = async () => {
         beautician_id: null
       })
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error || '預約失敗')
+    const result = await res.json()
+    if (!res.ok) throw new Error(result.error || '預約失敗')
     
-    appointmentCode.value = data.appointment.appointment_code
+    // ✅ 從 result.data 取得 appointment 資訊
+    appointmentCode.value = result.data.appointment.appointment_code
     showSuccessModal.value = true
     status.value = 'idle'
     
@@ -247,13 +314,11 @@ const finishAndRedirect = () => {
 </script>
 
 <template>
-  <!-- 🌟 留白優化：LIFF 模式下預留足夠 pb 避免內容被底部吸底 Bar 遮擋 -->
+  <!-- 模板完全保持不變 -->
   <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-12', isLiffMode ? 'pb-36' : 'pb-8 sm:pb-12']">
     
-    <!-- 主卡片 -->
     <div class="bg-white rounded-2xl shadow-sm border border-[#C7CDCE] p-4 sm:p-8">
       
-      <!-- 頁面標題區 -->
       <div class="border-b border-gray-100 pb-3 mb-5 flex items-center justify-between">
         <div>
           <h2 class="text-lg sm:text-2xl font-bold text-[#154337] title-serif flex items-center gap-2">
@@ -262,13 +327,11 @@ const finishAndRedirect = () => {
           </h2>
           <p class="text-gray-400 text-xs mt-0.5">療程預計服務時間固定為 2.5 小時</p>
         </div>
-        <!-- LINE LIFF 專屬標籤 -->
         <span v-if="isLiffMode" class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-bold border border-emerald-200/60 shrink-0">
           LINE 快速預約
         </span>
       </div>
 
-      <!-- 錯誤提示 -->
       <div v-if="errorMessage" class="bg-red-50 text-red-600 p-3 rounded-xl text-xs sm:text-sm mb-5 text-center font-medium animate-shake">
         {{ errorMessage }}
       </div>
@@ -292,7 +355,7 @@ const finishAndRedirect = () => {
           
           <div class="flex items-start gap-1 text-[11px] text-gray-400 mt-1.5 bg-gray-50/80 p-2 rounded-xl">
             <Icon name="mdi:information-outline" size="14" class="shrink-0 text-gray-500 mt-0.5" />
-            <span>開放預約明日起之日期；若需當日預約請直接透過 LINE 訊息諮詢。</span>
+            <span>開放預約明日起之日期；若當日無可選擇時段，系統將自動將該日期標示為不可選。</span>
           </div>
         </div>
 
@@ -304,7 +367,6 @@ const finishAndRedirect = () => {
               選擇時段 <span class="text-red-500">*</span>
             </label>
 
-            <!-- 刷新按鈕 -->
             <button 
               v-if="form.date && !isFullDayOff"
               type="button" 
@@ -325,7 +387,6 @@ const finishAndRedirect = () => {
             🚫 店家本日公休，請選擇其他日期！
           </div>
 
-          <!-- 時段網格 -->
           <div v-else class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-2.5 max-h-60 overflow-y-auto p-1.5 border border-gray-200 rounded-xl bg-gray-50/50">
             <button 
               v-for="time in timeSlots" 
@@ -345,7 +406,6 @@ const finishAndRedirect = () => {
           </div>
         </div>
 
-        <!-- 🌟 卡片式預約內容預覽 (非 LIFF 或桌機模式保留) -->
         <div :class="[!isLiffMode ? 'block' : 'hidden sm:block', 'border-t border-gray-100 pt-5 mt-4']">
           <div class="bg-gray-50/80 border border-gray-200 rounded-xl p-4 space-y-2 mb-5">
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
@@ -364,7 +424,6 @@ const finishAndRedirect = () => {
             </div>
           </div>
 
-          <!-- 網頁版提交按鈕 -->
           <button 
             type="submit" 
             :disabled="!form.startTime || status === 'loading' || isFullDayOff"
@@ -377,7 +436,6 @@ const finishAndRedirect = () => {
       </form>
     </div>
 
-    <!-- 🌟 LIFF 模式專用：吸附在 Layout 底部導覽列上方的 Button Bar -->
     <div 
       v-if="isLiffMode"
       class="sm:hidden fixed bottom-[55px] left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-2.5 z-[60] shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
@@ -399,11 +457,9 @@ const finishAndRedirect = () => {
       </div>
     </div>
 
-    <!-- 🌟 預約成功引導 Bottom Sheet -->
     <div v-if="showSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 z-[100]">
       <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-7 text-center space-y-4 animate-slide-up relative">
         
-        <!-- 手機頂部拖曳視覺條 -->
         <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-1 sm:hidden"></div>
 
         <div class="w-12 h-12 sm:w-16 sm:h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl sm:text-3xl shadow-2xs">
@@ -417,7 +473,6 @@ const finishAndRedirect = () => {
           </p>
         </div>
 
-        <!-- 專屬單號卡片 -->
         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 sm:p-4">
           <p class="text-gray-400 text-[11px] mb-0.5">您的專屬預約編號</p>
           <div class="text-2xl sm:text-3xl font-black text-[#154337] tracking-wider mb-2 font-mono">
@@ -432,7 +487,6 @@ const finishAndRedirect = () => {
           </button>
         </div>
 
-        <!-- 主要導引動作按鈕 -->
         <div class="space-y-2.5 pt-1">
           <button 
             @click="handleSendLineMessage"
@@ -456,7 +510,6 @@ const finishAndRedirect = () => {
 </template>
 
 <style>
-/* Bottom Sheet 上滑動畫 */
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }

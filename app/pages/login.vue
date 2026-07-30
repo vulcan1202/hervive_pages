@@ -6,7 +6,7 @@ const locationOptions = [
   '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣',
   '其他'
 ]
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const { $liff } = useNuxtApp() 
 
@@ -23,16 +23,15 @@ const registerForm = reactive({
   password: '',
   gender: '',
   dateOfBirth: '',
-  location: '', // 🌟 新增可選欄位
+  location: '', 
   email: '',
   lineId: '' 
 })
 
 // 生日專用 Date 物件
 const dobDateObj = ref<Date | null>(null)
-const maxDobDate = computed(() => new Date()) //限制生日不能超過今天
+const maxDobDate = computed(() => new Date())
 
-// 當選擇生日時，格式化為 YYYY-MM-DD 字串
 watch(dobDateObj, (newVal) => {
   if (newVal) {
     const yyyy = newVal.getFullYear()
@@ -85,9 +84,12 @@ const processLineUser = async (lineId: string, actionRedirect: string) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ line_id: lineId })
     })
-    const data = await res.json()
+    const result = await res.json()
     
-    if (!res.ok) throw new Error(data.error || 'LINE 驗證失敗')
+    if (!res.ok) throw new Error(result.error || 'LINE 驗證失敗')
+
+    // ✅ 提取 data 欄位
+    const data = result.data
 
     if (data.action === 'login') {
       localStorage.setItem('hervive_user', JSON.stringify(data.user))
@@ -139,9 +141,11 @@ onMounted(async () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code, redirectUri: redirectUri })
       })
-      const data = await res.json()
+      const result = await res.json()
       
-      if (!res.ok) throw new Error(data.error || 'LINE 驗證失敗')
+      if (!res.ok) throw new Error(result.error || 'LINE 驗證失敗')
+
+      const data = result.data
 
       if (data.action === 'login') {
         localStorage.setItem('hervive_user', JSON.stringify(data.user))
@@ -175,9 +179,10 @@ const handleSubmit = async () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: loginForm.phone, password: loginForm.password })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || '登入失敗')
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || '登入失敗')
       
+      const data = result.data
       localStorage.setItem('hervive_user', JSON.stringify(data.user))
       status.value = 'success'
       successMessage.value = '登入成功！正在跳轉...'
@@ -188,7 +193,6 @@ const handleSubmit = async () => {
         throw new Error('請先完成 LINE 授權！')
       }
 
-      // 🌟 前端欄位檢查
       if (!registerForm.dateOfBirth) {
         throw new Error('請選擇生日！')
       }
@@ -202,14 +206,14 @@ const handleSubmit = async () => {
           phone: registerForm.phone,
           password: registerForm.password,
           gender: registerForm.gender,
-          date_of_birth: registerForm.dateOfBirth, // 🌟 新增傳送生日
-          location: registerForm.location, // 🌟 新增傳送居住地區
+          date_of_birth: registerForm.dateOfBirth,
+          location: registerForm.location,
           email: registerForm.email,
           line_id: registerForm.lineId
         })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || '註冊失敗')
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || '註冊失敗')
       
       status.value = 'success'
       successMessage.value = '註冊成功！系統將自動為您登入...'
@@ -233,6 +237,7 @@ const switchMode = (mode: boolean) => {
 </script>
 
 <template>
+  <!-- 模板完全保持不變 -->
   <div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
     <div class="bg-white max-w-md w-full rounded-2xl shadow-sm border border-[#C7CDCE] overflow-hidden">
       
@@ -307,7 +312,7 @@ const switchMode = (mode: boolean) => {
               </select>
             </div>
 
-            <!-- 🌟 2. 新增出生日期 (Date of Birth) -->
+            <!-- 出生日期 -->
             <div class="space-y-1">
               <label class="text-sm font-medium text-gray-700">出生日期 <span class="text-red-500">*</span></label>
               <ClientOnly>
@@ -324,7 +329,7 @@ const switchMode = (mode: boolean) => {
               <label class="text-sm font-medium text-gray-700">電子信箱</label>
               <input v-model="registerForm.email" type="email" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" placeholder="example@mail.com" />
             </div>
-            <!-- 🌟 居住地區/來自哪裡 (下拉選單 - 選填) -->
+            <!-- 居住地區 -->
             <div class="space-y-1">
               <label class="text-sm font-medium text-gray-700">來自哪裡 <span class="text-gray-400 text-xs">(選填)</span></label>
               <select v-model="registerForm.location" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337] bg-white">

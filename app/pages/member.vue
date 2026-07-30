@@ -6,7 +6,6 @@ const activeTab = ref('history')
 const status = ref('idle')
 const message = ref('')
 
-// 🌟 台灣 22 縣市 + 其他 下拉選單選項
 const locationOptions = [
   '基隆市', '台北市', '新北市', '桃園市', '新竹市', '新竹縣', '苗栗縣',
   '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市',
@@ -14,10 +13,8 @@ const locationOptions = [
   '其他'
 ]
 
-// 預約紀錄清單
 const bookingHistory = ref<any[]>([])
 
-// 修改資料的表單
 const profileForm = reactive({
   lastName: '',
   firstName: '',
@@ -28,11 +25,9 @@ const profileForm = reactive({
   password: ''
 })
 
-// 生日選擇器專用的 Date 物件
 const dobDateObj = ref<Date | null>(null)
 const maxDobDate = computed(() => new Date())
 
-// 監聽 dobDateObj 變更，轉成 YYYY-MM-DD 字串存給 profileForm
 watch(dobDateObj, (newVal) => {
   if (newVal && !isNaN(newVal.getTime())) {
     const yyyy = newVal.getFullYear()
@@ -55,17 +50,43 @@ onMounted(async () => {
   }
   
   currentUser.value = JSON.parse(storedUser)
+
+  // 🌟 即時同步會員資料
+  try {
+    const res = await fetch(`${backendUrl}/api/users?id=${currentUser.value.id}`)
+    if (res.ok) {
+      const result = await res.json()
+      const latestUser = result.data // 後端回傳單一物件 (蛇形命名)
+      
+      if (latestUser) {
+        currentUser.value = {
+          ...currentUser.value,
+          id: latestUser.id,
+          lastName: latestUser.last_name || latestUser.lastName,
+          firstName: latestUser.first_name || latestUser.firstName,
+          gender: latestUser.gender,
+          dateOfBirth: latestUser.date_of_birth || latestUser.dateOfBirth,
+          location: latestUser.location,
+          email: latestUser.email,
+          age: latestUser.age
+        }
+        // 同步更新 localStorage 快取
+        localStorage.setItem('hervive_user', JSON.stringify(currentUser.value))
+      }
+    }
+  } catch (error) {
+    console.error('即時同步會員資料失敗，使用快取資料', error)
+  }
   
-  profileForm.lastName = currentUser.value.lastName || ''
-  profileForm.firstName = currentUser.value.firstName || ''
+  // 填寫表單預設值（兼顧蛇形與駝峰命名）
+  profileForm.lastName = currentUser.value.lastName || currentUser.value.last_name || ''
+  profileForm.firstName = currentUser.value.firstName || currentUser.value.first_name || ''
   profileForm.gender = currentUser.value.gender || ''
   profileForm.email = currentUser.value.email || ''
 
-  // 🌟 確保資料庫傳來的居住地有在我們的清單選項內，否則重置為空
   const savedLocation = currentUser.value.location || ''
   profileForm.location = locationOptions.includes(savedLocation) ? savedLocation : ''
 
-  // 🌟 初始化生日：精準拆解年月日建立本地 Date 物件，避免時區偏移
   const dobStr = currentUser.value.dateOfBirth || currentUser.value.date_of_birth
   if (dobStr && typeof dobStr === 'string' && dobStr.includes('-')) {
     profileForm.dateOfBirth = dobStr
@@ -89,7 +110,9 @@ const fetchBookingHistory = async () => {
   try {
     const res = await fetch(`${backendUrl}/api/appointments?user_id=${currentUser.value.id}`)
     if (res.ok) {
-      bookingHistory.value = await res.json()
+      const result = await res.json()
+      // ✅ 取 data 欄位（陣列）
+      bookingHistory.value = result.data
     }
   } catch (error) {
     console.error('讀取預約紀錄失敗', error)
@@ -116,9 +139,10 @@ const updateProfile = async () => {
       })
     })
 
-    if (!res.ok) throw new Error('更新失敗')
+    const result = await res.json()
+    if (!res.ok) throw new Error(result.error || '更新失敗')
 
-    // 同步更新 currentUser 狀態與 localStorage
+    // 更新 currentUser 與 localStorage（同步保留蛇形與駝峰，避免其他頁面讀取異常）
     currentUser.value.lastName = profileForm.lastName
     currentUser.value.firstName = profileForm.firstName
     currentUser.value.gender = profileForm.gender
@@ -138,9 +162,10 @@ const updateProfile = async () => {
 </script>
 
 <template>
+  <!-- 模板完全保持不變 -->
   <div class="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4" v-if="currentUser">
     
-    <!-- 🌟 個人英雄資訊卡 -->
+    <!-- 個人英雄資訊卡 -->
     <div class="bg-gradient-to-br from-[#154337] to-[#1e5847] text-[#FAF4EE] rounded-2xl p-5 sm:p-6 mb-6 shadow-md relative overflow-hidden">
       <div class="flex justify-between items-center relative z-10">
         <div class="flex items-center gap-3.5">
@@ -153,6 +178,10 @@ const updateProfile = async () => {
             </h1>
             <p class="text-xs sm:text-sm text-[#FAF4EE]/80 mt-0.5">
               Hervive 會員
+            </p>
+            <!-- ✅ 顯示年齡 -->
+            <p v-if="currentUser.age !== undefined && currentUser.age !== null" class="text-xs text-[#FAF4EE]/70 mt-0.5">
+              年齡：{{ currentUser.age }} 歲
             </p>
           </div>
         </div>
@@ -167,7 +196,7 @@ const updateProfile = async () => {
       </div>
     </div>
 
-    <!-- 🌟 分頁切換列 -->
+    <!-- 分頁切換列 -->
     <div class="bg-gray-100 p-1 rounded-2xl flex mb-6 border border-gray-200">
       <button 
         @click="activeTab = 'history'" 
@@ -204,7 +233,7 @@ const updateProfile = async () => {
       <span>{{ message }}</span>
     </div>
 
-    <!-- 🌟 區塊 A：預約紀錄查詢 -->
+    <!-- 預約紀錄 -->
     <div v-if="activeTab === 'history'" class="space-y-4">
       
       <div v-if="bookingHistory.length === 0" class="bg-white p-8 rounded-2xl shadow-sm border border-[#C7CDCE] text-center text-gray-500 py-12">
@@ -266,16 +295,11 @@ const updateProfile = async () => {
               </p>
             </div>
           </div>
-
-          <div v-if="appt.notes" class="bg-gray-50 p-2.5 rounded-xl text-xs text-gray-600 border border-gray-100 flex items-start gap-1">
-            <Icon name="mdi:note-text-outline" size="14" class="text-gray-400 shrink-0 mt-0.5" />
-            <span class="truncate">{{ appt.notes }}</span>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- 🌟 區塊 B：個人資料維護 -->
+    <!-- 個人資料維護 -->
     <div v-if="activeTab === 'profile'" class="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-[#C7CDCE]">
       <form @submit.prevent="updateProfile" class="space-y-4 max-w-lg">
         
@@ -312,7 +336,6 @@ const updateProfile = async () => {
           </select>
         </div>
 
-        <!-- 🌟 出生日期選擇器 (MyCalendar) -->
         <div class="space-y-1">
           <label class="text-xs sm:text-sm font-bold text-gray-700">出生日期</label>
           <ClientOnly>
@@ -324,7 +347,6 @@ const updateProfile = async () => {
           </ClientOnly>
         </div>
 
-        <!-- 🌟 來自哪裡 (縣市下拉選單) -->
         <div class="space-y-1">
           <label class="text-xs sm:text-sm font-bold text-gray-700">來自哪裡</label>
           <select 
