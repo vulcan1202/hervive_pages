@@ -39,7 +39,7 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-  <div :class="['min-h-screen flex flex-col font-sans bg-[#FAF4EE]', isLiffMode ? 'pb-[75px]' : '']">
+  <div :class="['min-h-screen flex flex-col font-sans bg-[#FAF4EE]', isLiffMode ? (route.path === '/booking' ? 'pb-[145px]' : 'pb-[75px]') : '']">
 
     <!-- 一般網頁版 Header - 懸浮精品膠囊導覽列 -->
     <header v-if="!isLiffMode" class="sticky top-3 sm:top-4 z-50 px-3 sm:px-6">
@@ -132,16 +132,16 @@ watch(() => route.path, () => {
       </div>
     </footer>
 
-    <!-- LIFF 底部導覽列 -->
-    <div v-if="isLiffMode" class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-[#C5A880]/30 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50 px-6 py-3 flex justify-around items-center pb-[env(safe-area-inset-bottom)]">
-      <NuxtLink to="/booking" active-class="text-[#154337] font-bold" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors group">
-        <Icon name="mdi:calendar-check" size="24" class="group-hover:scale-110 transition-transform text-[#154337]" />
-        <span class="text-xs mt-1 font-medium tracking-wider">預約</span>
+    <!-- LIFF 底部導覽列 (固定 60px 高度，與 booking 頁面的確認 Bar 無縫精密貼合) -->
+    <div v-if="isLiffMode" class="fixed bottom-0 left-0 right-0 h-[60px] bg-white/95 backdrop-blur-xl border-t border-[#C5A880]/30 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 px-8 flex justify-around items-center pb-[env(safe-area-inset-bottom)]">
+      <NuxtLink to="/booking" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors group relative">
+        <Icon name="mdi:calendar-check" size="22" :class="[route.path === '/booking' ? 'text-[#154337] scale-110' : 'text-gray-400', 'transition-transform']" />
+        <span :class="['text-[11px] mt-0.5 font-medium tracking-wider', route.path === '/booking' ? 'text-[#154337] font-bold' : 'text-gray-500']">線上預約</span>
       </NuxtLink>
       
-      <NuxtLink to="/member" active-class="text-[#154337] font-bold" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors group">
-        <Icon name="mdi:account" size="24" class="group-hover:scale-110 transition-transform text-[#154337]" />
-        <span class="text-xs mt-1 font-medium tracking-wider">會員</span>
+      <NuxtLink to="/member" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors group relative">
+        <Icon name="mdi:account-circle-outline" size="22" :class="[route.path === '/member' ? 'text-[#154337] scale-110' : 'text-gray-400', 'transition-transform']" />
+        <span :class="['text-[11px] mt-0.5 font-medium tracking-wider', route.path === '/member' ? 'text-[#154337] font-bold' : 'text-gray-500']">會員中心</span>
       </NuxtLink>
     </div>
 

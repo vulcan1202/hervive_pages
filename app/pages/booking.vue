@@ -352,7 +352,7 @@ const finishAndRedirect = () => {
 </script>
 
 <template>
-  <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-8', isLiffMode ? 'pb-36' : 'pb-8 sm:pb-12']">
+  <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-8', isLiffMode ? 'pb-44 sm:pb-12' : 'pb-8 sm:pb-12']">
     
     <div class="double-bezel-outer">
       <div class="double-bezel-inner bg-white p-5 sm:p-8 space-y-6">
@@ -479,22 +479,22 @@ const finishAndRedirect = () => {
       </div>
     </div>
 
-    <!-- LIFF Mode 底部橫條 -->
+    <!-- LIFF Mode 底部橫條 (精密對齊 default layout LIFF 導覽列正上方) -->
     <div 
       v-if="isLiffMode"
-      class="sm:hidden fixed bottom-[60px] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-[#C5A880]/30 px-4 py-3 z-[60] shadow-[0_-4px_16px_rgba(21,67,55,0.08)]"
+      class="sm:hidden fixed bottom-[calc(60px+env(safe-area-inset-bottom))] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-[#C5A880]/30 px-4 py-3 z-[60] shadow-[0_-6px_20px_rgba(21,67,55,0.08)]"
     >
       <div class="max-w-md mx-auto flex items-center justify-between gap-3">
-        <div class="text-xs">
+        <div class="text-xs space-y-0.5">
           <p class="text-gray-400 text-[10px] font-light">已選預約時段：</p>
-          <p class="font-bold text-[#154337] text-xs sm:text-sm font-mono">
-            {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '請選擇時間' }}
+          <p class="font-bold text-[#154337] text-xs sm:text-sm font-mono tracking-wide">
+            {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '請點選時間' }}
           </p>
         </div>
         <button 
           @click="handleBooking"
           :disabled="!form.startTime || status === 'loading' || isFullDayOff"
-          class="bg-[#154337] text-white font-bold px-6 py-2.5 rounded-full text-xs sm:text-sm shadow-md hover:bg-[#0D2C24] active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none border border-[#C5A880]/30"
+          class="bg-[#154337] text-white font-bold px-6 py-2.5 rounded-full text-xs sm:text-sm shadow-md hover:bg-[#0D2C24] active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none border border-[#C5A880]/30 tracking-wider shrink-0"
         >
           {{ status === 'loading' ? '處理中...' : '確認預約' }}
         </button>
