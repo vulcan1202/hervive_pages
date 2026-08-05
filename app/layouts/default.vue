@@ -116,21 +116,13 @@ watch(() => route.path, () => {
 
       <div class="relative z-10 container mx-auto px-4 space-y-6">
         <div class="space-y-2">
-          <span class="inline-block px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] bg-white/10 text-[#C5A880] border border-[#C5A880]/20 font-medium">HERVIVE BEAUTY STUDIO</span>
+          <span class="inline-block px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] bg-white/10 text-[#C5A880] border border-[#C5A880]/20 font-medium">專屬於你的美好時光</span>
           <h4 class="font-serif-luxury text-xl sm:text-2xl font-bold tracking-[0.3em] text-[#FAF4EE]">HERVIVE STUDIO</h4>
         </div>
 
         <p class="opacity-80 text-xs sm:text-sm tracking-widest max-w-md mx-auto font-light">
           妳的「肌膚專屬療癒所」客製化專業美容護膚
         </p>
-
-        <div class="flex justify-center items-center gap-6 text-xs text-[#C5A880] tracking-wider pt-2">
-          <span>新北三重專屬會館</span>
-          <span class="w-1.5 h-1.5 rounded-full bg-[#C5A880]"></span>
-          <span>採預約制</span>
-          <span class="w-1.5 h-1.5 rounded-full bg-[#C5A880]"></span>
-          <span>姐妹客製化親自服務</span>
-        </div>
 
         <div class="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent mx-auto my-6"></div>
 
