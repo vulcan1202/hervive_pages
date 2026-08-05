@@ -203,7 +203,7 @@ const selectImage = (index) => {
           </div>
           <div>
             <p class="text-[11px] text-[#C5A880] font-semibold tracking-widest uppercase">OPENING HOURS</p>
-            <p class="text-[#154337] font-bold text-base sm:text-lg leading-snug">11:00 AM - 21:00 PM (採預約制)</p>
+            <p class="text-[#154337] font-bold text-base sm:text-lg leading-snug">10:00 AM - 22:00 PM (完全預約制)</p>
           </div>
         </div>
 
@@ -288,4 +288,4 @@ const selectImage = (index) => {
 .reveal-leave-to {
   opacity: 0;
 }
-</style>
+</style>
