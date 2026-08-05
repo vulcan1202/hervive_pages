@@ -14,39 +14,55 @@ const cards = [
 </script>
 
 <template>
-  <div class="page-wrapper space-y-16 md:space-y-24">
-    <!-- Banner 區 (藝廊雙層柔光融入框體) -->
+  <div class="page-wrapper space-y-12 sm:space-y-16 md:space-y-20">
+    <!-- 品牌極致文字 Header Banner (取代原圖片，以 Doppelrand 框體 + 綠色文字與陰影效果呈現 HERVIVE STUDIO) -->
     <div class="banner-container double-bezel-outer transition-all duration-700 hover:shadow-xl group">
-      <div class="double-bezel-inner overflow-hidden relative rounded-2xl bg-[#FAF4EE]">
-        <img
-          src="/index/home-banner.png"
-          alt="Hervive STUDIO Banner"
-          class="banner-image w-full h-auto object-cover transition-transform duration-1000 group-hover:scale-[1.01]"
-        />
-        <!-- 柔和漸層與內邊界融入，消解影像圖片硬邊感 -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#FAF4EE]/15 via-transparent to-[#154337]/20 pointer-events-none"></div>
+      <div class="double-bezel-inner overflow-hidden relative rounded-2xl bg-[#FAF7F2] py-14 sm:py-20 md:py-24 px-6 text-center flex flex-col items-center justify-center space-y-4 border border-[#C5A880]/30">
+        <!-- 柔和氣氛燈 (消解板塊單調感) -->
+        <div class="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#154337]/5 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[#C5A880]/15 blur-3xl pointer-events-none"></div>
+
+        <!-- 品牌小 Eyebrow Badging -->
+        <p class="text-[10px] sm:text-xs text-[#C5A880] tracking-[0.3em] uppercase font-medium">EST. 2026 • HERVIVE AESTHETIC STUDIO</p>
+
+        <!-- HERVIVE STUDIO 巨型綠色精品陰影文字 -->
+        <h1 class="brand-hero-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-serif-luxury text-[#154337] tracking-[0.15em] sm:tracking-[0.2em] uppercase leading-none select-none">
+          HERVIVE STUDIO
+        </h1>
+
+        <p class="text-xs sm:text-sm text-gray-600 font-light tracking-[0.2em] pt-1">
+          活出真實的女性節奏 • 客製美學護理
+        </p>
+
+        <!-- 極細光線框體融入 -->
         <div class="absolute inset-0 ring-1 ring-inset ring-[#C5A880]/20 rounded-2xl pointer-events-none"></div>
       </div>
     </div>
 
     <!-- 主內容 -->
-    <div class="content-wrapper space-y-16">
+    <div class="content-wrapper space-y-12 sm:space-y-16">
       <!-- 品牌標題區 (Hero Section) -->
-      <section class="hero-section text-center relative py-6 md:py-10">
+      <section class="hero-section text-center relative py-4 md:py-8">
         <div class="hero-content max-w-3xl mx-auto space-y-8">
           
           <!-- 品牌微標籤 -->
-          <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/70 border border-[#C5A880]/30 shadow-sm backdrop-blur-md">
-            <span class="w-2 h-2 rounded-full bg-[#C5A880] animate-pulse"></span>
-            <span class="text-[11px] font-medium tracking-[0.25em] text-[#154337] uppercase font-serif-luxury">客製化皮膚管理</span>
-            <span class="w-4 h-[1px] bg-[#C5A880]"></span>
-            <span class="text-[11px] font-semibold tracking-widest text-[#C5A880]">HERVIVE STUDIO</span>
+          <div class="flex justify-center">
+            <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/70 border border-[#C5A880]/30 shadow-sm backdrop-blur-md">
+              <span class="w-2 h-2 rounded-full bg-[#C5A880] animate-pulse"></span>
+              <span class="text-[11px] font-medium tracking-[0.25em] text-[#154337] uppercase font-serif-luxury">客製化皮膚管理</span>
+              <span class="w-4 h-[1px] bg-[#C5A880]"></span>
+              <span class="text-[11px] font-semibold tracking-widest text-[#C5A880]">HERVIVE STUDIO</span>
+            </div>
           </div>
 
-          <h1 class="hero-title text-4xl sm:text-5xl md:text-6xl font-bold font-serif-luxury text-[#154337] tracking-wider leading-tight">
-            喚醒肌膚
-            <span class="block sm:inline text-[#C5A880] italic font-normal">原本的光采</span>
-          </h1>
+          <!-- 標題 (獨立單行並下移) -->
+          <div class="pt-2 sm:pt-4 flex justify-center">
+            <h2 class="hero-title inline-flex items-center justify-center gap-2.5 sm:gap-4 px-5 sm:px-7 py-2 sm:py-2.5 rounded-full bg-[#FAF7F2] border border-[#C5A880]/30 shadow-2xs text-base sm:text-xl md:text-2xl font-semibold font-serif-luxury text-[#154337] tracking-[0.15em] leading-normal">
+              <span class="w-2.5 sm:w-4 h-[1px] bg-[#C5A880] shrink-0"></span>
+              <span>喚醒肌膚 <span class="text-[#C5A880] italic font-normal">原本的光采</span></span>
+              <span class="w-2.5 sm:w-4 h-[1px] bg-[#C5A880] shrink-0"></span>
+            </h2>
+          </div>
 
           <div class="hero-description space-y-4 max-w-2xl mx-auto px-2">
             <p class="hero-description-main text-base sm:text-lg text-gray-700 leading-relaxed font-medium">
@@ -60,7 +76,7 @@ const cards = [
           </div>
 
           <!-- 分隔金句引言框 -->
-          <div class="divider-group relative p-6 sm:p-8 rounded-3xl bg-white/80 border border-[#C5A880]/25 shadow-sm backdrop-blur-md max-w-xl mx-auto">
+          <div class="divider-group relative p-6 sm:p-8 rounded-2xl bg-white/80 border border-[#C5A880]/25 shadow-sm backdrop-blur-md max-w-xl mx-auto">
             <div class="w-10 h-[1px] bg-[#C5A880] mx-auto mb-4"></div>
             <p class="divider-text text-sm sm:text-base font-medium text-[#154337] tracking-widest leading-relaxed">
               每個女人都擁有屬於自己的氛圍，從內而外擁有無限可能<br />
@@ -71,12 +87,12 @@ const cards = [
 
           <!-- CTA 按鈕群組 -->
           <div class="cta-group flex flex-wrap justify-center gap-4 pt-2">
-            <NuxtLink to="/services" class="btn btn-outline border border-[#154337] text-[#154337] bg-white hover:bg-[#FAF4EE] px-8 py-3.5 rounded-full text-sm font-medium tracking-wider shadow-sm hover:shadow-md transition-all flex items-center gap-2 group">
+            <NuxtLink to="/services" class="btn btn-outline border border-[#154337] text-[#154337] bg-white hover:bg-[#FAF4EE] px-8 py-3.5 rounded-xl text-sm font-medium tracking-wider shadow-sm hover:shadow-md transition-all flex items-center gap-2 group">
               <span>服務項目</span>
               <span class="text-[#C5A880] group-hover:translate-x-1 transition-transform">→</span>
             </NuxtLink>
             
-            <NuxtLink to="/about" class="btn btn-primary bg-[#154337] text-[#FAF4EE] hover:bg-[#0D2C24] px-8 py-3.5 rounded-full text-sm font-medium tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2 group border border-[#C5A880]/40">
+            <NuxtLink to="/about" class="btn btn-primary bg-[#154337] text-[#FAF4EE] hover:bg-[#0D2C24] px-8 py-3.5 rounded-xl text-sm font-medium tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2 group border border-[#C5A880]/40">
               <span>認識我們</span>
               <span class="group-hover:translate-x-1 transition-transform">→</span>
             </NuxtLink>
@@ -93,8 +109,8 @@ const cards = [
             class="card-item double-bezel-outer group transition-all duration-500 hover:-translate-y-1.5"
             :style="{ transitionDelay: `${index * 80}ms` }"
           >
-            <div class="double-bezel-inner p-8 text-center flex flex-col items-center h-full relative overflow-hidden">
-              <div class="w-16 h-16 rounded-2xl bg-[#FAF4EE] border border-[#C5A880]/30 flex items-center justify-center mb-6 text-[#154337] group-hover:bg-[#154337] group-hover:text-[#FAF4EE] transition-colors duration-500 shadow-sm">
+            <div class="double-bezel-inner p-8 text-center flex flex-col items-center h-full relative overflow-hidden rounded-2xl">
+              <div class="w-16 h-16 rounded-xl bg-[#FAF4EE] border border-[#C5A880]/30 flex items-center justify-center mb-6 text-[#154337] group-hover:bg-[#154337] group-hover:text-[#FAF4EE] transition-colors duration-500 shadow-sm">
                 <Icon :name="card.icon" size="32" class="card-icon transition-transform duration-500 group-hover:scale-110" />
               </div>
 
@@ -121,4 +137,11 @@ const cards = [
   max-width: 1140px;
   margin: 0 auto;
 }
-</style>
+
+.brand-hero-text {
+  text-shadow: 
+    0 4px 16px rgba(21, 67, 55, 0.22),
+    0 12px 30px rgba(21, 67, 55, 0.12),
+    0 0 35px rgba(197, 168, 128, 0.35);
+}
+</style>

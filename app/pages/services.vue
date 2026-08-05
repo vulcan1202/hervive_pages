@@ -1,248 +1,243 @@
 <script setup>
-import { ref } from 'vue'
-
 useSeoMeta({
-  title: '服務項目',
-  description: '赫琟美學提供專業皮膚管理課程：主打 Basic/Pro 水光透亮護理、藻針管理、緊顏管理及纖敏管理、訂製管理。針對毛孔粉刺清潔、肌膚暗沈、輪廓線雕塑提供客製化方案。新北三重推薦皮膚管理，讓您重拾自信美麗。',
-  ogTitle: '赫琟美學 Hervive STUDIO - 專業客製化皮膚管理課程',
-  ogDescription: '從基礎補水到進階緊顏，針對您的膚況量身訂製管理方案。立即查看服務內容。',
+  title: '服務項目與課程',
+  description: '赫琟美學提供專業皮膚管理課程：基礎韓式管理、客製安瓶管理、進階肌膚管理（含 6hrs淨透光、3D立體光感、海綿股珍、尊翼賦活、德卡美式調理）、頂級奢華管理，以及專屬加購護理。',
+  ogTitle: '赫琟美學 HERVIVE STUDIO - 專業客製化皮膚護理課程',
+  ogDescription: '從基礎韓式保濕到頂級奢華抗老管理，專屬打造細緻透亮的完美膚況。',
 })
 
-const activeIndex = ref(0)
+useSchemaOrg([
+  defineLocalBusiness({
+    name: '赫琟美學 HEAVIVE STUDIO',
+    image: '/about/about_logo.jpg',
+    address: {
+      streetAddress: '三和路三段103號1樓',
+      addressLocality: '三重區',
+      addressRegion: '新北市',
+      postalCode: '241',
+      addressCountry: 'TW',
+    },
+    geo: { latitude: '25.0726592', longitude: '121.491917' },
+    url: 'https://hervive-pages.pages.dev',
+    openingHours: [{ opens: '11:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
+    description: '赫琟美學專注於提供客製化的美容護膚服務，包含基礎韓式管理、客製安瓶管理、進階肌膚管理、頂級奢華管理及專屬加購護理。',
+  })
+])
 
-const targetedManagements = [
-  {
-    name: '緊顏管理',
-    desc: '彈力提拉，雕塑緊緻輪廓線',
-    content: '透過深層緊緻按摩手技，結合手技儀器，打造氣色自然紅潤的小V臉',
-    price: '2900',
-    image: '/services/service_face.jpg',
-    icon: 'mdi:face-woman-outline'
-  },
-  {
-    name: '纖敏管理',
-    desc: '穩定修復，還原健康肌膚屏障',
-    content: '內容規劃中...',
-    price: '2200',
-    icon: 'mdi:shield-check-outline'
-  },
-  {
-    name: '藻針管理',
-    desc: '深度代謝，改善瑕疵與粗糙',
-    content: '內容規劃中...',
-    price: '2900',
-    icon: 'mdi:leaf'
-  },
-  {
-    name: '訂製管理',
-    desc: '專屬配置，解決特定肌膚困擾',
-    content: '內容規劃中...',
-    price: '3200',
-    icon: 'mdi:auto-fix'
-  }
+// 03 進階肌膚管理 5 大課程
+const advancedSubCourses = [
+  { name: '6hrs淨透光管理', desc: '持久提亮細緻 打造亮采光透肌' },
+  { name: '3D立體光感管理', desc: '立體光感 彈潤緊緻 促進角質更新 平滑細緻' },
+  { name: '海綿股珍管理', desc: '調理肌膚油水平衡 促進角質更新' },
+  { name: '尊翼賦活管理', desc: '乳酸菌、PDRN配方 賦活緊緻 彈潤光采' },
+  { name: '德卡美式調理', desc: '美式調理手法 角質更新管理 釋放壓力' }
 ]
 
+// 04 頂級奢華管理 特色
+const luxuryFeatures = [
+  { subtitle: '全方位輪廓管理', content: '奢華修護抗老 全方位調理 輪廓清新重現年輕光采' },
+  { subtitle: '益膚乳酸菌', content: '乳酸菌外囊泡技術 平衡肌膚微生態強健屏障 穩定膚況' }
+]
+
+// 可加購項目
 const extraServices = [
-  { name: '眼周管理', price: 500 },
-  { name: '臉部經絡調理', price: 800 },
-  { name: '中胚導入', price: 1000 },
-  { name: 'SEYO 無針水光', price: 1500 }
+  { name: '眼周護理', price: '300' },
+  { name: '全臉撥經', price: '600' },
+  { name: '淨化離子', price: '800' },
+  { name: '小顏手技', price: '1,000' },
+  { name: '輪廓管理', price: '1,200' },
 ]
 </script>
 
 <template>
-  <div class="space-y-16 sm:space-y-24 py-4 max-w-5xl mx-auto">
-    <!-- 頁面標題區 -->
-    <div class="text-center space-y-3">
-      <span class="inline-block px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] bg-white/70 text-[#C5A880] border border-[#C5A880]/30 font-medium">HERVIVE SKIN CARE MENU</span>
-      <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold font-serif-luxury text-[#154337] tracking-wider">
-        專屬客製 <span class="text-[#C5A880] italic">服務項目</span>
-      </h1>
-      <div class="w-12 h-[1px] bg-[#C5A880] mx-auto mt-4"></div>
+  <div class="space-y-8 sm:space-y-14 py-4 sm:py-8 max-w-4xl mx-auto px-4 sm:px-6 relative">
+    <!-- 柔光氣氛燈背景 -->
+    <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-[#154337]/5 blur-3xl"></div>
+      <div class="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[#C5A880]/10 blur-3xl"></div>
     </div>
 
-    <!-- 主打課程：水光透亮 (Double-Bezel 藝廊大牌卡) -->
-    <section class="double-bezel-outer">
-      <div class="double-bezel-inner overflow-hidden grid md:grid-cols-2 items-stretch">
-        <!-- 圖片側 -->
-        <div class="bg-[#FAF4EE] p-6 sm:p-8 flex items-center justify-center min-h-[300px] border-b md:border-b-0 md:border-r border-[#C5A880]/20 relative overflow-hidden group">
-          <img
-            src="/services/service_glow.jpg"
-            alt="水光透亮管理"
-            class="max-w-full h-auto rounded-2xl shadow-xl object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div class="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full border border-[#C5A880]/30 text-[10px] font-bold text-[#154337] tracking-widest">
-            FEATURED CARE
+    <!-- Editorial Hero Header -->
+    <section class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 sm:pb-7 border-b border-[#C5A880]/30">
+      <div class="space-y-1 sm:space-y-2">
+        <p class="text-[10px] sm:text-xs text-[#C5A880] tracking-[0.25em] uppercase font-medium">HERVIVE SERVICES</p>
+        <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold font-serif-luxury text-[#154337] tracking-wider">
+          服務課程 <span class="text-[#C5A880] font-normal italic">Menu</span>
+        </h1>
+      </div>
+      <p class="text-xs sm:text-sm text-gray-500 max-w-xs sm:max-w-sm font-light leading-relaxed tracking-wider">
+        針對即時膚況需求，以溫柔手技與專業調理，喚醒肌膚深層的透亮與平衡。
+      </p>
+    </section>
+
+    <!-- 所有課程獨立框框區域 (獨立排列向下延伸) -->
+    <section class="space-y-6 sm:space-y-8">
+      <!-- 01 基礎韓式管理 -->
+      <div class="bg-[#FAF7F2] p-5 sm:p-8 rounded-2xl border border-[#C5A880]/30 space-y-5 sm:space-y-6 shadow-sm hover:border-[#154337]/30 transition-all">
+        <div class="flex flex-row items-baseline justify-between gap-2 pb-4 border-b border-[#C5A880]/25">
+          <div>
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#C5A880]/60 block mb-0.5">01</span>
+            <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">基礎韓式管理</h2>
+            <p class="text-xs text-[#C5A880] font-semibold tracking-wider mt-1">深層清潔 X 保濕</p>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">$1,800</span>
           </div>
         </div>
 
-        <!-- 內容細節側 -->
-        <div class="p-6 sm:p-8 lg:p-10 space-y-6 flex flex-col justify-between bg-white">
-          <div class="space-y-3">
-            <h2 class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#154337] tracking-wider">水光透亮</h2>
-            <div class="space-y-1">
-              <p class="text-[#C5A880] font-bold text-xl sm:text-2xl font-serif-luxury">Basic $2200 <span class="text-gray-400 font-sans text-lg">/</span> Pro $2600</p>
-              <p class="text-xs text-gray-400 font-light">※ 另有會員價，加Line、IG立刻詢問</p>
-            </div>
-          </div>
+        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed font-light">
+          維持肌膚健康穩定，深層清潔毛孔同時補足水分，還原肌膚原本的淨透質感。
+        </p>
 
-          <div class="space-y-5 text-gray-600 border-t border-b border-gray-100 py-6">
-            <div class="flex gap-4 items-start">
-              <div class="w-7 h-7 rounded-full bg-[#FAF4EE] border border-[#C5A880]/40 flex items-center justify-center text-[#154337] shrink-0 mt-0.5 font-bold text-xs">01</div>
-              <div class="space-y-0.5">
-                <h4 class="font-bold text-gray-800 text-sm sm:text-base">毛孔粉刺清潔、膚況穩定</h4>
-                <p class="text-xs sm:text-sm font-medium text-[#154337]">水飛梭清潔＋手工清粉刺</p>
-                <p class="text-xs text-gray-500 leading-relaxed font-light">溫和代謝老廢角質，毛孔乾淨不刺激</p>
-              </div>
-            </div>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
+          <span class="text-[11px] sm:text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-2xs">深層清潔毛孔</span>
+          <span class="text-[11px] sm:text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-2xs">溫和水潤保濕</span>
+          <span class="text-[11px] sm:text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-2xs">維持肌膚穩定</span>
+        </div>
 
-            <div class="flex gap-4 items-start">
-              <div class="w-7 h-7 rounded-full bg-[#FAF4EE] border border-[#C5A880]/40 flex items-center justify-center text-[#154337] shrink-0 mt-0.5 font-bold text-xs">02</div>
-              <div class="space-y-0.5">
-                <h4 class="font-bold text-gray-800 text-sm sm:text-base">水潤透亮、上妝服貼</h4>
-                <p class="text-xs text-gray-500 leading-relaxed font-light">深層補水，讓肌膚細緻有光澤，妝感更自然</p>
-              </div>
-            </div>
-
-            <div class="flex gap-4 items-start">
-              <div class="w-7 h-7 rounded-full bg-[#FAF4EE] border border-[#C5A880]/40 flex items-center justify-center text-[#154337] shrink-0 mt-0.5 font-bold text-xs">03</div>
-              <div class="space-y-0.5">
-                <h4 class="font-bold text-gray-800 text-sm sm:text-base">提亮氣色、放鬆身心</h4>
-                <p class="text-xs sm:text-sm font-medium text-[#154337]">精華安瓶導入＋修護軟膜（含肩頸放鬆）</p>
-                <p class="text-xs text-gray-500 leading-relaxed font-light">肌膚發光，同時好好休息一下</p>
-              </div>
-            </div>
-          </div>
-
-          <a href="http://lin.ee/HmMJftl" target="_blank" class="w-full bg-[#154337] text-[#FAF4EE] py-3 rounded-full font-medium hover:bg-[#0D2C24] transition-all shadow-sm flex items-center justify-center gap-2 text-sm tracking-wider group border border-[#C5A880]/30">
-            <span>預約水光透亮課程</span>
+        <div class="pt-4 border-t border-[#C5A880]/20 flex justify-end">
+          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#154337] text-[#FAF4EE] px-7 py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#0D2C24] transition-all shadow-sm active:scale-[0.98]">
+            <span>立即預約課程</span>
             <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform text-[#C5A880]" />
-          </a>
+          </NuxtLink>
         </div>
       </div>
-    </section>
 
-    <!-- 針對性管理 (頁籤動態選擇器) -->
-    <section class="space-y-8">
-      <div class="text-center space-y-2">
-        <h3 class="text-2xl font-bold font-serif-luxury text-[#154337] tracking-widest">針對性管理</h3>
-        <p class="text-xs text-[#C5A880] tracking-wider uppercase font-medium">TARGETED SKIN SOLUTIONS</p>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-6 min-h-[420px]">
-        <!-- 頁籤列表 -->
-        <div class="md:w-1/3 flex flex-col gap-3">
-          <button
-            v-for="(item, index) in targetedManagements"
-            :key="item.name"
-            @click="activeIndex = index"
-            :class="[
-              'flex items-center justify-between p-4 sm:p-5 rounded-2xl border transition-all duration-300 text-left group',
-              activeIndex === index
-                ? 'bg-[#154337] text-white border-[#C5A880]/50 shadow-md'
-                : 'bg-white text-gray-700 border-[#C5A880]/30 hover:border-[#154337] hover:bg-[#FAF4EE]/60'
-            ]"
-          >
-            <div class="flex items-center gap-4">
-              <div :class="[
-                'w-10 h-10 rounded-xl flex items-center justify-center transition-colors',
-                activeIndex === index ? 'bg-white/10 text-[#C5A880]' : 'bg-[#FAF4EE] text-[#154337] group-hover:bg-[#154337] group-hover:text-white'
-              ]">
-                <Icon :name="item.icon" size="22" />
-              </div>
-              <div>
-                <span class="font-bold text-sm sm:text-base block">{{ item.name }}</span>
-                <span :class="['text-xs font-light tracking-wide block truncate max-w-[160px]', activeIndex === index ? 'text-white/80' : 'text-gray-400']">{{ item.desc }}</span>
-              </div>
-            </div>
-            
-            <Icon name="mdi:chevron-right" size="20" :class="[activeIndex === index ? 'text-[#C5A880]' : 'text-gray-300 group-hover:text-[#154337]']" />
-          </button>
-        </div>
-
-        <!-- 頁籤詳細展示 -->
-        <div class="md:w-2/3 double-bezel-outer flex-grow">
-          <div class="double-bezel-inner p-6 sm:p-8 lg:p-10 h-full flex flex-col justify-between relative overflow-hidden bg-white">
-            <div v-if="targetedManagements[activeIndex]" class="space-y-6">
-              
-              <div class="flex items-start justify-between border-b border-gray-100 pb-4">
-                <div>
-                  <h4 class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">{{ targetedManagements[activeIndex].name }}</h4>
-                  <p class="text-xs text-[#C5A880] mt-1 font-medium tracking-wider">{{ targetedManagements[activeIndex].desc }}</p>
-                </div>
-                
-                <div class="text-right">
-                  <p class="text-2xl font-bold font-serif-luxury text-[#154337]">${{ targetedManagements[activeIndex].price }}</p>
-                  <p class="text-[10px] text-gray-400 font-light">※ 另有會員價，加Line、IG詢問</p>
-                </div>
-              </div>
-
-              <!-- 展示圖片與內容 -->
-              <div class="grid md:grid-cols-2 gap-6 items-center pt-2">
-                <div v-if="targetedManagements[activeIndex].image" class="rounded-2xl overflow-hidden border border-[#C5A880]/30 shadow-md">
-                  <img
-                    :src="targetedManagements[activeIndex].image"
-                    class="w-full h-48 sm:h-56 object-cover"
-                    alt="服務展示圖"
-                  />
-                </div>
-
-                <div :class="[targetedManagements[activeIndex].image ? 'md:col-span-1' : 'md:col-span-2']" class="space-y-4">
-                  <p class="text-gray-600 leading-relaxed text-sm sm:text-base font-light whitespace-pre-line bg-[#FAF4EE]/60 p-5 rounded-2xl border border-[#C5A880]/20">
-                    {{ targetedManagements[activeIndex].content }}
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="pt-6 mt-6 border-t border-gray-100 flex justify-end">
-              <a href="http://lin.ee/HmMJftl" target="_blank" class="inline-flex items-center gap-2 bg-[#154337] text-[#FAF4EE] px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium hover:bg-[#0D2C24] transition-all shadow-sm">
-                <Icon name="mdi:calendar-check" size="18" class="text-[#C5A880]" />
-                <span>諮詢此課程</span>
-              </a>
-            </div>
+      <!-- 02 客製安瓶管理 -->
+      <div class="bg-white p-5 sm:p-8 rounded-2xl border border-[#154337]/20 space-y-5 sm:space-y-6 shadow-sm hover:border-[#154337]/50 transition-all">
+        <div class="flex flex-row items-baseline justify-between gap-2 pb-4 border-b border-gray-100">
+          <div>
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#154337]/40 block mb-0.5">02</span>
+            <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">客製安瓶管理</h2>
+            <p class="text-xs text-[#C5A880] font-semibold tracking-wider mt-1">依膚況搭配客製化安瓶與輪廓手技</p>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">$2,200</span>
           </div>
         </div>
+
+        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed font-light">
+          結合深層清潔與客製安瓶導入，搭配手技按摩加強臉部輪廓，打造健康透亮、細緻有光澤的膚況。
+        </p>
+
+        <div class="pt-1 text-xs sm:text-sm text-[#154337] font-medium tracking-wider flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#C5A880] shrink-0"></span>
+          <span class="leading-relaxed">鎖定補水 • 亮白潤澤 • 毛孔彈潤</span>
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 flex justify-end">
+          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#154337] text-[#FAF4EE] px-7 py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#0D2C24] transition-all shadow-sm active:scale-[0.98]">
+            <span>立即預約課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform text-[#C5A880]" />
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- 03 進階肌膚管理 -->
+      <div class="bg-[#FAF7F2] p-5 sm:p-8 rounded-2xl border border-[#C5A880]/30 space-y-5 sm:space-y-6 shadow-sm hover:border-[#154337]/30 transition-all">
+        <div class="flex flex-row items-baseline justify-between gap-2 pb-4 border-b border-[#C5A880]/25">
+          <div>
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#C5A880]/60 block mb-0.5">03</span>
+            <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">進階肌膚管理</h2>
+            <p class="text-xs text-[#C5A880] font-medium tracking-wider mt-1">包含以下 5 大精準管理課程：</p>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">$2,800</span>
+          </div>
+        </div>
+
+        <div class="divide-y divide-[#C5A880]/20">
+          <div
+            v-for="(sub, idx) in advancedSubCourses"
+            :key="sub.name"
+            class="py-3 sm:py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 group"
+          >
+            <div class="flex items-center gap-2.5">
+              <span class="text-xs font-mono text-[#C5A880] font-bold shrink-0">0{{ idx + 1 }}</span>
+              <h3 class="font-bold text-[#154337] text-xs sm:text-base group-hover:text-[#C5A880] transition-colors tracking-wide">{{ sub.name }}</h3>
+            </div>
+            <p class="text-xs text-gray-600 font-light tracking-wider sm:text-right pl-6 sm:pl-0 leading-relaxed">{{ sub.desc }}</p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-[#C5A880]/20 flex justify-end">
+          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#154337] text-[#FAF4EE] px-7 py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#0D2C24] transition-all shadow-sm active:scale-[0.98]">
+            <span>立即預約課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform text-[#C5A880]" />
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- 04 頂級奢華管理 -->
+      <div class="bg-[#154337] text-[#FAF4EE] p-5 sm:p-8 rounded-2xl relative overflow-hidden space-y-5 sm:space-y-6 shadow-xl">
+        <div class="flex flex-row items-baseline justify-between gap-2 pb-4 border-b border-[#C5A880]/30">
+          <div>
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#C5A880]/60 block mb-0.5">04</span>
+            <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#FAF4EE] tracking-widest">頂級奢華管理</h2>
+            <p class="text-xs text-[#C5A880] tracking-widest mt-1">全方位奢華抗老與肌膚屏障穩定</p>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#C5A880]">$3,200</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
+          <div v-for="(item, i) in luxuryFeatures" :key="i" class="space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#C5A880] shrink-0"></span>
+              <h3 class="text-sm sm:text-base font-bold font-serif-luxury text-[#FAF4EE] tracking-wide">{{ item.subtitle }}</h3>
+            </div>
+            <p class="text-xs sm:text-sm text-[#FAF4EE]/80 font-light leading-relaxed tracking-wider pl-3.5">
+              {{ item.content }}
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-[#C5A880]/30 flex justify-end">
+          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#C5A880] text-[#154337] px-7 py-3 rounded-xl text-xs sm:text-sm font-bold hover:bg-white transition-all shadow-md active:scale-[0.98]">
+            <span>立即預約課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform" />
+          </NuxtLink>
+        </div>
       </div>
     </section>
 
-    <!-- 加購服務 (Extra Services 2x2 晶透卡片) -->
-    <section class="max-w-4xl mx-auto">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#C5A880]/30 shadow-sm space-y-6">
-        <div class="text-center md:text-left flex flex-col md:flex-row items-center justify-between border-b border-gray-100 pb-4 gap-2">
-          <h3 class="text-xl font-bold font-serif-luxury text-[#154337]">加購服務</h3>
-          <p class="text-xs text-gray-400 font-light">可配合主課程加購，提升保養綜合效果</p>
+    <!-- 可加購項目 -->
+    <section class="space-y-4 pt-2">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-1.5 pb-3 border-b border-[#C5A880]/30">
+        <div>
+          <p class="text-[10px] sm:text-xs text-[#C5A880] tracking-[0.2em] uppercase font-medium">ADD-ONS</p>
+          <h2 class="text-lg sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">可加購項目</h2>
         </div>
+        <p class="text-xs text-gray-500 font-light">配合主課程自由加購，提升護理效果與放鬆感受</p>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="bg-white p-4 sm:p-7 rounded-2xl border border-gray-200/80 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3.5 gap-x-12">
           <div
             v-for="service in extraServices"
             :key="service.name"
-            class="flex items-center justify-between text-gray-700 bg-[#FAF4EE]/60 p-4 rounded-2xl border border-[#C5A880]/20 hover:border-[#154337] transition-all"
+            class="flex items-center justify-between border-b border-gray-100/80 pb-2.5 group"
           >
-            <div class="flex items-center gap-3">
-              <div class="w-7 h-7 rounded-full bg-[#154337]/10 flex items-center justify-center text-[#154337]">
-                <Icon name="mdi:plus-circle-outline" size="18" />
-              </div>
-              <span class="text-sm font-bold text-gray-800">{{ service.name }}</span>
+            <span class="text-xs sm:text-sm font-bold text-gray-800 tracking-wide group-hover:text-[#154337] transition-colors">{{ service.name }}</span>
+            <div class="flex items-baseline gap-1">
+              <span class="text-xs text-[#C5A880] font-medium">+</span>
+              <span class="text-sm sm:text-base font-bold font-serif-luxury text-[#154337]">${{ service.price }}</span>
             </div>
-            <span class="text-base font-bold font-serif-luxury text-[#154337]">${{ service.price }}</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 底部預約提示 (Bottom CTA) -->
-    <section class="text-center pb-8">
-      <a
-        href="http://lin.ee/HmMJftl"
-        target="_blank"
-        class="inline-flex items-center gap-3 bg-[#154337] text-[#FAF4EE] px-10 py-4 rounded-full font-medium hover:bg-[#0D2C24] transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 border border-[#C5A880]/40 group"
+    <!-- 底部 線上預約 -->
+    <section class="text-center pt-2 pb-4">
+      <NuxtLink
+        to="/booking"
+        class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#154337] text-[#FAF4EE] px-8 py-3.5 sm:px-9 sm:py-4 rounded-xl font-semibold hover:bg-[#0D2C24] transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
       >
-        <Icon name="mdi:calendar-check" size="22" class="text-[#C5A880] group-hover:scale-110 transition-transform" />
-        <span class="text-base tracking-wider">預約您的水光之旅</span>
-      </a>
+        <Icon name="mdi:calendar-check" size="20" class="text-[#C5A880] group-hover:scale-110 transition-transform" />
+        <span class="text-sm sm:text-base tracking-wider">立即預約課程</span>
+      </NuxtLink>
     </section>
   </div>
-</template>
+</template>
