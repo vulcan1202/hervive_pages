@@ -128,8 +128,8 @@ const selectImage = (index) => {
             <div class="space-y-4">
               <div class="group w-full text-left rounded-2xl border border-[#C5A880]/30 bg-white p-4 sm:p-5 transition-all duration-300 hover:shadow-md hover:border-[#154337]">
                 <div class="mb-2 flex items-center gap-3">
-                  <span class="w-8 h-8 rounded-full bg-[#154337] text-white flex items-center justify-center font-serif-luxury font-bold text-sm">寧</span>
-                  <span class="text-lg font-bold text-[#154337]">寧寧</span>
+                  <span class="w-8 h-8 rounded-full bg-[#154337] text-white flex items-center justify-center font-serif-luxury font-bold text-sm">N</span>
+                  <span class="text-lg font-bold text-[#154337]">Ning</span>
                   <span class="text-xs text-[#C5A880] font-medium tracking-widest">/ 姐姐</span>
                 </div>
                 <p class="text-gray-600 leading-relaxed tracking-wider text-xs sm:text-sm pl-2 border-l-2 border-[#C5A880]/40 group-hover:border-[#154337] transition-colors">
@@ -197,8 +197,8 @@ const selectImage = (index) => {
     <!-- 營業時間與位置卡片 (Location & Hours) -->
     <section class="max-w-4xl mx-auto">
       <div class="grid gap-6 md:grid-cols-2">
-        <div class="bg-white border border-[#C5A880]/30 p-6 rounded-3xl flex items-center gap-5 shadow-sm hover:border-[#154337] transition-all">
-          <div class="w-14 h-14 shrink-0 bg-[#FAF4EE] rounded-2xl border border-[#C5A880]/30 flex items-center justify-center text-[#154337]">
+        <div class="bg-white border border-[#C5A880]/30 p-6 rounded-3xl flex flex-col sm:flex-row items-center text-center sm:text-left justify-center sm:justify-start gap-4 sm:gap-5 shadow-sm hover:border-[#154337] transition-all">
+          <div class="w-14 h-14 shrink-0 bg-[#FAF4EE] rounded-2xl border border-[#C5A880]/30 flex items-center justify-center text-[#154337] mx-auto sm:mx-0">
             <Icon name="mdi:clock-outline" size="28" />
           </div>
           <div>
@@ -207,14 +207,14 @@ const selectImage = (index) => {
           </div>
         </div>
 
-        <a href="https://maps.app.goo.gl/XFr72zB2CA26n8A68" target="_blank" class="bg-white border border-[#C5A880]/30 p-6 rounded-3xl flex items-center gap-5 shadow-sm hover:bg-[#FAF4EE] hover:border-[#154337] transition-all group">
-          <div class="w-14 h-14 shrink-0 bg-[#FAF4EE] rounded-2xl border border-[#C5A880]/30 flex items-center justify-center text-[#154337] group-hover:bg-[#154337] group-hover:text-white transition-colors">
+        <a href="https://maps.app.goo.gl/XFr72zB2CA26n8A68" target="_blank" class="bg-white border border-[#C5A880]/30 p-6 rounded-3xl flex flex-col sm:flex-row items-center text-center sm:text-left justify-center sm:justify-start gap-4 sm:gap-5 shadow-sm hover:bg-[#FAF4EE] hover:border-[#154337] transition-all group">
+          <div class="w-14 h-14 shrink-0 bg-[#FAF4EE] rounded-2xl border border-[#C5A880]/30 flex items-center justify-center text-[#154337] group-hover:bg-[#154337] group-hover:text-white transition-colors mx-auto sm:mx-0">
             <Icon name="mdi:map-marker-radius-outline" size="28" />
           </div>
           <div class="min-w-0">
             <p class="text-[11px] text-[#C5A880] font-semibold tracking-widest uppercase">OUR LOCATION</p>
             <p class="text-[#154337] font-bold text-base sm:text-lg leading-tight truncate">新北市三重區三和路三段103號1樓</p>
-            <p class="text-xs text-[#C5A880] mt-1 font-medium underline flex items-center gap-1">
+            <p class="text-xs text-[#C5A880] mt-1 font-medium underline flex items-center justify-center sm:justify-start gap-1">
               <span>點擊開啟 Google Maps 導航</span>
               <Icon name="mdi:arrow-top-right" size="14" />
             </p>
