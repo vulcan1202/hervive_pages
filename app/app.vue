@@ -11,7 +11,7 @@ const handleLoadFinish = () => {
 </script>
 
 <template>
-  <div class="antialiased min-h-screen bg-[#FAF4EE]">
+  <div class="antialiased min-h-screen bg-[#FAF4EE] text-[#2D3748] selection:bg-[#154337] selection:text-[#FAF4EE]">
 
     <Transition name="fade-overlay">
       <Load v-if="isLoading" @finished="handleLoadFinish" />
@@ -19,7 +19,7 @@ const handleLoadFinish = () => {
 
     <div
       class="transition-opacity duration-1000 ease-in-out"
-      :class="isLoading ? 'opacity-0' : 'opacity-100'"
+      :class="isLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'"
     >
       <NuxtLayout>
         <NuxtPage />
@@ -34,14 +34,14 @@ const handleLoadFinish = () => {
 body {
   background-color: #FAF4EE;
   margin: 0;
-  font-family: 'Noto Sans TC', sans-serif; /* 確保字體一致 */
+  font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
 }
 
 /* 載入畫面消失的淡出動畫設定 */
 .fade-overlay-leave-active {
-  transition: opacity 0.8s ease-in-out;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .fade-overlay-leave-to {
   opacity: 0;
 }
-</style>
+</style>

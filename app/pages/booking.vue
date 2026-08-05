@@ -171,18 +171,20 @@ const timeSlots = computed(() => {
 })
 
 const checkSlotDisabledForDate = (dateStr: string, slotTime: string, apptsList: any[]) => {
+  if (!dateStr || !slotTime) return false
+
   const [h, m] = slotTime.split(':').map(Number)
   const slotStartMin = h * 60 + m
   const slotEndMin = slotStartMin + 150 
   
-  const reqDateObj = new Date(dateStr)
+  const reqDateObj = new Date(dateStr.replace(/-/g, '/'))
   const dayOfWeek = reqDateObj.getDay()
 
   for (const h of holidays.value) {
-    if (h.type === 'weekly' && h.day_of_week === dayOfWeek) return true
+    if (h.type === 'weekly' && Number(h.day_of_week) === dayOfWeek) return true
     if (h.type === 'full_day' && h.date === dateStr) return true
     
-    if (h.type === 'time_range' && h.date === dateStr) {
+    if (h.type === 'time_range' && h.date === dateStr && h.start_time && h.end_time) {
       const [hhStart, hmStart] = h.start_time.split(':').map(Number)
       const holidayStartMin = hhStart * 60 + hmStart
       const [hhEnd, hmEnd] = h.end_time.split(':').map(Number)
@@ -194,11 +196,27 @@ const checkSlotDisabledForDate = (dateStr: string, slotTime: string, apptsList: 
     }
   }
 
-  for (const appt of apptsList) {
-    const [ah, am] = appt.start_time.split(':').map(Number)
-    const [ae, em] = appt.end_time.split(':').map(Number)
-    if (slotStartMin < (ae * 60 + em) && slotEndMin > (ah * 60 + am)) {
-      return true 
+  if (Array.isArray(apptsList)) {
+    for (const appt of apptsList) {
+      if (appt.status === 'cancelled') continue
+
+      if (!appt.start_time) continue
+      const [ah, am] = appt.start_time.split(':').map(Number)
+      if (isNaN(ah) || isNaN(am)) continue
+
+      const apptStartMin = ah * 60 + am
+      let apptEndMin = apptStartMin + 150
+
+      if (appt.end_time) {
+        const [ae, em] = appt.end_time.split(':').map(Number)
+        if (!isNaN(ae) && !isNaN(em)) {
+          apptEndMin = ae * 60 + em
+        }
+      }
+
+      if (slotStartMin < apptEndMin && slotEndMin > apptStartMin) {
+        return true 
+      }
     }
   }
   
@@ -232,7 +250,7 @@ const disabledDates = computed(() => {
 
     const dow = d.getDay()
     const isFullOff = holidays.value.some(h => 
-      (h.type === 'weekly' && h.day_of_week === dow) || 
+      (h.type === 'weekly' && Number(h.day_of_week) === dow) || 
       (h.type === 'full_day' && h.date === dateStr)
     )
 
@@ -256,11 +274,11 @@ const disabledDates = computed(() => {
 
 const isFullDayOff = computed(() => {
   if (!form.date) return false
-  const reqDateObj = new Date(form.date)
+  const reqDateObj = new Date(form.date.replace(/-/g, '/'))
   const dayOfWeek = reqDateObj.getDay()
   
   return holidays.value.some(h => 
-    (h.type === 'weekly' && h.day_of_week === dayOfWeek) || 
+    (h.type === 'weekly' && Number(h.day_of_week) === dayOfWeek) || 
     (h.type === 'full_day' && h.date === form.date)
   )
 })
@@ -334,189 +352,198 @@ const finishAndRedirect = () => {
 </script>
 
 <template>
-  <!-- 模板完全保持不變 -->
-  <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-12', isLiffMode ? 'pb-36' : 'pb-8 sm:pb-12']">
+  <div :class="['max-w-2xl mx-auto px-3 sm:px-4 pt-2 sm:py-8', isLiffMode ? 'pb-36' : 'pb-8 sm:pb-12']">
     
-    <div class="bg-white rounded-2xl shadow-sm border border-[#C7CDCE] p-4 sm:p-8">
-      
-      <div class="border-b border-gray-100 pb-3 mb-5 flex items-center justify-between">
-        <div>
-          <h2 class="text-lg sm:text-2xl font-bold text-[#154337] title-serif flex items-center gap-2">
-            <Icon name="mdi:calendar-clock" class="text-[#154337]" size="22" />
-            線上預約護膚
-          </h2>
-          <p class="text-gray-400 text-xs mt-0.5">療程預計服務時間固定為 2.5 小時</p>
-        </div>
-        <span v-if="isLiffMode" class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-bold border border-emerald-200/60 shrink-0">
-          LINE 快速預約
-        </span>
-      </div>
-
-      <div v-if="errorMessage" class="bg-red-50 text-red-600 p-3 rounded-xl text-xs sm:text-sm mb-5 text-center font-medium animate-shake">
-        {{ errorMessage }}
-      </div>
-
-      <form @submit.prevent="handleBooking" class="space-y-6">
+    <div class="double-bezel-outer">
+      <div class="double-bezel-inner bg-white p-5 sm:p-8 space-y-6">
         
-        <!-- 步驟 1：選擇日期 -->
-        <div class="space-y-2 relative z-40">
-          <label class="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-1.5">
-            <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#154337] text-white text-[10px] sm:text-xs flex items-center justify-center font-mono">1</span>
-            選擇預約日期 <span class="text-red-500">*</span>
-          </label>
-          
-          <MyCalendar 
-            v-model="selectedDateObj"
-            :min-date="minDateObj"
-            :disabled-dates="disabledDates" 
-            :disabled-week-days="disabledWeekDays"
-            placeholder="點擊選擇預約日期"
-          />
-          
-          <div class="flex items-start gap-1 text-[11px] text-gray-400 mt-1.5 bg-gray-50/80 p-2 rounded-xl">
-            <Icon name="mdi:information-outline" size="14" class="shrink-0 text-gray-500 mt-0.5" />
-            <span>開放預約明日起之日期；若當日無可選擇時段，系統將自動將該日期標示為不可選。</span>
+        <!-- 表單標題列 -->
+        <div class="border-b border-gray-100 pb-4 flex items-center justify-between">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#FAF4EE] text-[#154337] border border-[#C5A880]/30 text-[10px] uppercase font-semibold tracking-widest">
+              ONLINE RESERVATION
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-[#154337] font-serif-luxury flex items-center gap-2">
+              <Icon name="mdi:calendar-clock" class="text-[#C5A880]" size="24" />
+              線上預約護膚
+            </h2>
+            <p class="text-gray-400 text-xs font-light">療程預計服務時間固定為 2.5 小時</p>
           </div>
+          <span v-if="isLiffMode" class="text-[10px] bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full font-bold border border-emerald-200 shrink-0 tracking-wider">
+            LINE 快速預約
+          </span>
         </div>
 
-        <!-- 步驟 2：選擇時段 -->
-        <div class="space-y-2 pt-3 border-t border-gray-100">
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-1.5">
-              <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#154337] text-white text-[10px] sm:text-xs flex items-center justify-center font-mono">2</span>
-              選擇時段 <span class="text-red-500">*</span>
+        <div v-if="errorMessage" class="bg-red-50 text-red-600 p-3.5 rounded-2xl text-xs sm:text-sm text-center font-bold animate-shake border border-red-200">
+          {{ errorMessage }}
+        </div>
+
+        <form @submit.prevent="handleBooking" class="space-y-6">
+          
+          <!-- 步驟 1：選擇日期 -->
+          <div class="space-y-2.5 relative z-40">
+            <label class="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-[#154337] text-white text-xs flex items-center justify-center font-mono font-bold">1</span>
+              選擇預約日期 <span class="text-red-500">*</span>
             </label>
-
-            <button 
-              type="button" 
-              @click="handleRefreshSlots" 
-              :disabled="isRefreshingSlots"
-              class="text-xs text-[#154337] bg-gray-50 hover:bg-[#154337]/5 px-2 py-1 rounded-lg transition flex items-center gap-1 font-bold disabled:opacity-50 active:scale-95"
-            >
-              <Icon name="mdi:refresh" size="13" :class="{ 'animate-spin': isRefreshingSlots }" />
-              <span>重新載入</span>
-            </button>
-          </div>
-          
-          <div v-if="!form.date" class="text-gray-400 text-xs sm:text-sm py-8 text-center bg-gray-50/60 rounded-xl border border-dashed border-gray-200">
-            請先點選上方日期以載入可預約時段
-          </div>
-          
-          <div v-else-if="isFullDayOff" class="text-red-500 text-xs sm:text-sm font-bold bg-red-50/80 p-4 rounded-xl border border-red-100 text-center">
-            🚫 店家本日公休，請選擇其他日期！
-          </div>
-
-          <div v-else class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-2.5 max-h-60 overflow-y-auto p-1.5 border border-gray-200 rounded-xl bg-gray-50/50">
-            <button 
-              v-for="time in timeSlots" 
-              :key="time"
-              type="button"
-              :disabled="isSlotDisabled(time)"
-              @click="form.startTime = time"
-              :class="[
-                'py-2.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all border active:scale-95 flex items-center justify-center gap-1',
-                isSlotDisabled(time) ? 'bg-gray-100/80 text-gray-300 border-gray-200 cursor-not-allowed line-through' :
-                form.startTime === time ? 'bg-[#154337] text-white border-[#154337] shadow-md scale-[1.02]' :
-                'bg-white text-gray-700 border-gray-200 hover:border-[#154337] shadow-2xs'
-              ]"
-            >
-              <span>{{ time }}</span>
-            </button>
-          </div>
-        </div>
-
-        <div :class="[!isLiffMode ? 'block' : 'hidden sm:block', 'border-t border-gray-100 pt-5 mt-4']">
-          <div class="bg-gray-50/80 border border-gray-200 rounded-xl p-4 space-y-2 mb-5">
-            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
-              <Icon name="mdi:clipboard-text-outline" size="15" />
-              預約內容預覽
-            </h3>
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-gray-600">服務項目：</span>
-              <span class="font-bold text-gray-800">{{ form.serviceName }}</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-gray-600">選擇時間：</span>
-              <span class="font-bold text-[#154337]">
-                {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '尚未選擇完整時間' }}
-              </span>
+            
+            <MyCalendar 
+              v-model="selectedDateObj"
+              :min-date="minDateObj"
+              :disabled-dates="disabledDates" 
+              :disabled-week-days="disabledWeekDays"
+              placeholder="點擊選擇預約日期"
+            />
+            
+            <div class="flex items-start gap-1.5 text-[11px] text-gray-500 mt-2 bg-[#FAF4EE]/70 p-3 rounded-2xl border border-[#C5A880]/20 font-light">
+              <Icon name="mdi:information-outline" size="16" class="shrink-0 text-[#C5A880] mt-0.5" />
+              <span>開放預約明日起之日期；若當日無可選擇時段，系統將自動將該日期標示為不可選。</span>
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            :disabled="!form.startTime || status === 'loading' || isFullDayOff"
-            class="w-full bg-[#154337] text-[#FAF4EE] font-bold py-3.5 rounded-xl hover:bg-opacity-90 active:scale-95 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed shadow-md"
-          >
-            {{ status === 'loading' ? '處理預約中...' : '確認送出預約' }}
-          </button>
-        </div>
+          <!-- 步驟 2：選擇時段 -->
+          <div class="space-y-3 pt-4 border-t border-gray-100">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-[#154337] text-white text-xs flex items-center justify-center font-mono font-bold">2</span>
+                選擇時段 <span class="text-red-500">*</span>
+              </label>
 
-      </form>
+              <button 
+                type="button" 
+                @click="handleRefreshSlots" 
+                :disabled="isRefreshingSlots"
+                class="text-xs text-[#154337] bg-[#FAF4EE] hover:bg-[#154337] hover:text-white px-3 py-1 rounded-full transition-all flex items-center gap-1.5 font-bold disabled:opacity-50 active:scale-95 border border-[#C5A880]/30 shadow-xs"
+              >
+                <Icon name="mdi:refresh" size="14" :class="{ 'animate-spin': isRefreshingSlots }" class="text-[#C5A880]" />
+                <span>重新載入</span>
+              </button>
+            </div>
+            
+            <div v-if="!form.date" class="text-gray-400 text-xs sm:text-sm py-10 text-center bg-[#FAF4EE]/50 rounded-2xl border border-dashed border-[#C5A880]/30 font-light">
+              請先點選上方日期以載入可預約時段
+            </div>
+            
+            <div v-else-if="isFullDayOff" class="text-red-600 text-xs sm:text-sm font-bold bg-red-50/80 p-4 rounded-2xl border border-red-200 text-center">
+              🚫 店家本日公休，請選擇其他日期！
+            </div>
+
+            <div v-else class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-2.5 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-2xl bg-[#FAF4EE]/40">
+              <button 
+                v-for="time in timeSlots" 
+                :key="time"
+                type="button"
+                :disabled="isSlotDisabled(time)"
+                @click="form.startTime = time"
+                :class="[
+                  'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all border active:scale-95 flex items-center justify-center gap-1 font-mono',
+                  isSlotDisabled(time) ? 'bg-gray-100/80 text-gray-300 border-gray-200 cursor-not-allowed line-through' :
+                  form.startTime === time ? 'bg-[#154337] text-white border-[#C5A880] shadow-md scale-[1.02]' :
+                  'bg-white text-gray-700 border-gray-200 hover:border-[#154337] shadow-xs'
+                ]"
+              >
+                <span>{{ time }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 預覽與提交 -->
+          <div :class="[!isLiffMode ? 'block' : 'hidden sm:block', 'border-t border-gray-100 pt-5 mt-4']">
+            <div class="bg-[#FAF4EE]/70 border border-[#C5A880]/30 rounded-2xl p-4 sm:p-5 space-y-2.5 mb-6 shadow-xs">
+              <h3 class="text-xs font-bold text-[#154337] uppercase tracking-wider flex items-center gap-1.5 font-serif-luxury">
+                <Icon name="mdi:clipboard-text-outline" size="16" class="text-[#C5A880]" />
+                預約內容預覽
+              </h3>
+              <div class="flex items-center justify-between text-xs sm:text-sm">
+                <span class="text-gray-500 font-light">服務項目：</span>
+                <span class="font-bold text-gray-800 font-serif-luxury">{{ form.serviceName }}</span>
+              </div>
+              <div class="flex items-center justify-between text-xs sm:text-sm">
+                <span class="text-gray-500 font-light">選擇時間：</span>
+                <span class="font-bold text-[#154337] font-mono">
+                  {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '尚未選擇完整時間' }}
+                </span>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              :disabled="!form.startTime || status === 'loading' || isFullDayOff"
+              class="w-full bg-[#154337] text-[#FAF4EE] font-bold py-3.5 rounded-full hover:bg-[#0D2C24] active:scale-95 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed shadow-md border border-[#C5A880]/30 text-sm tracking-wider"
+            >
+              {{ status === 'loading' ? '處理預約中...' : '確認送出預約' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
     </div>
 
+    <!-- LIFF Mode 底部橫條 -->
     <div 
       v-if="isLiffMode"
-      class="sm:hidden fixed bottom-[55px] left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-2.5 z-[60] shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
+      class="sm:hidden fixed bottom-[60px] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-[#C5A880]/30 px-4 py-3 z-[60] shadow-[0_-4px_16px_rgba(21,67,55,0.08)]"
     >
       <div class="max-w-md mx-auto flex items-center justify-between gap-3">
         <div class="text-xs">
-          <p class="text-gray-400 text-[10px]">已選預約時段：</p>
-          <p class="font-bold text-[#154337] text-xs sm:text-sm">
+          <p class="text-gray-400 text-[10px] font-light">已選預約時段：</p>
+          <p class="font-bold text-[#154337] text-xs sm:text-sm font-mono">
             {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '請選擇時間' }}
           </p>
         </div>
         <button 
           @click="handleBooking"
           :disabled="!form.startTime || status === 'loading' || isFullDayOff"
-          class="bg-[#154337] text-white font-bold px-5 py-2 rounded-xl text-xs sm:text-sm shadow-md hover:bg-opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
+          class="bg-[#154337] text-white font-bold px-6 py-2.5 rounded-full text-xs sm:text-sm shadow-md hover:bg-[#0D2C24] active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none border border-[#C5A880]/30"
         >
           {{ status === 'loading' ? '處理中...' : '確認預約' }}
         </button>
       </div>
     </div>
 
-    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 z-[100]">
-      <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-7 text-center space-y-4 animate-slide-up relative">
+    <!-- 成功提示彈窗 Success Modal -->
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-[100]">
+      <div class="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 text-center space-y-5 animate-slide-up relative border border-[#C5A880]/40">
         
         <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-1 sm:hidden"></div>
 
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl sm:text-3xl shadow-2xs">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-[#FAF4EE] text-[#C5A880] rounded-full flex items-center justify-center mx-auto text-2xl sm:text-3xl border border-[#C5A880]/30 shadow-inner">
           ⏳
         </div>
         
-        <div>
-          <h2 class="text-lg sm:text-2xl font-bold text-gray-800 mb-1">預約尚未完全成立！</h2>
-          <p class="text-red-600 font-medium text-xs sm:text-sm">
-            請在 <span class="font-black underline">30 分鐘內</span> 完成 LINE 驗證，<br>逾時系統將自動釋放出此時段。
+        <div class="space-y-1">
+          <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-gray-800">預約尚未完全成立！</h2>
+          <p class="text-red-600 font-medium text-xs sm:text-sm leading-relaxed">
+            請在 <span class="font-bold underline">30 分鐘內</span> 完成 LINE 驗證，<br>逾時系統將自動釋放出此時段。
           </p>
         </div>
 
-        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 sm:p-4">
-          <p class="text-gray-400 text-[11px] mb-0.5">您的專屬預約編號</p>
-          <div class="text-2xl sm:text-3xl font-black text-[#154337] tracking-wider mb-2 font-mono">
+        <div class="bg-[#FAF4EE]/80 border border-[#C5A880]/30 rounded-2xl p-4 sm:p-5 space-y-2">
+          <p class="text-gray-500 text-[11px] font-light uppercase tracking-wider">您的專屬預約編號</p>
+          <div class="text-2xl sm:text-3xl font-bold text-[#154337] tracking-wider font-mono">
             {{ appointmentCode }}
           </div>
           <button 
             v-if="!($liff && $liff.isInClient())"
             @click="copyCode"
-            class="text-xs bg-white text-gray-700 border border-gray-200 px-3 py-1 rounded-lg font-bold hover:bg-gray-100 transition shadow-2xs"
+            class="text-xs bg-white text-[#154337] border border-[#C5A880]/30 px-3.5 py-1.5 rounded-full font-bold hover:bg-[#FAF4EE] transition shadow-xs inline-flex items-center gap-1"
           >
-            📄 複製編號
+            <Icon name="mdi:content-copy" size="14" class="text-[#C5A880]" />
+            複製編號
           </button>
         </div>
 
-        <div class="space-y-2.5 pt-1">
+        <div class="space-y-3 pt-2">
           <button 
             @click="handleSendLineMessage"
-            class="block w-full bg-[#06C755] text-white font-bold py-3 rounded-xl hover:bg-[#05b34c] active:scale-98 transition shadow-md text-xs sm:text-base"
+            class="block w-full bg-[#06C755] text-white font-bold py-3.5 rounded-full hover:bg-[#05b34c] active:scale-98 transition shadow-md text-xs sm:text-sm tracking-wider"
           >
             {{ $liff && $liff.isInClient() ? '傳送預約編號並返回 LINE' : '複製編號並前往 LINE 驗證' }}
           </button>
           
           <button 
             @click="finishAndRedirect"
-            class="text-xs text-gray-400 hover:text-gray-700 underline transition py-1 block w-full"
+            class="text-xs text-gray-500 hover:text-[#154337] underline transition py-1 block w-full font-light"
           >
             我已完成傳送，返回會員頁
           </button>
@@ -534,7 +561,7 @@ const finishAndRedirect = () => {
   to { transform: translateY(0); }
 }
 .animate-slide-up {
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes shake {

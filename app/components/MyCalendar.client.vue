@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue' // 🌟 記得引入 computed
+import { computed } from 'vue'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { zhTW } from 'date-fns/locale'
@@ -14,31 +14,38 @@ const props = defineProps<{
 const selectedDate = defineModel<Date | null>()
 
 const isDateDisabled = (date: Date) => {
+  const d = date instanceof Date ? date : new Date(date)
+  if (isNaN(d.getTime())) return false
+
+  const dayOfWeek = d.getDay()
+
   if (props.disabledWeekDays?.length) {
-    if (props.disabledWeekDays.includes(date.getDay())) {
+    const weekDaysNum = props.disabledWeekDays.map(Number)
+    if (weekDaysNum.includes(dayOfWeek)) {
       return true
     }
   }
 
   if (props.disabledDates?.length) {
-    return props.disabledDates.some(d => 
-      d.getFullYear() === date.getFullYear() &&
-      d.getMonth() === date.getMonth() &&
-      d.getDate() === date.getDate()
-    )
+    const year = d.getFullYear()
+    const month = d.getMonth()
+    const day = d.getDate()
+    return props.disabledDates.some(disabledDate => {
+      const dd = disabledDate instanceof Date ? disabledDate : new Date(disabledDate)
+      return dd.getFullYear() === year && dd.getMonth() === month && dd.getDate() === day
+    })
   }
 
   return false
 }
 
-// 🌟 暴力破解：我們自己監聽選中的日期，並強制轉為 YYYY-MM-DD
 const displayDate = computed(() => {
-  if (!selectedDate.value) return '';
-  const d = new Date(selectedDate.value);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
+  if (!selectedDate.value) return ''
+  const d = new Date(selectedDate.value)
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
 })
 </script>
 
@@ -51,12 +58,11 @@ const displayDate = computed(() => {
     :disabled-dates="isDateDisabled"
     :enable-time-picker="false"
     :auto-apply="true"
-    :teleport="false"
+    :teleport="true"
   >
-    <!-- 🌟 重點：不再使用套件插槽給的 value，改綁定我們自己寫的 displayDate -->
     <template #dp-input="{ onClick }">
       <input
-        class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#154337] cursor-pointer bg-white relative z-10"
+        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] cursor-pointer bg-[#FAF4EE]/40 focus:bg-white transition relative z-10"
         :value="displayDate"
         @click="onClick"
         :placeholder="placeholder || '請點擊選擇日期'"
@@ -72,6 +78,12 @@ const displayDate = computed(() => {
   --dp-primary-text-color: #ffffff;
 }
 .dp__menu {
-  z-index: 9999 !important;
+  z-index: 99999 !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(197, 168, 128, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(21, 67, 55, 0.12) !important;
+}
+.dp__outer_menu_wrap {
+  z-index: 99999 !important;
 }
 </style>
