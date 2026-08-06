@@ -7,9 +7,9 @@ const emit = defineEmits(['finished'])
 const progress = ref(0)
 
 onMounted(() => {
-  // 設定載入總時間 (例如 2.5 秒)
-  const duration = 2500
-  const intervalTime = 50 // 每 50ms 更新一次
+  // 設定載入總時間 (例如 1.5 秒)
+  const duration = 1500
+  const intervalTime = 30 // 每 30ms 更新一次
 
   const timer = setInterval(() => {
     if (progress.value < 100) {
@@ -76,4 +76,4 @@ onMounted(() => {
     transform: translateY(0) scale(1);
   }
 }
-</style>
+</style>
