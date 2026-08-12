@@ -27,6 +27,24 @@ const cachedDayAppointments = ref<Record<string, any[]>>({})
 const { $liff } = useNuxtApp()
 const isLiffMode = ref(false)
 
+const bookingAdvanceDays = ref(60)
+const bookingEnabled = ref(true)
+
+const fetchSystemSettings = async () => {
+  try {
+    const res = await fetch(`${backendUrl}/api/settings`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.data) {
+        bookingAdvanceDays.value = Number(data.data.booking_advance_days || 60)
+        bookingEnabled.value = data.data.booking_enabled !== false
+      }
+    }
+  } catch (e) {
+    console.error('取得系統設定失敗', e)
+  }
+}
+
 onMounted(async () => {
   const storedUser = localStorage.getItem('hervive_user')
   if (!storedUser) {
@@ -39,10 +57,11 @@ onMounted(async () => {
     isLiffMode.value = true
   }
 
-  // 使用 Promise.all 平行獲取休假設定與預約資料，縮短總等待時間
+  // 使用 Promise.all 平行獲取休假設定、系統設定與預約資料，縮短總等待時間
   await Promise.all([
     fetchHolidays(),
-    fetchAllUpcomingAppointments()
+    fetchAllUpcomingAppointments(),
+    fetchSystemSettings()
   ])
 })
 
@@ -50,6 +69,12 @@ const minDateObj = computed(() => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   return tomorrow
+})
+
+const maxDateObj = computed(() => {
+  const maxD = new Date()
+  maxD.setDate(maxD.getDate() + (bookingAdvanceDays.value || 60))
+  return maxD
 })
 
 const disabledWeekDays = computed(() => {
@@ -374,6 +399,11 @@ const finishAndRedirect = () => {
           </span>
         </div>
 
+        <div v-if="!bookingEnabled" class="bg-amber-50 text-amber-900 p-4 rounded-2xl text-xs sm:text-sm text-center font-bold border border-amber-300 flex items-center justify-center gap-2">
+          <Icon name="mdi:alert-circle-outline" class="text-xl text-amber-600 shrink-0" />
+          <span>門市目前暫時關閉線上預約功能。如有即時預約需求，請直接致電或 LINE 聯繫門市專員！</span>
+        </div>
+
         <div v-if="errorMessage" class="bg-red-50 text-red-600 p-3.5 rounded-2xl text-xs sm:text-sm text-center font-bold animate-shake border border-red-200">
           {{ errorMessage }}
         </div>
@@ -390,6 +420,7 @@ const finishAndRedirect = () => {
             <MyCalendar 
               v-model="selectedDateObj"
               :min-date="minDateObj"
+              :max-date="maxDateObj"
               :disabled-dates="disabledDates" 
               :disabled-week-days="disabledWeekDays"
               placeholder="點擊選擇預約日期"
@@ -397,7 +428,7 @@ const finishAndRedirect = () => {
             
             <div class="flex items-start gap-1.5 text-[11px] text-gray-500 mt-2 bg-[#FAF4EE]/70 p-3 rounded-2xl border border-[#C5A880]/20 font-light">
               <Icon name="mdi:information-outline" size="16" class="shrink-0 text-[#C5A880] mt-0.5" />
-              <span>開放預約明日起之日期；若當日無可選擇時段，系統將自動將該日期標示為不可選。</span>
+              <span>開放預約未來 {{ bookingAdvanceDays }} 天內之日期（即日起至 {{ maxDateObj.toISOString().slice(0, 10) }}）；若當日無可選擇時段，系統將自動將該日期標示為不可選。</span>
             </div>
           </div>
 
