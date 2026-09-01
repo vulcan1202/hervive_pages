@@ -397,6 +397,7 @@ const weekDays = computed(() => {
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     const dd = String(d.getDate()).padStart(2, '0')
     const dateStr = `${yyyy}-${mm}-${dd}`
+    const monthDayStr = `${mm}/${dd}` // 🌟 直接標記月份如 09/02
     
     const dayOfWeek = d.getDay() // 0 = 日, 1 = 一
     const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6)
@@ -421,6 +422,7 @@ const weekDays = computed(() => {
     days.push({
       dateObj: d,
       dateStr,
+      monthDayStr,
       dayNumber: d.getDate(),
       monthNumber: d.getMonth() + 1,
       dayName: weekDayNames[i],
@@ -442,30 +444,7 @@ const selectDay = (day: { dateObj: Date; isDisabled: boolean }) => {
   selectedDateObj.value = new Date(day.dateObj)
 }
 
-// 🌟 月份導覽與切換
-const availableMonths = computed(() => {
-  const months = []
-  const start = new Date(minDateObj.value)
-  const end = new Date(maxDateObj.value)
-  
-  const cur = new Date(start.getFullYear(), start.getMonth(), 1)
-  const endMonth = new Date(end.getFullYear(), end.getMonth(), 1)
-  
-  while (cur <= endMonth) {
-    const y = cur.getFullYear()
-    const m = cur.getMonth()
-    months.push({
-      year: y,
-      month: m,
-      key: `${y}-${m}`,
-      label: `${m + 1}月`,
-      fullLabel: `${y} 年 ${m + 1} 月`
-    })
-    cur.setMonth(cur.getMonth() + 1)
-  }
-  return months
-})
-
+// 🌟 月份顯示文字 (保留純顯示，刪除切換月份按鍵)
 const currentMonthYearDisplay = computed(() => {
   if (!weekDays.value.length) return ''
   const first = weekDays.value[0].dateObj
@@ -479,59 +458,10 @@ const currentMonthYearDisplay = computed(() => {
     return `${firstY} 年 ${firstM} 月`
   }
   if (firstY === lastY) {
-    return `${firstY} 年 ${firstM} 月 / ${lastM} 月`
+    return `${firstY} 年 ${firstM} / ${lastM} 月`
   }
   return `${firstY} 年 ${firstM} 月 - ${lastY} 年 ${lastM} 月`
 })
-
-const isMonthInView = (year: number, month: number) => {
-  if (!weekDays.value.length) return false
-  return weekDays.value.some(day => 
-    day.dateObj.getFullYear() === year && day.dateObj.getMonth() === month
-  )
-}
-
-const canPrevMonth = computed(() => {
-  if (!weekDays.value.length) return false
-  const firstDay = weekDays.value[0].dateObj
-  const minY = minDateObj.value.getFullYear()
-  const minM = minDateObj.value.getMonth()
-  return !(firstDay.getFullYear() === minY && firstDay.getMonth() <= minM)
-})
-
-const canNextMonth = computed(() => {
-  if (!weekDays.value.length) return false
-  const lastDay = weekDays.value[6].dateObj
-  const maxY = maxDateObj.value.getFullYear()
-  const maxM = maxDateObj.value.getMonth()
-  return !(lastDay.getFullYear() === maxY && lastDay.getMonth() >= maxM)
-})
-
-const prevMonth = () => {
-  if (!canPrevMonth.value) return
-  const cur = new Date(currentWeekStart.value)
-  const target = new Date(cur.getFullYear(), cur.getMonth() - 1, 1)
-  const finalTarget = target < minDateObj.value ? minDateObj.value : target
-  selectedDateObj.value = finalTarget
-  syncWeekStart(finalTarget)
-}
-
-const nextMonth = () => {
-  if (!canNextMonth.value) return
-  const cur = new Date(currentWeekStart.value)
-  const target = new Date(cur.getFullYear(), cur.getMonth() + 1, 1)
-  const finalTarget = target > maxDateObj.value ? maxDateObj.value : target
-  selectedDateObj.value = finalTarget
-  syncWeekStart(finalTarget)
-}
-
-const jumpToMonth = (year: number, month: number) => {
-  let target = new Date(year, month, 1)
-  if (target < minDateObj.value) target = new Date(minDateObj.value)
-  if (target > maxDateObj.value) target = new Date(maxDateObj.value)
-  selectedDateObj.value = target
-  syncWeekStart(target)
-}
 
 const isFullDayOff = computed(() => {
   if (!form.date) return false
@@ -676,54 +606,20 @@ const finishAndRedirect = () => {
               </MyCalendar>
             </div>
 
-            <!-- 🌟 上方：快速切換月份與標題 -->
-            <div class="flex items-center justify-between bg-[#FAF4EE]/80 border border-[#C5A880]/30 px-3 py-2 rounded-2xl">
-              <div class="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  @click="prevMonth"
-                  :disabled="!canPrevMonth"
-                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-white text-[#154337] hover:bg-[#154337] hover:text-white transition disabled:opacity-25 disabled:cursor-not-allowed border border-gray-200 shadow-2xs active:scale-95 cursor-pointer"
-                  title="上個月"
-                >
-                  <Icon name="mdi:chevron-left" size="18" />
-                </button>
-
-                <span class="font-bold text-[#154337] font-serif-luxury text-xs sm:text-sm tracking-wide px-1">
+            <!-- 🌟 月份顯示 (刪除切換月份按鍵，只保留月份文字提示，由下方週數切換) -->
+            <div class="flex items-center justify-between bg-[#FAF4EE]/80 border border-[#C5A880]/30 px-3.5 py-2 rounded-2xl">
+              <div class="flex items-center gap-2">
+                <Icon name="mdi:calendar-range" size="16" class="text-[#C5A880]" />
+                <span class="font-bold text-[#154337] font-serif-luxury text-xs sm:text-sm tracking-wide">
                   {{ currentMonthYearDisplay }}
                 </span>
-
-                <button
-                  type="button"
-                  @click="nextMonth"
-                  :disabled="!canNextMonth"
-                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-white text-[#154337] hover:bg-[#154337] hover:text-white transition disabled:opacity-25 disabled:cursor-not-allowed border border-gray-200 shadow-2xs active:scale-95 cursor-pointer"
-                  title="下個月"
-                >
-                  <Icon name="mdi:chevron-right" size="18" />
-                </button>
               </div>
-
-              <!-- 快速跳轉月份標籤 (按鈕) -->
-              <div class="flex items-center gap-1 overflow-x-auto">
-                <button
-                  v-for="m in availableMonths"
-                  :key="m.key"
-                  type="button"
-                  @click="jumpToMonth(m.year, m.month)"
-                  :class="[
-                    'text-xs px-2.5 py-0.5 rounded-full font-bold transition border shrink-0 cursor-pointer active:scale-95',
-                    isMonthInView(m.year, m.month)
-                      ? 'bg-[#154337] text-white border-[#C5A880] shadow-2xs'
-                      : 'bg-white text-gray-600 hover:bg-[#FAF4EE] border-gray-200'
-                  ]"
-                >
-                  {{ m.label }}
-                </button>
-              </div>
+              <span class="text-[11px] text-gray-400 font-light">
+                以週為單位瀏覽 (使用兩側按鍵切換)
+              </span>
             </div>
 
-            <!-- 🌟 一週七天按鈕排成一列 (最左/最右有切換上下週按鍵) -->
+            <!-- 🌟 一週七天按鈕排成一列 (最左/最右有切換上下週按鍵，日期直接標記月份如 09/02) -->
             <div class="flex items-center gap-1 sm:gap-2">
               <!-- 上一週按鍵 -->
               <button
@@ -769,14 +665,14 @@ const finishAndRedirect = () => {
                     {{ day.shortName }}
                   </span>
 
-                  <!-- 日期數字 (e.g. 2, 15) -->
+                  <!-- 日期數字 (直接標記月份 如 09/02) -->
                   <span 
                     :class="[
-                      'text-xs sm:text-base font-bold font-mono',
+                      'text-[11px] sm:text-xs font-bold font-mono tracking-tight',
                       day.isSelected ? 'text-white' : day.isDisabled ? 'text-gray-300' : 'text-gray-800'
                     ]"
                   >
-                    {{ day.dayNumber }}
+                    {{ day.monthDayStr }}
                   </span>
 
                   <!-- 狀態標籤 (休 / 滿 / 圓點) -->
