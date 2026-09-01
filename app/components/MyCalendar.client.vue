@@ -105,22 +105,24 @@ const displayDate = computed(() => {
     :teleport="true"
   >
     <template #dp-input="{ onClick }: any">
-      <div class="relative w-full">
-        <input
-          :class="[
-            'w-full border border-gray-200 rounded-xl p-3 pr-10 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] cursor-pointer bg-[#FAF4EE]/40 focus:bg-white transition relative z-10 font-sans text-gray-800',
-            inputClass || ''
-          ]"
-          :value="displayDate"
-          @click="onClick"
-          :placeholder="placeholder || '請點擊選擇日期'"
-          readonly
-        />
-        <Icon 
-          name="mdi:calendar-month-outline" 
-          class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none z-20" 
-        />
-      </div>
+      <slot name="trigger" :onClick="onClick" :displayDate="displayDate">
+        <div class="relative w-full">
+          <input
+            :class="[
+              'w-full border border-gray-200 rounded-xl p-3 pr-10 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] cursor-pointer bg-[#FAF4EE]/40 focus:bg-white transition relative z-10 font-sans text-gray-800',
+              inputClass || ''
+            ]"
+            :value="displayDate"
+            @click="onClick"
+            :placeholder="placeholder || '請點擊選擇日期'"
+            readonly
+          />
+          <Icon 
+            name="mdi:calendar-month-outline" 
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none z-20" 
+          />
+        </div>
+      </slot>
     </template>
   </VueDatePicker>
 </template>
