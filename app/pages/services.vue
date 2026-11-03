@@ -1,14 +1,14 @@
 <script setup>
 useSeoMeta({
   title: '服務項目與課程',
-  description: '赫琟美學提供專業皮膚管理課程：基礎韓式管理、客製安瓶管理、進階肌膚管理（含 6hrs淨透光、3D立體光感、海綿股珍、尊翼賦活、德卡美式調理）、頂級奢華管理，以及專屬加購護理。',
-  ogTitle: '赫琟美學 HERVIVE STUDIO - 專業客製化皮膚護理課程',
+  description: '芯荷肌膚養護提供專業皮膚管理課程：基礎韓式管理、客製安瓶管理、進階肌膚管理（含 6hrs淨透光、3D立體光感、海綿股珍、尊翼賦活、德卡美式調理）、頂級奢華管理，以及專屬加購護理。',
+  ogTitle: '芯荷肌膚養護 HERVIVE STUDIO - 專業客製化皮膚護理課程',
   ogDescription: '從基礎韓式保濕到頂級奢華抗老管理，專屬打造細緻透亮的完美膚況。',
 })
 
 useSchemaOrg([
   defineLocalBusiness({
-    name: '赫琟美學 HEAVIVE STUDIO',
+    name: '芯荷肌膚養護 HERVIVE STUDIO',
     image: '/about/about_logo.jpg',
     address: {
       streetAddress: '三和路三段103號1樓',
@@ -20,7 +20,7 @@ useSchemaOrg([
     geo: { latitude: '25.0726592', longitude: '121.491917' },
     url: 'https://hervive-pages.pages.dev',
     openingHours: [{ opens: '11:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
-    description: '赫琟美學專注於提供客製化的美容護膚服務，包含基礎韓式管理、客製安瓶管理、進階肌膚管理、頂級奢華管理及專屬加購護理。',
+    description: '芯荷肌膚養護專注於提供客製化的美容護膚服務，包含基礎韓式管理、客製安瓶管理、進階肌膚管理、頂級奢華管理及專屬加購護理。',
   })
 ])
 

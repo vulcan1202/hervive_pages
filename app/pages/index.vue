@@ -71,7 +71,7 @@ const cards = [
             </p>
             <p class="hero-description-sub text-sm sm:text-base text-gray-600 leading-relaxed font-light italic">
               Hervie 希望每一位女性都能夠在生活中找到屬於自己的節奏，活出最真實的自我<br class="hidden sm:block" />
-              在赫琟，每個人都能擁有自信且舒適的氛圍
+              在芯荷肌膚養護，每個人都能擁有自信且舒適的氛圍
             </p>
           </div>
 

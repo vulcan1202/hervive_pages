@@ -2,9 +2,9 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 useSeoMeta({
-  title: '關於赫琟美學',
+  title: '關於芯荷肌膚養護',
   description: 'Hervive STUDIO 位於新北三重，由寧寧與容容姐妹共同經營。專注於客製化皮膚管理、水光透亮護理、緊顏管理與藻針修復。提供溫暖且專業的療癒空間，針對敏感肌、粉刺痘痘及臉部拉提，為您打造專屬的美學方案。',
-  ogTitle: '關於赫琟美學 HERVIVE STUDIO - 找回肌膚原本的光采',
+  ogTitle: '關於芯荷肌膚養護 HERVIVE STUDIO - 找回肌膚原本的光采',
   ogDescription: '專業三重皮膚管理，有溫度美學空間，立即預約您的客製化護理課程。',
   ogImage: '/about/about_logo.jpg',
   ogType: 'website',
@@ -13,7 +13,7 @@ useSeoMeta({
 
 useSchemaOrg([
   defineLocalBusiness({
-    name: '赫琟美學 HEAVIVE STUDIO',
+    name: '芯荷肌膚養護 HERVIVE STUDIO',
     image: '/about/about_logo.jpg',
     address: {
       streetAddress: '三和路三段103號1樓',
@@ -25,7 +25,7 @@ useSchemaOrg([
     geo: { latitude: '25.0726592', longitude: '121.491917' },
     url: 'https://hervive-pages.pages.dev',
     openingHours: [{ opens: '11:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
-    description: '赫琟美學專注於提供客製化的美容護膚服務，包含水光透亮、緊顏管理、皮膚管理、霧眉等服務體驗。',
+    description: '芯荷肌膚養護專注於提供客製化的美容護膚服務，包含水光透亮、緊顏管理、皮膚管理、霧眉等服務體驗。',
   })
 ])
 
@@ -83,7 +83,7 @@ const selectImage = (index) => {
         <!-- 右側：品牌內容 (雙層框體引言卡片, 輕微下移) -->
         <div class="w-full md:w-8/12 space-y-6 text-left text-gray-700 leading-relaxed slide-in-from-left md:pt-8">
           <p class="text-base sm:text-lg font-medium text-gray-800 tracking-wide">
-            赫琟美學，專注於提供 <span class="text-[#154337] font-bold border-b border-[#C5A880]/60 pb-0.5">客製化的美容護膚服務</span>。
+            芯荷肌膚養護，專注於提供 <span class="text-[#154337] font-bold border-b border-[#C5A880]/60 pb-0.5">客製化的美容護膚服務</span>。
           </p>
           
           <!-- Doppelrand (雙層框體) 精緻引言卡片 -->
@@ -91,7 +91,7 @@ const selectImage = (index) => {
             <div class="double-bezel-inner relative p-6 sm:p-8 bg-white/90 backdrop-blur-md space-y-2">
               <Icon name="mdi:format-quote-open" class="absolute -top-3 -left-3 text-[#C5A880]/30" size="44" />
               <p class="italic text-[#154337] tracking-widest leading-loose font-serif-luxury text-base sm:text-lg">
-                在赫琟美學，我們用溫柔的節奏與安心的環境，<br class="hidden md:block">
+                在芯荷肌膚養護，我們用溫柔的節奏與安心的環境，<br class="hidden md:block">
                 讓每一位走進來的妳，都能感受到自信與時尚感的提升。
               </p>
               <Icon name="mdi:format-quote-close" class="absolute -bottom-3 -right-3 text-[#C5A880]/30" size="44" />
