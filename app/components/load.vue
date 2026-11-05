@@ -52,8 +52,8 @@ onMounted(() => {
         ></div>
       </div>
 
-      <div class="mt-4 flex items-center justify-between w-full text-[10px] tracking-[0.25em] font-medium uppercase font-mono">
-        <span class="text-[#C5A880] font-serif-luxury tracking-widest font-semibold">HERVIVE STUDIO</span>
+      <div class="mt-4 flex items-center justify-between w-full text-xs tracking-[0.25em] font-medium uppercase font-mono">
+        <span class="text-[#8A6A3B] font-serif-luxury tracking-widest font-semibold">HERVIVE STUDIO</span>
         <span class="text-[#154337]/70">{{ Math.floor(progress) }}%</span>
       </div>
     </div>

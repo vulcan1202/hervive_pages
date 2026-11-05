@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 const currentUser = ref<any>(null)
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl
 
+// 從服務頁帶入的課程（僅接受既有課程名稱，避免任意字串）
+const bookableServices = ['基礎韓式管理', '客製安瓶管理', '進階肌膚管理', '頂級奢華管理']
+const requestedService = typeof route.query.service === 'string' ? route.query.service : ''
+const initialService = bookableServices.includes(requestedService) ? requestedService : ''
+
 const form = reactive({
-  serviceName: '精緻美學管理 (2.5小時)',
+  serviceName: initialService || '精緻美學管理 (2.5小時)',
   date: '',      
   startTime: ''
 })
@@ -551,7 +557,7 @@ const finishAndRedirect = () => {
         <!-- 表單標題列 -->
         <div class="border-b border-gray-100 pb-4 flex items-center justify-between">
           <div class="space-y-1">
-            <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#FAF4EE] text-[#154337] border border-[#C5A880]/30 text-[10px] uppercase font-semibold tracking-widest">
+            <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#FAF4EE] text-[#154337] border border-[#C5A880]/30 text-xs uppercase font-semibold tracking-widest">
               ONLINE RESERVATION
             </div>
             <h2 class="text-xl sm:text-2xl font-bold text-[#154337] font-serif-luxury flex items-center gap-2">
@@ -560,7 +566,7 @@ const finishAndRedirect = () => {
             </h2>
             <p class="text-gray-400 text-xs font-light">療程預計服務時間固定為 2.5 小時</p>
           </div>
-          <span v-if="isLiffMode" class="text-[10px] bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full font-bold border border-emerald-200 shrink-0 tracking-wider">
+          <span v-if="isLiffMode" class="text-xs bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full font-bold border border-emerald-200 shrink-0 tracking-wider">
             LINE 快速預約
           </span>
         </div>
@@ -596,7 +602,7 @@ const finishAndRedirect = () => {
                   <button
                     type="button"
                     @click="onClick"
-                    class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold text-[#154337] bg-[#FAF4EE] hover:bg-[#154337] hover:text-white border border-[#C5A880]/40 transition shadow-2xs active:scale-95 cursor-pointer"
+                    class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold text-[#154337] bg-[#FAF4EE] hover:bg-[#154337] hover:text-white border border-[#C5A880]/40 transition shadow-sm active:scale-95 cursor-pointer"
                     title="點擊開啟完整日曆挑選日期"
                   >
                     <Icon name="mdi:calendar-month-outline" size="15" class="text-[#C5A880]" />
@@ -606,116 +612,108 @@ const finishAndRedirect = () => {
               </MyCalendar>
             </div>
 
-            <!-- 🌟 月份顯示 (刪除切換月份按鍵，只保留月份文字提示，由下方週數切換) -->
-            <div class="flex items-center justify-between bg-[#FAF4EE]/80 border border-[#C5A880]/30 px-3.5 py-2 rounded-2xl">
-              <div class="flex items-center gap-2">
-                <Icon name="mdi:calendar-range" size="16" class="text-[#C5A880]" />
-                <span class="font-bold text-[#154337] font-serif-luxury text-xs sm:text-sm tracking-wide">
-                  {{ currentMonthYearDisplay }}
-                </span>
-              </div>
-              <span class="text-[11px] text-gray-400 font-light">
-                以週為單位瀏覽 (使用兩側按鍵切換)
-              </span>
-            </div>
-
-            <!-- 🌟 一週七天按鈕排成一列 (最左/最右有切換上下週按鍵，日期直接標記月份如 09/02) -->
-            <div class="flex items-center gap-1 sm:gap-2">
-              <!-- 上一週按鍵 -->
+            <!-- 🌟 月份顯示與上下週切換 (箭頭統一放在此列，讓下方日期格可使用完整寬度) -->
+            <div class="flex items-center justify-between gap-2 bg-[#FAF4EE]/80 border border-[#C5A880]/30 px-2 sm:px-3.5 py-2 rounded-2xl">
               <button
                 type="button"
                 @click="prevWeek"
                 :disabled="!canPrevWeek"
-                class="w-8 h-13 sm:w-9 sm:h-14 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-[#154337] hover:bg-[#FAF4EE] hover:border-[#154337] transition disabled:opacity-20 disabled:cursor-not-allowed shadow-2xs shrink-0 active:scale-95 cursor-pointer"
+                class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-[#154337] hover:bg-[#FAF4EE] hover:border-[#154337] transition disabled:opacity-20 disabled:cursor-not-allowed shadow-sm shrink-0 active:scale-95 cursor-pointer"
                 title="切換至上一週"
               >
                 <Icon name="mdi:chevron-left" size="20" />
               </button>
 
-              <!-- 七天按鈕 -->
-              <div class="grid grid-cols-7 gap-1 sm:gap-1.5 flex-1">
-                <button
-                  v-for="day in weekDays"
-                  :key="day.dateStr"
-                  type="button"
-                  :disabled="day.isDisabled"
-                  @click="selectDay(day)"
-                  :class="[
-                    'flex flex-col items-center justify-center py-2 px-0.5 sm:px-1 rounded-xl transition-all border relative',
-                    day.isSelected
-                      ? 'bg-[#154337] text-white border-[#C5A880] shadow-md scale-[1.03] z-10 ring-2 ring-[#C5A880]/30'
-                      : day.isDisabled
-                        ? 'bg-gray-50/80 text-gray-300 border-gray-100 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#154337] hover:bg-[#FAF4EE]/50 cursor-pointer shadow-2xs active:scale-95'
-                  ]"
-                >
-                  <!-- 星期 (一~日) -->
-                  <span 
-                    :class="[
-                      'text-[10px] sm:text-xs font-medium mb-0.5',
-                      day.isSelected
-                        ? 'text-[#C5A880] font-bold'
-                        : day.isDisabled
-                          ? 'text-gray-300'
-                          : day.isWeekend
-                            ? 'text-amber-700 font-bold'
-                            : 'text-gray-500'
-                    ]"
-                  >
-                    {{ day.shortName }}
-                  </span>
-
-                  <!-- 日期數字 (直接標記月份 如 09/02) -->
-                  <span 
-                    :class="[
-                      'text-[11px] sm:text-xs font-bold font-mono tracking-tight',
-                      day.isSelected ? 'text-white' : day.isDisabled ? 'text-gray-300' : 'text-gray-800'
-                    ]"
-                  >
-                    {{ day.monthDayStr }}
-                  </span>
-
-                  <!-- 狀態標籤 (休 / 滿 / 圓點) -->
-                  <span 
-                    v-if="day.isFullOff" 
-                    class="text-[9px] text-red-400 font-bold scale-90 mt-0.5"
-                  >
-                    休
-                  </span>
-                  <span 
-                    v-else-if="day.isFullyBooked" 
-                    class="text-[9px] text-gray-400 font-bold scale-90 mt-0.5"
-                  >
-                    滿
-                  </span>
-                  <span 
-                    v-else-if="day.isSelected" 
-                    class="w-1.5 h-1.5 rounded-full bg-[#C5A880] mt-1"
-                  ></span>
-                  <span 
-                    v-else-if="!day.isDisabled" 
-                    class="w-1.5 h-1.5 rounded-full bg-emerald-500/60 mt-1"
-                  ></span>
-                  <span 
-                    v-else 
-                    class="w-1.5 h-1.5 mt-1"
-                  ></span>
-                </button>
+              <div class="flex items-center gap-2 min-w-0">
+                <Icon name="mdi:calendar-range" size="16" class="text-[#C5A880] shrink-0" />
+                <span class="font-bold text-[#154337] font-serif-luxury text-xs sm:text-sm tracking-wide truncate">
+                  {{ currentMonthYearDisplay }}
+                </span>
               </div>
 
-              <!-- 下一週按鍵 -->
               <button
                 type="button"
                 @click="nextWeek"
                 :disabled="!canNextWeek"
-                class="w-8 h-13 sm:w-9 sm:h-14 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-[#154337] hover:bg-[#FAF4EE] hover:border-[#154337] transition disabled:opacity-20 disabled:cursor-not-allowed shadow-2xs shrink-0 active:scale-95 cursor-pointer"
+                class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-[#154337] hover:bg-[#FAF4EE] hover:border-[#154337] transition disabled:opacity-20 disabled:cursor-not-allowed shadow-sm shrink-0 active:scale-95 cursor-pointer"
                 title="切換至下一週"
               >
                 <Icon name="mdi:chevron-right" size="20" />
               </button>
             </div>
+
+            <!-- 🌟 一週七天按鈕排成一列 (日期格使用完整寬度，月份顯示於上方) -->
+            <div class="grid grid-cols-7 gap-1 sm:gap-1.5">
+              <button
+                v-for="day in weekDays"
+                :key="day.dateStr"
+                type="button"
+                :disabled="day.isDisabled"
+                @click="selectDay(day)"
+                :class="[
+                  'min-w-0 flex flex-col items-center justify-center py-2 px-0.5 sm:px-1 rounded-xl transition-all border relative',
+                  day.isSelected
+                    ? 'bg-[#154337] text-white border-[#C5A880] shadow-md z-10 ring-2 ring-inset ring-[#C5A880]/30'
+                    : day.isDisabled
+                      ? 'bg-gray-50/80 text-gray-300 border-gray-100 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-[#154337] hover:bg-[#FAF4EE]/50 cursor-pointer shadow-sm active:scale-95'
+                ]"
+              >
+                <!-- 星期 (一~日) -->
+                <span 
+                  :class="[
+                    'text-xs font-medium mb-0.5 leading-none',
+                    day.isSelected
+                      ? 'text-[#C5A880] font-bold'
+                      : day.isDisabled
+                        ? 'text-gray-300'
+                        : day.isWeekend
+                          ? 'text-amber-700 font-bold'
+                          : 'text-gray-500'
+                  ]"
+                >
+                  {{ day.shortName }}
+                </span>
+
+                <!-- 日期數字 (月份已顯示於上方) -->
+                <span 
+                  :class="[
+                    'text-sm sm:text-base font-bold font-mono tracking-tight leading-tight',
+                    day.isSelected ? 'text-white' : day.isDisabled ? 'text-gray-300' : 'text-gray-800'
+                  ]"
+                >
+                  {{ day.dayNumber }}
+                </span>
+
+                <!-- 狀態標籤 (休 / 滿 / 圓點) -->
+                <span 
+                  v-if="day.isFullOff" 
+                  class="text-xs text-red-400 font-bold mt-0.5 leading-none"
+                >
+                  休
+                </span>
+                <span 
+                  v-else-if="day.isFullyBooked" 
+                  class="text-xs text-gray-400 font-bold mt-0.5 leading-none"
+                >
+                  滿
+                </span>
+                <span 
+                  v-else-if="day.isSelected" 
+                  class="w-1.5 h-1.5 rounded-full bg-[#C5A880] mt-1"
+                ></span>
+                <span 
+                  v-else-if="!day.isDisabled" 
+                  class="w-1.5 h-1.5 rounded-full bg-emerald-500/60 mt-1"
+                ></span>
+                <span 
+                  v-else 
+                  class="w-1.5 h-1.5 mt-1"
+                ></span>
+              </button>
+            </div>
             
-            <div class="flex items-start gap-1.5 text-[11px] text-gray-500 mt-1 bg-[#FAF4EE]/70 p-2.5 rounded-2xl border border-[#C5A880]/20 font-light">
+            <div class="flex items-start gap-1.5 text-xs text-gray-500 mt-1 bg-[#FAF4EE]/70 p-2.5 rounded-2xl border border-[#C5A880]/20 font-light">
               <Icon name="mdi:information-outline" size="15" class="shrink-0 text-[#C5A880] mt-0.5" />
               <span>目前已選日期：<span class="font-bold text-[#154337] font-mono">{{ form.date || '請點選上方日期' }}</span>，開放預約未來 {{ bookingAdvanceDays }} 天內。若當日公休或已約滿則無法選擇。</span>
             </div>
@@ -733,7 +731,7 @@ const finishAndRedirect = () => {
                 type="button" 
                 @click="handleRefreshSlots" 
                 :disabled="isRefreshingSlots"
-                class="text-xs text-[#154337] bg-[#FAF4EE] hover:bg-[#154337] hover:text-white px-3 py-1 rounded-full transition-all flex items-center gap-1.5 font-bold disabled:opacity-50 active:scale-95 border border-[#C5A880]/30 shadow-xs cursor-pointer"
+                class="text-xs text-[#154337] bg-[#FAF4EE] hover:bg-[#154337] hover:text-white px-3 py-1 rounded-full transition-all flex items-center gap-1.5 font-bold disabled:opacity-50 active:scale-95 border border-[#C5A880]/30 shadow-sm cursor-pointer"
               >
                 <Icon name="mdi:refresh" size="14" :class="{ 'animate-spin': isRefreshingSlots }" class="text-[#C5A880]" />
                 <span>重新整理</span>
@@ -749,12 +747,12 @@ const finishAndRedirect = () => {
             </div>
 
             <div v-else class="space-y-2.5">
-              <div class="flex items-center justify-between text-xs text-gray-500 font-light px-1">
+              <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 font-light px-1">
                 <span class="font-bold text-[#154337] flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-[#154337]"></span>
                   {{ isWeekendSelected ? '六日假日固定時段 (共 5 個時段)' : '平日固定時段 (共 4 個時段)' }}
                 </span>
-                <span class="text-[11px] text-gray-400">療程預計時間 2.5 小時 (具備時段保護機制)</span>
+                <span class="text-xs text-gray-400">療程預計時間 2.5 小時 (具備時段保護機制)</span>
               </div>
 
               <!-- 固定時段卡片清單 -->
@@ -777,7 +775,7 @@ const finishAndRedirect = () => {
                       ? 'bg-gray-100/80 text-gray-300 border-gray-200 cursor-not-allowed'
                       : form.startTime === time
                         ? 'bg-[#154337] text-white border-[#C5A880] shadow-md scale-[1.02] ring-2 ring-[#C5A880]/50'
-                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#154337] hover:bg-[#FAF4EE]/60 shadow-2xs'
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#154337] hover:bg-[#FAF4EE]/60 shadow-sm'
                   ]"
                 >
                   <span 
@@ -791,7 +789,7 @@ const finishAndRedirect = () => {
 
                   <span 
                     :class="[
-                      'text-[10px] tracking-tighter font-sans',
+                      'text-xs tracking-tighter font-sans',
                       form.startTime === time ? 'text-[#FAF4EE]/80' : 'text-gray-400'
                     ]"
                   >
@@ -800,19 +798,19 @@ const finishAndRedirect = () => {
 
                   <span 
                     v-if="isSlotDisabled(time)"
-                    class="text-[10px] text-red-400 font-bold bg-red-50/80 px-2 py-0.2 rounded-full mt-0.5 border border-red-100"
+                    class="text-xs text-red-400 font-bold bg-red-50/80 px-2 py-0.5 rounded-full mt-0.5 border border-red-100"
                   >
                     已約滿
                   </span>
                   <span 
                     v-else-if="form.startTime === time"
-                    class="text-[10px] text-white font-bold bg-[#C5A880] px-2 py-0.2 rounded-full mt-0.5"
+                    class="text-xs text-white font-bold bg-[#C5A880] px-2 py-0.5 rounded-full mt-0.5"
                   >
                     ✓ 已選取
                   </span>
                   <span 
                     v-else
-                    class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.2 rounded-full mt-0.5 border border-emerald-200/50"
+                    class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5 border border-emerald-200/50"
                   >
                     可預約
                   </span>
@@ -823,7 +821,7 @@ const finishAndRedirect = () => {
 
           <!-- 預覽與提交 -->
           <div :class="[!isLiffMode ? 'block' : 'hidden sm:block', 'border-t border-gray-100 pt-5 mt-4']">
-            <div class="bg-[#FAF4EE]/70 border border-[#C5A880]/30 rounded-2xl p-4 sm:p-5 space-y-2.5 mb-6 shadow-xs">
+            <div class="bg-[#FAF4EE]/70 border border-[#C5A880]/30 rounded-2xl p-4 sm:p-5 space-y-2.5 mb-6 shadow-sm">
               <h3 class="text-xs font-bold text-[#154337] uppercase tracking-wider flex items-center gap-1.5 font-serif-luxury">
                 <Icon name="mdi:clipboard-text-outline" size="16" class="text-[#C5A880]" />
                 預約內容預覽
@@ -860,7 +858,7 @@ const finishAndRedirect = () => {
     >
       <div class="max-w-md mx-auto flex items-center justify-between gap-3">
         <div class="text-xs space-y-0.5">
-          <p class="text-gray-400 text-[10px] font-light">已選預約時段：</p>
+          <p class="text-gray-400 text-xs font-light">已選預約時段：</p>
           <p class="font-bold text-[#154337] text-xs sm:text-sm font-mono tracking-wide">
             {{ form.date && form.startTime ? `${form.date} ${form.startTime}` : '請點選時間' }}
           </p>
@@ -893,14 +891,14 @@ const finishAndRedirect = () => {
         </div>
 
         <div class="bg-[#FAF4EE]/80 border border-[#C5A880]/30 rounded-2xl p-4 sm:p-5 space-y-2">
-          <p class="text-gray-500 text-[11px] font-light uppercase tracking-wider">您的專屬預約編號</p>
+          <p class="text-gray-500 text-xs font-light uppercase tracking-wider">您的專屬預約編號</p>
           <div class="text-2xl sm:text-3xl font-bold text-[#154337] tracking-wider font-mono">
             {{ appointmentCode }}
           </div>
           <button 
             v-if="!($liff && $liff.isInClient())"
             @click="copyCode"
-            class="text-xs bg-white text-[#154337] border border-[#C5A880]/30 px-3.5 py-1.5 rounded-full font-bold hover:bg-[#FAF4EE] transition shadow-xs inline-flex items-center gap-1"
+            class="text-xs bg-white text-[#154337] border border-[#C5A880]/30 px-3.5 py-1.5 rounded-full font-bold hover:bg-[#FAF4EE] transition shadow-sm inline-flex items-center gap-1"
           >
             <Icon name="mdi:content-copy" size="14" class="text-[#C5A880]" />
             複製編號
@@ -910,7 +908,7 @@ const finishAndRedirect = () => {
         <div class="space-y-3 pt-2">
           <button 
             @click="handleSendLineMessage"
-            class="block w-full bg-[#06C755] text-white font-bold py-3.5 rounded-full hover:bg-[#05b34c] active:scale-98 transition shadow-md text-xs sm:text-sm tracking-wider"
+            class="block w-full bg-[#06C755] text-white font-bold py-3.5 rounded-full hover:bg-[#05b34c] active:scale-95 transition shadow-md text-xs sm:text-sm tracking-wider"
           >
             {{ $liff && $liff.isInClient() ? '傳送預約編號並返回 LINE' : '複製編號並前往 LINE 驗證' }}
           </button>

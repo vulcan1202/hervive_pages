@@ -19,7 +19,7 @@ useSchemaOrg([
     },
     geo: { latitude: '25.0726592', longitude: '121.491917' },
     url: 'https://hervive-pages.pages.dev',
-    openingHours: [{ opens: '11:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
+    openingHours: [{ opens: '10:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
     description: '芯荷肌膚養護專注於提供客製化的美容護膚服務，包含基礎韓式管理、客製安瓶管理、進階肌膚管理、頂級奢華管理及專屬加購護理。',
   })
 ])
@@ -60,9 +60,9 @@ const extraServices = [
     <!-- Editorial Hero Header -->
     <section class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 sm:pb-7 border-b border-[#C5A880]/30">
       <div class="space-y-1 sm:space-y-2">
-        <p class="text-[10px] sm:text-xs text-[#C5A880] tracking-[0.25em] uppercase font-medium">HERVIVE SERVICES</p>
+        <p class="text-xs text-[#8A6A3B] tracking-[0.25em] uppercase font-medium">HERVIVE SERVICES</p>
         <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold font-serif-luxury text-[#154337] tracking-wider">
-          服務課程 <span class="text-[#C5A880] font-normal italic">Menu</span>
+          服務課程 <span class="text-[#8A6A3B] font-normal italic">Menu</span>
         </h1>
       </div>
       <p class="text-xs sm:text-sm text-gray-500 max-w-xs sm:max-w-sm font-light leading-relaxed tracking-wider">
@@ -76,9 +76,9 @@ const extraServices = [
       <div class="bg-[#FAF7F2] p-5 sm:p-8 rounded-2xl border border-[#C5A880]/30 space-y-5 sm:space-y-6 shadow-sm hover:border-[#154337]/30 transition-all">
         <div class="flex flex-row items-baseline justify-between gap-2 pb-4 border-b border-[#C5A880]/25">
           <div>
-            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#C5A880]/60 block mb-0.5">01</span>
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#8A6A3B] block mb-0.5">01</span>
             <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">基礎韓式管理</h2>
-            <p class="text-xs text-[#C5A880] font-semibold tracking-wider mt-1">深層清潔 X 保濕</p>
+            <p class="text-xs text-[#8A6A3B] font-semibold tracking-wider mt-1">深層清潔 X 保濕</p>
           </div>
           <div class="text-right shrink-0">
             <span class="text-xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">$1,800</span>
@@ -90,15 +90,15 @@ const extraServices = [
         </p>
 
         <div class="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
-          <span class="text-[11px] sm:text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-2xs">深層清潔毛孔</span>
-          <span class="text-[11px] sm:text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-2xs">溫和水潤保濕</span>
-          <span class="text-[11px] sm:text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-2xs">維持肌膚穩定</span>
+          <span class="text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-sm">深層清潔毛孔</span>
+          <span class="text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-sm">溫和水潤保濕</span>
+          <span class="text-xs px-3 py-1 rounded-lg bg-white text-[#154337] border border-[#C5A880]/25 font-medium shadow-sm">維持肌膚穩定</span>
         </div>
 
         <div class="pt-4 border-t border-[#C5A880]/20 flex justify-end">
-          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#154337] text-[#FAF4EE] px-7 py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#0D2C24] transition-all shadow-sm active:scale-[0.98]">
-            <span>立即預約課程</span>
-            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform text-[#C5A880]" />
+          <NuxtLink :to="{ path: '/booking', query: { service: '基礎韓式管理' } }" class="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#154337] hover:text-[#8A6A3B] transition-colors">
+            <span>預約此課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="text-[#C5A880] group-hover:translate-x-0.5 transition-transform" />
           </NuxtLink>
         </div>
       </div>
@@ -109,7 +109,7 @@ const extraServices = [
           <div>
             <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#154337]/40 block mb-0.5">02</span>
             <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">客製安瓶管理</h2>
-            <p class="text-xs text-[#C5A880] font-semibold tracking-wider mt-1">依膚況搭配客製化安瓶與輪廓手技</p>
+            <p class="text-xs text-[#8A6A3B] font-semibold tracking-wider mt-1">依膚況搭配客製化安瓶與輪廓手技</p>
           </div>
           <div class="text-right shrink-0">
             <span class="text-xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">$2,200</span>
@@ -126,9 +126,9 @@ const extraServices = [
         </div>
 
         <div class="pt-4 border-t border-gray-100 flex justify-end">
-          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#154337] text-[#FAF4EE] px-7 py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#0D2C24] transition-all shadow-sm active:scale-[0.98]">
-            <span>立即預約課程</span>
-            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform text-[#C5A880]" />
+          <NuxtLink :to="{ path: '/booking', query: { service: '客製安瓶管理' } }" class="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#154337] hover:text-[#8A6A3B] transition-colors">
+            <span>預約此課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="text-[#C5A880] group-hover:translate-x-0.5 transition-transform" />
           </NuxtLink>
         </div>
       </div>
@@ -137,9 +137,9 @@ const extraServices = [
       <div class="bg-[#FAF7F2] p-5 sm:p-8 rounded-2xl border border-[#C5A880]/30 space-y-5 sm:space-y-6 shadow-sm hover:border-[#154337]/30 transition-all">
         <div class="flex flex-row items-baseline justify-between gap-2 pb-4 border-b border-[#C5A880]/25">
           <div>
-            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#C5A880]/60 block mb-0.5">03</span>
+            <span class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#8A6A3B] block mb-0.5">03</span>
             <h2 class="text-xl sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">進階肌膚管理</h2>
-            <p class="text-xs text-[#C5A880] font-medium tracking-wider mt-1">包含以下 5 大精準管理課程：</p>
+            <p class="text-xs text-[#8A6A3B] font-medium tracking-wider mt-1">包含以下 5 大精準管理課程：</p>
           </div>
           <div class="text-right shrink-0">
             <span class="text-xl sm:text-3xl font-bold font-serif-luxury text-[#154337]">$2,800</span>
@@ -153,17 +153,17 @@ const extraServices = [
             class="py-3 sm:py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 group"
           >
             <div class="flex items-center gap-2.5">
-              <span class="text-xs font-mono text-[#C5A880] font-bold shrink-0">0{{ idx + 1 }}</span>
-              <h3 class="font-bold text-[#154337] text-xs sm:text-base group-hover:text-[#C5A880] transition-colors tracking-wide">{{ sub.name }}</h3>
+              <span class="text-xs font-mono text-[#8A6A3B] font-bold shrink-0">0{{ idx + 1 }}</span>
+              <h3 class="font-bold text-[#154337] text-xs sm:text-base group-hover:text-[#8A6A3B] transition-colors tracking-wide">{{ sub.name }}</h3>
             </div>
             <p class="text-xs text-gray-600 font-light tracking-wider sm:text-right pl-6 sm:pl-0 leading-relaxed">{{ sub.desc }}</p>
           </div>
         </div>
 
         <div class="pt-4 border-t border-[#C5A880]/20 flex justify-end">
-          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#154337] text-[#FAF4EE] px-7 py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#0D2C24] transition-all shadow-sm active:scale-[0.98]">
-            <span>立即預約課程</span>
-            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform text-[#C5A880]" />
+          <NuxtLink :to="{ path: '/booking', query: { service: '進階肌膚管理' } }" class="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#154337] hover:text-[#8A6A3B] transition-colors">
+            <span>預約此課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="text-[#C5A880] group-hover:translate-x-0.5 transition-transform" />
           </NuxtLink>
         </div>
       </div>
@@ -194,9 +194,9 @@ const extraServices = [
         </div>
 
         <div class="pt-4 border-t border-[#C5A880]/30 flex justify-end">
-          <NuxtLink to="/booking" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#C5A880] text-[#154337] px-7 py-3 rounded-xl text-xs sm:text-sm font-bold hover:bg-white transition-all shadow-md active:scale-[0.98]">
-            <span>立即預約課程</span>
-            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-1 transition-transform" />
+          <NuxtLink :to="{ path: '/booking', query: { service: '頂級奢華管理' } }" class="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#FAF4EE] hover:text-[#C5A880] transition-colors">
+            <span>預約此課程</span>
+            <Icon name="mdi:arrow-right" size="16" class="group-hover:translate-x-0.5 transition-transform" />
           </NuxtLink>
         </div>
       </div>
@@ -206,7 +206,7 @@ const extraServices = [
     <section class="space-y-4 pt-2">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-1.5 pb-3 border-b border-[#C5A880]/30">
         <div>
-          <p class="text-[10px] sm:text-xs text-[#C5A880] tracking-[0.2em] uppercase font-medium">ADD-ONS</p>
+          <p class="text-xs text-[#8A6A3B] tracking-[0.2em] uppercase font-medium">ADD-ONS</p>
           <h2 class="text-lg sm:text-2xl font-bold font-serif-luxury text-[#154337] tracking-wider">可加購項目</h2>
         </div>
         <p class="text-xs text-gray-500 font-light">配合主課程自由加購，提升護理效果與放鬆感受</p>
@@ -221,7 +221,7 @@ const extraServices = [
           >
             <span class="text-xs sm:text-sm font-bold text-gray-800 tracking-wide group-hover:text-[#154337] transition-colors">{{ service.name }}</span>
             <div class="flex items-baseline gap-1">
-              <span class="text-xs text-[#C5A880] font-medium">+</span>
+              <span class="text-xs text-[#8A6A3B] font-medium">+</span>
               <span class="text-sm sm:text-base font-bold font-serif-luxury text-[#154337]">${{ service.price }}</span>
             </div>
           </div>

@@ -187,7 +187,7 @@ const updateProfile = async () => {
                 <h1 class="text-2xl sm:text-3xl font-bold font-serif-luxury tracking-wider text-white drop-shadow-sm">
                   {{ currentUser.lastName }}{{ currentUser.firstName }}
                 </h1>
-                <span class="px-3 py-0.5 rounded-full text-[11px] bg-[#C5A880] text-[#154337] font-bold tracking-wider shadow-xs">HERVIVE VIP</span>
+                <span class="px-3 py-0.5 rounded-full text-xs bg-[#C5A880] text-[#154337] font-bold tracking-wider shadow-sm">HERVIVE VIP</span>
               </div>
               <p class="text-xs sm:text-sm text-[#FAF4EE] tracking-wider font-medium opacity-95">
                 Hervive 尊榮會員
@@ -214,7 +214,7 @@ const updateProfile = async () => {
       <button 
         @click="activeTab = 'history'" 
         :class="[
-          'flex-1 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 active:scale-98', 
+          'flex-1 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 active:scale-95', 
           activeTab === 'history' ? 'bg-[#154337] text-white shadow-md' : 'text-gray-600 hover:text-[#154337]'
         ]"
       >
@@ -225,7 +225,7 @@ const updateProfile = async () => {
       <button 
         @click="activeTab = 'profile'" 
         :class="[
-          'flex-1 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 active:scale-98', 
+          'flex-1 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 active:scale-95', 
           activeTab === 'profile' ? 'bg-[#154337] text-white shadow-md' : 'text-gray-600 hover:text-[#154337]'
         ]"
       >
@@ -238,7 +238,7 @@ const updateProfile = async () => {
     <div 
       v-if="message" 
       :class="[
-        'p-4 rounded-2xl text-xs sm:text-sm text-center font-bold flex items-center justify-center gap-2 animate-fade-in border shadow-xs', 
+        'p-4 rounded-2xl text-xs sm:text-sm text-center font-bold flex items-center justify-center gap-2 animate-fade-in border shadow-sm', 
         status === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'
       ]"
     >
@@ -254,7 +254,7 @@ const updateProfile = async () => {
         <button 
           @click="fetchBookingHistory" 
           :disabled="isRefreshingHistory"
-          class="text-xs text-[#154337] bg-white border border-[#C5A880]/30 hover:bg-[#FAF4EE] px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 font-bold disabled:opacity-50 active:scale-95 shadow-xs"
+          class="text-xs text-[#154337] bg-white border border-[#C5A880]/30 hover:bg-[#FAF4EE] px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 font-bold disabled:opacity-50 active:scale-95 shadow-sm"
         >
           <Icon name="mdi:refresh" size="14" :class="{ 'animate-spin': isRefreshingHistory }" class="text-[#C5A880]" />
           <span>{{ isRefreshingHistory ? '載入中...' : '重新整理' }}</span>
@@ -308,8 +308,8 @@ const updateProfile = async () => {
             </div>
 
             <div class="flex items-center gap-4">
-              <div class="bg-[#FAF4EE] text-[#154337] p-3.5 rounded-2xl flex flex-col items-center justify-center shrink-0 min-w-[85px] border border-[#C5A880]/30 shadow-xs">
-                <span class="text-[11px] font-bold tracking-tight text-gray-500 font-mono">{{ appt.date }}</span>
+              <div class="bg-[#FAF4EE] text-[#154337] p-3.5 rounded-2xl flex flex-col items-center justify-center shrink-0 min-w-[85px] border border-[#C5A880]/30 shadow-sm">
+                <span class="text-xs font-bold tracking-tight text-gray-500 font-mono">{{ appt.date }}</span>
                 <span class="text-lg font-bold tracking-tight text-[#154337] font-serif-luxury mt-0.5">{{ appt.start_time }}</span>
               </div>
               
@@ -335,80 +335,117 @@ const updateProfile = async () => {
       <div class="double-bezel-inner p-6 sm:p-8 bg-white">
         <form @submit.prevent="updateProfile" class="space-y-5 max-w-lg mx-auto">
           
+          <!-- 區塊：基本資料 -->
+          <div class="flex items-center gap-3">
+            <span class="h-px flex-1 bg-gray-100"></span>
+            <span class="text-xs font-bold tracking-widest text-[#8A6A3B]">基本資料</span>
+            <span class="h-px flex-1 bg-gray-100"></span>
+          </div>
+
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <label class="text-xs sm:text-sm font-bold text-gray-700">姓氏</label>
+              <label for="member-last-name" class="text-xs sm:text-sm font-bold text-gray-700">姓氏</label>
               <input 
+                id="member-last-name"
                 v-model="profileForm.lastName" 
                 type="text" 
                 required 
-                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
+                autocomplete="family-name"
+                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
               />
             </div>
             <div class="space-y-1.5">
-              <label class="text-xs sm:text-sm font-bold text-gray-700">名字</label>
+              <label for="member-first-name" class="text-xs sm:text-sm font-bold text-gray-700">名字</label>
               <input 
+                id="member-first-name"
                 v-model="profileForm.firstName" 
                 type="text" 
                 required 
-                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
+                autocomplete="given-name"
+                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
               />
             </div>
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-xs sm:text-sm font-bold text-gray-700">性別</label>
-            <select 
-              v-model="profileForm.gender" 
-              class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition"
-            >
-              <option value="female">女</option>
-              <option value="male">男</option>
-              <option value="other">其他</option>
-            </select>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="space-y-1.5">
+              <label for="member-gender" class="text-xs sm:text-sm font-bold text-gray-700">性別</label>
+              <select 
+                id="member-gender"
+                v-model="profileForm.gender" 
+                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition"
+              >
+                <option value="female">女</option>
+                <option value="male">男</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="member-dob" class="text-xs sm:text-sm font-bold text-gray-700">出生日期</label>
+              <ClientOnly>
+                <MyCalendar 
+                  input-id="member-dob"
+                  v-model="dobDateObj" 
+                  :max-date="maxDobDate"
+                  placeholder="選擇您的出生日期" 
+                />
+              </ClientOnly>
+            </div>
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-xs sm:text-sm font-bold text-gray-700">出生日期</label>
-            <ClientOnly>
-              <MyCalendar 
-                v-model="dobDateObj" 
-                :max-date="maxDobDate"
-                placeholder="選擇您的出生日期" 
+          <!-- 區塊：聯絡方式 -->
+          <div class="flex items-center gap-3 pt-1">
+            <span class="h-px flex-1 bg-gray-100"></span>
+            <span class="text-xs font-bold tracking-widest text-[#8A6A3B]">聯絡方式</span>
+            <span class="h-px flex-1 bg-gray-100"></span>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="space-y-1.5">
+              <label for="member-email" class="text-xs sm:text-sm font-bold text-gray-700">電子信箱</label>
+              <input 
+                id="member-email"
+                v-model="profileForm.email" 
+                type="email" 
+                autocomplete="email"
+                placeholder="example@email.com"
+                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
               />
-            </ClientOnly>
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="member-location" class="text-xs sm:text-sm font-bold text-gray-700">來自哪裡</label>
+              <select 
+                id="member-location"
+                v-model="profileForm.location" 
+                autocomplete="address-level1"
+                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition"
+              >
+                <option value="">請選擇居住縣市</option>
+                <option v-for="loc in locationOptions" :key="loc" :value="loc">{{ loc }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 區塊：帳號安全 -->
+          <div class="flex items-center gap-3 pt-1">
+            <span class="h-px flex-1 bg-gray-100"></span>
+            <span class="text-xs font-bold tracking-widest text-[#8A6A3B]">帳號安全</span>
+            <span class="h-px flex-1 bg-gray-100"></span>
           </div>
 
           <div class="space-y-1.5">
-            <label class="text-xs sm:text-sm font-bold text-gray-700">來自哪裡</label>
-            <select 
-              v-model="profileForm.location" 
-              class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition"
-            >
-              <option value="">請選擇居住縣市</option>
-              <option v-for="loc in locationOptions" :key="loc" :value="loc">{{ loc }}</option>
-            </select>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-xs sm:text-sm font-bold text-gray-700">電子信箱</label>
+            <label for="member-password" class="text-xs sm:text-sm font-bold text-gray-700">重設密碼</label>
             <input 
-              v-model="profileForm.email" 
-              type="email" 
-              placeholder="example@email.com"
-              class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
-            />
-          </div>
-
-          <div class="space-y-1.5 pt-3 border-t border-gray-100">
-            <label class="text-xs sm:text-sm font-bold text-gray-700">重設密碼</label>
-            <input 
+              id="member-password"
               v-model="profileForm.password" 
               type="password" 
+              autocomplete="new-password"
               placeholder="若不修改請留空..." 
-              class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
+              class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition" 
             />
-            <p class="text-[11px] text-gray-400 mt-0.5">至少包含一個英文與數字。</p>
+            <p class="text-xs text-gray-400 mt-0.5">至少包含一個英文與數字。</p>
           </div>
           
           <button 

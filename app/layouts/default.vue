@@ -43,7 +43,7 @@ watch(() => route.path, () => {
 
     <!-- 一般網頁版 Header - 懸浮精品膠囊導覽列 -->
     <header v-if="!isLiffMode" class="sticky top-3 sm:top-4 z-50 px-3 sm:px-6">
-      <div class="max-w-6xl mx-auto bg-white/80 backdrop-blur-xl border border-[#C5A880]/30 shadow-[0_8px_30px_rgba(21,67,55,0.06)] rounded-full px-5 sm:px-8 h-16 sm:h-18 flex items-center justify-between transition-all duration-300">
+      <div class="max-w-6xl mx-auto bg-white/80 backdrop-blur-xl border border-[#C5A880]/30 shadow-[0_8px_30px_rgba(21,67,55,0.06)] rounded-full px-5 sm:px-8 h-16 sm:h-[72px] flex items-center justify-between transition-all duration-300">
         
         <div class="flex items-center gap-8 lg:gap-12">
           <NuxtLink to="/" class="group flex items-center gap-2" @click="closeMenu">
@@ -83,9 +83,9 @@ watch(() => route.path, () => {
       <transition name="fade">
         <div v-if="isMenuOpen" class="md:hidden absolute top-20 left-4 right-4 bg-white/95 backdrop-blur-2xl border border-[#C5A880]/30 shadow-2xl rounded-3xl z-40 overflow-hidden">
           <nav class="flex flex-col p-6 space-y-4 text-center">
-            <NuxtLink to="/" class="text-[#154337] text-base font-medium py-2.5 border-b border-gray-100" active-class="font-bold text-[#C5A880]" @click="closeMenu">首頁</NuxtLink>
-            <NuxtLink to="/services" class="text-[#154337] text-base font-medium py-2.5 border-b border-gray-100" active-class="font-bold text-[#C5A880]" @click="closeMenu">服務項目</NuxtLink>
-            <NuxtLink to="/about" class="text-[#154337] text-base font-medium py-2.5 border-b border-gray-100" active-class="font-bold text-[#C5A880]" @click="closeMenu">關於我們</NuxtLink>
+            <NuxtLink to="/" class="text-[#154337] text-base font-medium py-2.5 border-b border-gray-100" active-class="font-bold text-[#8A6A3B]" @click="closeMenu">首頁</NuxtLink>
+            <NuxtLink to="/services" class="text-[#154337] text-base font-medium py-2.5 border-b border-gray-100" active-class="font-bold text-[#8A6A3B]" @click="closeMenu">服務項目</NuxtLink>
+            <NuxtLink to="/about" class="text-[#154337] text-base font-medium py-2.5 border-b border-gray-100" active-class="font-bold text-[#8A6A3B]" @click="closeMenu">關於我們</NuxtLink>
             
             <NuxtLink v-if="!currentUser" to="/login" class="text-gray-500 text-base font-medium py-2" @click="closeMenu">
               登入 / 註冊
@@ -116,7 +116,7 @@ watch(() => route.path, () => {
 
       <div class="relative z-10 container mx-auto px-4 space-y-6">
         <div class="space-y-2">
-          <span class="inline-block px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] bg-white/10 text-[#C5A880] border border-[#C5A880]/20 font-medium">專屬於你的美好時光</span>
+          <span class="inline-block px-3 py-1 rounded-full text-xs uppercase tracking-[0.25em] bg-white/10 text-[#C5A880] border border-[#C5A880]/20 font-medium">專屬於你的美好時光</span>
           <h4 class="font-serif-luxury text-xl sm:text-2xl font-bold tracking-[0.3em] text-[#FAF4EE]">HERVIVE STUDIO</h4>
         </div>
 
@@ -126,7 +126,7 @@ watch(() => route.path, () => {
 
         <div class="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent mx-auto my-6"></div>
 
-        <p class="text-[11px] text-[#FAF4EE]/50 tracking-wider">
+        <p class="text-xs text-[#FAF4EE]/50 tracking-wider">
           © {{ new Date().getFullYear() }} HERVIVE STUDIO. All rights reserved.
         </p>
       </div>
@@ -136,12 +136,12 @@ watch(() => route.path, () => {
     <div v-if="isLiffMode" class="fixed bottom-0 left-0 right-0 h-[60px] bg-white/95 backdrop-blur-xl border-t border-[#C5A880]/30 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 px-8 flex justify-around items-center pb-[env(safe-area-inset-bottom)]">
       <NuxtLink to="/booking" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors group relative">
         <Icon name="mdi:calendar-check" size="22" :class="[route.path === '/booking' ? 'text-[#154337] scale-110' : 'text-gray-400', 'transition-transform']" />
-        <span :class="['text-[11px] mt-0.5 font-medium tracking-wider', route.path === '/booking' ? 'text-[#154337] font-bold' : 'text-gray-500']">線上預約</span>
+        <span :class="['text-xs mt-0.5 font-medium tracking-wider', route.path === '/booking' ? 'text-[#154337] font-bold' : 'text-gray-500']">線上預約</span>
       </NuxtLink>
       
       <NuxtLink to="/member" class="flex flex-col items-center text-gray-400 hover:text-[#154337] transition-colors group relative">
         <Icon name="mdi:account-circle-outline" size="22" :class="[route.path === '/member' ? 'text-[#154337] scale-110' : 'text-gray-400', 'transition-transform']" />
-        <span :class="['text-[11px] mt-0.5 font-medium tracking-wider', route.path === '/member' ? 'text-[#154337] font-bold' : 'text-gray-500']">會員中心</span>
+        <span :class="['text-xs mt-0.5 font-medium tracking-wider', route.path === '/member' ? 'text-[#154337] font-bold' : 'text-gray-500']">會員中心</span>
       </NuxtLink>
     </div>
 

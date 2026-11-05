@@ -252,17 +252,17 @@ const switchMode = (mode: boolean) => {
 
       <div class="p-8">
         <div class="text-center mb-8">
-          <h2 class="text-2xl font-bold text-[#154337] title-serif">{{ isLoginMode ? '歡迎回來' : '加入 HERVIVE' }}</h2>
+          <h1 class="text-2xl font-bold text-[#154337] title-serif">{{ isLoginMode ? '歡迎回來' : '加入 HERVIVE' }}</h1>
           <p class="text-gray-500 text-sm mt-2">{{ isLoginMode ? '請登入以預約您的專屬管理' : '請先完成 LINE 驗證，並填寫會員資料' }}</p>
         </div>
 
-        <div v-if="status === 'error'" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
+        <div v-if="status === 'error'" role="alert" aria-live="polite" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
           {{ errorMessage }}
         </div>
-        <div v-if="infoMessage" class="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm mb-6 text-center font-medium border border-blue-100">
+        <div v-if="infoMessage" role="status" aria-live="polite" class="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm mb-6 text-center font-medium border border-blue-100">
           {{ infoMessage }}
         </div>
-        <div v-if="status === 'success'" class="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6 text-center">
+        <div v-if="status === 'success'" role="status" aria-live="polite" class="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6 text-center">
           {{ successMessage }}
         </div>
 
@@ -290,74 +290,93 @@ const switchMode = (mode: boolean) => {
         <form @submit.prevent="handleSubmit" class="space-y-5">
           
           <template v-if="!isLoginMode && registerForm.lineId">
+            <!-- 區塊：基本資料 -->
+            <div class="flex items-center gap-3 pt-1">
+              <span class="h-px flex-1 bg-gray-100"></span>
+              <span class="text-xs font-bold tracking-widest text-[#8A6A3B]">基本資料</span>
+              <span class="h-px flex-1 bg-gray-100"></span>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">姓氏 <span class="text-red-500">*</span></label>
-                <input v-model="registerForm.lastName" type="text" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" placeholder="例如：林" />
+                <label for="register-last-name" class="text-sm font-medium text-gray-700">姓氏 <span class="text-red-500">*</span></label>
+                <input id="register-last-name" v-model="registerForm.lastName" type="text" required autocomplete="family-name" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" placeholder="例如：林" />
               </div>
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">名字 <span class="text-red-500">*</span></label>
-                <input v-model="registerForm.firstName" type="text" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" placeholder="例如：小美" />
+                <label for="register-first-name" class="text-sm font-medium text-gray-700">名字 <span class="text-red-500">*</span></label>
+                <input id="register-first-name" v-model="registerForm.firstName" type="text" required autocomplete="given-name" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" placeholder="例如：小美" />
               </div>
             </div>
 
-            <!-- 性別 -->
-            <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">性別 <span class="text-red-500">*</span></label>
-              <select v-model="registerForm.gender" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]">
-                <option value="" disabled>請選擇</option>
-                <option value="female">女</option>
-                <option value="male">男</option>
-                <option value="other">其他</option>
-              </select>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <!-- 性別 -->
+              <div class="space-y-1">
+                <label for="register-gender" class="text-sm font-medium text-gray-700">性別 <span class="text-red-500">*</span></label>
+                <select id="register-gender" v-model="registerForm.gender" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]">
+                  <option value="" disabled>請選擇</option>
+                  <option value="female">女</option>
+                  <option value="male">男</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+
+              <!-- 出生日期 -->
+              <div class="space-y-1">
+                <label for="register-dob" class="text-sm font-medium text-gray-700">出生日期 <span class="text-red-500">*</span></label>
+                <ClientOnly>
+                  <MyCalendar 
+                    input-id="register-dob"
+                    v-model="dobDateObj" 
+                    :max-date="maxDobDate"
+                    placeholder="點擊選擇出生日期" 
+                  />
+                </ClientOnly>
+              </div>
             </div>
 
-            <!-- 出生日期 -->
-            <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">出生日期 <span class="text-red-500">*</span></label>
-              <ClientOnly>
-                <MyCalendar 
-                  v-model="dobDateObj" 
-                  :max-date="maxDobDate"
-                  placeholder="點擊選擇出生日期" 
-                />
-              </ClientOnly>
-            </div>
-
-            <!-- 電子信箱 -->
-            <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">電子信箱</label>
-              <input v-model="registerForm.email" type="email" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" placeholder="example@mail.com" />
-            </div>
-            <!-- 居住地區 -->
-            <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">來自哪裡 <span class="text-gray-400 text-xs">(選填)</span></label>
-              <select v-model="registerForm.location" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337] bg-white">
-                <option value="">請選擇縣市</option>
-                <option v-for="loc in locationOptions" :key="loc" :value="loc">{{ loc }}</option>
-              </select>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <!-- 電子信箱 -->
+              <div class="space-y-1">
+                <label for="register-email" class="text-sm font-medium text-gray-700">電子信箱</label>
+                <input id="register-email" v-model="registerForm.email" type="email" autocomplete="email" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" placeholder="example@mail.com" />
+              </div>
+              <!-- 居住地區 -->
+              <div class="space-y-1">
+                <label for="register-location" class="text-sm font-medium text-gray-700">來自哪裡 <span class="text-gray-400 text-xs">(選填)</span></label>
+                <select id="register-location" v-model="registerForm.location" autocomplete="address-level1" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337] bg-white">
+                  <option value="">請選擇縣市</option>
+                  <option v-for="loc in locationOptions" :key="loc" :value="loc">{{ loc }}</option>
+                </select>
+              </div>
             </div>
           </template>
 
           <template v-if="isLoginMode">
             <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">手機號碼 <span class="text-red-500">*</span></label>
-              <input v-model="loginForm.phone" type="tel" required pattern="[0-9]{10}" placeholder="例如：0912345678" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" />
+              <label for="login-phone" class="text-sm font-medium text-gray-700">手機號碼 <span class="text-red-500">*</span></label>
+              <input id="login-phone" v-model="loginForm.phone" type="tel" inputmode="numeric" autocomplete="tel" required pattern="[0-9]{10}" placeholder="例如：0912345678" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" />
             </div>
             <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">密碼 <span class="text-red-500">*</span></label>
-              <input v-model="loginForm.password" type="password" required placeholder="請輸入密碼" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" />
+              <label for="login-password" class="text-sm font-medium text-gray-700">密碼 <span class="text-red-500">*</span></label>
+              <input id="login-password" v-model="loginForm.password" type="password" autocomplete="current-password" required placeholder="請輸入密碼" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" />
             </div>
           </template>
 
           <template v-if="!isLoginMode && registerForm.lineId">
+            <!-- 區塊：帳號安全 -->
+            <div class="flex items-center gap-3 pt-1">
+              <span class="h-px flex-1 bg-gray-100"></span>
+              <span class="text-xs font-bold tracking-widest text-[#8A6A3B]">帳號安全</span>
+              <span class="h-px flex-1 bg-gray-100"></span>
+            </div>
+
             <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">手機號碼 <span class="text-red-500">*</span></label>
-              <input v-model="registerForm.phone" type="tel" required pattern="[0-9]{10}" placeholder="例如：0912345678" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" />
+              <label for="register-phone" class="text-sm font-medium text-gray-700">手機號碼 <span class="text-red-500">*</span></label>
+              <input id="register-phone" v-model="registerForm.phone" type="tel" inputmode="numeric" autocomplete="tel" required pattern="[0-9]{10}" placeholder="例如：0912345678" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" />
             </div>
             <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">設定密碼 <span class="text-red-500">*</span></label>
-              <input v-model="registerForm.password" type="password" required placeholder="請包含至少一個英文與數字" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#154337]" />
+              <label for="register-password" class="text-sm font-medium text-gray-700">設定密碼 <span class="text-red-500">*</span></label>
+              <input id="register-password" v-model="registerForm.password" type="password" autocomplete="new-password" required placeholder="請包含至少一個英文與數字" class="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-[#154337]" />
             </div>
 
             <button type="submit" :disabled="status === 'loading'" class="w-full bg-[#154337] text-[#FAF4EE] font-bold py-3 rounded-xl hover:bg-opacity-90 transition mt-4 flex justify-center items-center gap-2 disabled:opacity-50">

@@ -11,6 +11,7 @@ const props = defineProps<{
   disabledWeekDays?: (number | string)[]
   placeholder?: string
   inputClass?: string
+  inputId?: string
 }>()
 
 // 支援 Date 物件、日期字串或 null 之 v-model
@@ -108,6 +109,7 @@ const displayDate = computed(() => {
       <slot name="trigger" :onClick="onClick" :displayDate="displayDate">
         <div class="relative w-full">
           <input
+            :id="inputId"
             :class="[
               'w-full border border-gray-200 rounded-xl p-3 pr-10 text-sm focus:ring-2 focus:ring-[#154337] focus:border-[#154337] cursor-pointer bg-[#FAF4EE]/40 focus:bg-white transition relative z-10 font-sans text-gray-800',
               inputClass || ''

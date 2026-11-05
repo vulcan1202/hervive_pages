@@ -14,82 +14,58 @@ const cards = [
 </script>
 
 <template>
-  <div class="page-wrapper space-y-12 sm:space-y-16 md:space-y-20">
-    <!-- 品牌極致文字 Header Banner (取代原圖片，以 Doppelrand 框體 + 綠色文字與陰影效果呈現 HERVIVE STUDIO) -->
-    <div class="banner-container double-bezel-outer transition-all duration-700 hover:shadow-xl group">
-      <div class="double-bezel-inner overflow-hidden relative rounded-2xl bg-[#FAF7F2] py-14 sm:py-20 md:py-24 px-6 text-center flex flex-col items-center justify-center space-y-4 border border-[#C5A880]/30">
-        <!-- 柔和氣氛燈 (消解板塊單調感) -->
-        <div class="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#154337]/5 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[#C5A880]/15 blur-3xl pointer-events-none"></div>
+  <div class="page-wrapper space-y-10 sm:space-y-14 md:space-y-16">
+    <!-- 品牌 Hero (合併原 Banner 與品牌介紹，減少首屏重複資訊) -->
+    <section class="banner-container">
+      <div class="double-bezel-outer transition-all duration-700 hover:shadow-xl">
+        <div class="double-bezel-inner overflow-hidden relative rounded-2xl bg-[#FAF7F2] px-6 sm:px-10 py-12 sm:py-16 text-center flex flex-col items-center border border-[#C5A880]/30">
+          <!-- 柔和氣氛燈 (消解板塊單調感) -->
+          <div class="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#154337]/5 blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[#C5A880]/15 blur-3xl pointer-events-none"></div>
 
-        <!-- 品牌小 Eyebrow Badging -->
-        <p class="text-[10px] sm:text-xs text-[#C5A880] tracking-[0.3em] uppercase font-medium">EST. 2026 • HERVIVE AESTHETIC STUDIO</p>
+          <!-- 品牌小 Eyebrow Badging -->
+          <p class="text-xs text-[#8A6A3B] tracking-[0.3em] uppercase font-medium">EST. 2026 • HERVIVE AESTHETIC STUDIO</p>
 
-        <!-- HERVIVE STUDIO 巨型綠色精品陰影文字 -->
-        <h1 class="brand-hero-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-serif-luxury text-[#154337] tracking-[0.15em] sm:tracking-[0.2em] uppercase leading-none select-none">
-          HERVIVE STUDIO
-        </h1>
+          <!-- HERVIVE STUDIO 巨型綠色精品陰影文字 -->
+          <h1 class="brand-hero-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-serif-luxury text-[#154337] tracking-[0.15em] sm:tracking-[0.2em] uppercase leading-none select-none mt-4">
+            HERVIVE STUDIO
+          </h1>
 
-        <p class="text-xs sm:text-sm text-gray-600 font-light tracking-[0.2em] pt-1">
-          活出真實的女性節奏 • 客製美學護理
-        </p>
+          <p class="text-xs sm:text-sm text-gray-600 font-light tracking-[0.2em] mt-3">
+            活出真實的女性節奏 • 客製美學護理
+          </p>
 
-        <!-- 極細光線框體融入 -->
-        <div class="absolute inset-0 ring-1 ring-inset ring-[#C5A880]/20 rounded-2xl pointer-events-none"></div>
-      </div>
-    </div>
+          <!-- 品牌標語 -->
+          <div class="w-10 h-[1px] bg-[#C5A880] my-5 sm:my-6"></div>
+          <h2 class="text-base sm:text-xl md:text-2xl font-semibold font-serif-luxury text-[#154337] tracking-[0.15em] leading-normal">
+            喚醒肌膚 <span class="text-[#8A6A3B] italic font-normal">原本的光采</span>
+          </h2>
 
-    <!-- 主內容 -->
-    <div class="content-wrapper space-y-12 sm:space-y-16">
-      <!-- 品牌標題區 (Hero Section) -->
-      <section class="hero-section text-center relative py-4 md:py-8">
-        <div class="hero-content max-w-3xl mx-auto space-y-8">
-          
-          <!-- 品牌微標籤 -->
-          <div class="flex justify-center">
-            <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/70 border border-[#C5A880]/30 shadow-sm backdrop-blur-md">
-              <span class="w-2 h-2 rounded-full bg-[#C5A880] animate-pulse"></span>
-              <span class="text-[11px] font-medium tracking-[0.25em] text-[#154337] uppercase font-serif-luxury">客製化皮膚管理</span>
-              <span class="w-4 h-[1px] bg-[#C5A880]"></span>
-              <span class="text-[11px] font-semibold tracking-widest text-[#C5A880]">HERVIVE STUDIO</span>
-            </div>
-          </div>
-
-          <!-- 標題 (獨立單行並下移) -->
-          <div class="pt-2 sm:pt-4 flex justify-center">
-            <h2 class="hero-title inline-flex items-center justify-center gap-2.5 sm:gap-4 px-5 sm:px-7 py-2 sm:py-2.5 rounded-full bg-[#FAF7F2] border border-[#C5A880]/30 shadow-2xs text-base sm:text-xl md:text-2xl font-semibold font-serif-luxury text-[#154337] tracking-[0.15em] leading-normal">
-              <span class="w-2.5 sm:w-4 h-[1px] bg-[#C5A880] shrink-0"></span>
-              <span>喚醒肌膚 <span class="text-[#C5A880] italic font-normal">原本的光采</span></span>
-              <span class="w-2.5 sm:w-4 h-[1px] bg-[#C5A880] shrink-0"></span>
-            </h2>
-          </div>
-
-          <div class="hero-description space-y-4 max-w-2xl mx-auto px-2">
+          <!-- 品牌介紹 -->
+          <div class="hero-description mt-5 space-y-4 max-w-2xl mx-auto">
             <p class="hero-description-main text-base sm:text-lg text-gray-700 leading-relaxed font-medium">
-              <span class="highlight text-[#154337] font-semibold border-b border-[#C5A880]/40 pb-0.5">Hervie</span> 的名字，是由 <span class="highlight text-[#154337] font-semibold">「Her」（她）</span>和 <span class="highlight text-[#154337] font-semibold">「Vive」（生活）</span>結合而來<br class="hidden sm:block" />
-              <span class="text-sm sm:text-base text-gray-500 font-normal">Vive 是西班牙語中「活；生活」的意思</span>
+              <span class="highlight text-[#154337] font-semibold border-b border-[#C5A880]/40 pb-0.5">Hervie</span> 的名字，是由 <span class="highlight text-[#154337] font-semibold">「Her」（她）</span>和 <span class="highlight text-[#154337] font-semibold">「Vive」（生活）</span>結合而來
+              <span class="block text-sm sm:text-base text-gray-500 font-normal">Vive 是西班牙語中「活；生活」的意思</span>
             </p>
             <p class="hero-description-sub text-sm sm:text-base text-gray-600 leading-relaxed font-light italic">
-              Hervie 希望每一位女性都能夠在生活中找到屬於自己的節奏，活出最真實的自我<br class="hidden sm:block" />
-              在芯荷肌膚養護，每個人都能擁有自信且舒適的氛圍
+              Hervie 希望每一位女性都能夠在生活中找到屬於自己的節奏，活出最真實的自我
+              <span class="block not-italic">在芯荷肌膚養護，每個人都能擁有自信且舒適的氛圍</span>
             </p>
           </div>
 
-          <!-- 分隔金句引言框 -->
-          <div class="divider-group relative p-6 sm:p-8 rounded-2xl bg-white/80 border border-[#C5A880]/25 shadow-sm backdrop-blur-md max-w-xl mx-auto">
-            <div class="w-10 h-[1px] bg-[#C5A880] mx-auto mb-4"></div>
+          <!-- 分隔金句引言 -->
+          <div class="divider-group w-full max-w-xl mx-auto mt-6 border-y border-[#C5A880]/25 py-4">
             <p class="divider-text text-sm sm:text-base font-medium text-[#154337] tracking-widest leading-relaxed">
-              每個女人都擁有屬於自己的氛圍，從內而外擁有無限可能<br />
+              每個女人都擁有屬於自己的氛圍，從內而外擁有無限可能<br class="hidden sm:block" />
               讓您內在充滿自信，外在展現美麗✨
             </p>
-            <div class="w-10 h-[1px] bg-[#C5A880] mx-auto mt-4"></div>
           </div>
 
           <!-- CTA 按鈕群組 -->
-          <div class="cta-group flex flex-wrap justify-center gap-4 pt-2">
+          <div class="cta-group flex flex-wrap justify-center gap-4 mt-6">
             <NuxtLink to="/services" class="btn btn-outline border border-[#154337] text-[#154337] bg-white hover:bg-[#FAF4EE] px-8 py-3.5 rounded-xl text-sm font-medium tracking-wider shadow-sm hover:shadow-md transition-all flex items-center gap-2 group">
               <span>服務項目</span>
-              <span class="text-[#C5A880] group-hover:translate-x-1 transition-transform">→</span>
+              <span class="text-[#8A6A3B] group-hover:translate-x-1 transition-transform">→</span>
             </NuxtLink>
             
             <NuxtLink to="/about" class="btn btn-primary bg-[#154337] text-[#FAF4EE] hover:bg-[#0D2C24] px-8 py-3.5 rounded-xl text-sm font-medium tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2 group border border-[#C5A880]/40">
@@ -97,38 +73,41 @@ const cards = [
               <span class="group-hover:translate-x-1 transition-transform">→</span>
             </NuxtLink>
           </div>
+
+          <!-- 極細光線框體融入 -->
+          <div class="absolute inset-0 ring-1 ring-inset ring-[#C5A880]/20 rounded-2xl pointer-events-none"></div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- 特色卡片區 (3大特色) -->
-      <section class="cards-section">
-        <div class="cards-grid grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          <div
-            v-for="(card, index) in cards"
-            :key="card.title"
-            class="card-item double-bezel-outer group transition-all duration-500 hover:-translate-y-1.5"
-            :style="{ transitionDelay: `${index * 80}ms` }"
-          >
-            <div class="double-bezel-inner p-8 text-center flex flex-col items-center h-full relative overflow-hidden rounded-2xl">
-              <div class="w-16 h-16 rounded-xl bg-[#FAF4EE] border border-[#C5A880]/30 flex items-center justify-center mb-6 text-[#154337] group-hover:bg-[#154337] group-hover:text-[#FAF4EE] transition-colors duration-500 shadow-sm">
-                <Icon :name="card.icon" size="32" class="card-icon transition-transform duration-500 group-hover:scale-110" />
-              </div>
-
-              <h3 class="card-title text-lg font-bold font-serif-luxury text-[#154337] tracking-wider mb-3 group-hover:text-[#C5A880] transition-colors">
-                {{ card.title }}
-              </h3>
-
-              <p class="card-description text-xs sm:text-sm text-gray-600 leading-relaxed tracking-wide max-w-xs font-light">
-                {{ card.desc }}
-              </p>
-
-              <!-- 底部懸停金邊指示 -->
-              <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-[#154337] to-[#C5A880] transition-all duration-500 group-hover:w-1/2"></span>
+    <!-- 特色卡片區 (3大特色) -->
+    <section class="cards-section">
+      <div class="cards-grid grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div
+          v-for="(card, index) in cards"
+          :key="card.title"
+          class="card-item double-bezel-outer group transition-all duration-500 hover:-translate-y-1.5"
+          :style="{ transitionDelay: `${index * 80}ms` }"
+        >
+          <div class="double-bezel-inner p-8 text-center flex flex-col items-center h-full relative overflow-hidden rounded-2xl">
+            <div class="w-16 h-16 rounded-xl bg-[#FAF4EE] border border-[#C5A880]/30 flex items-center justify-center mb-6 text-[#154337] group-hover:bg-[#154337] group-hover:text-[#FAF4EE] transition-colors duration-500 shadow-sm">
+              <Icon :name="card.icon" size="32" class="card-icon transition-transform duration-500 group-hover:scale-110" />
             </div>
+
+            <h3 class="card-title text-lg font-bold font-serif-luxury text-[#154337] tracking-wider mb-3 group-hover:text-[#8A6A3B] transition-colors">
+              {{ card.title }}
+            </h3>
+
+            <p class="card-description text-xs sm:text-sm text-gray-600 leading-relaxed tracking-wide max-w-xs font-light">
+              {{ card.desc }}
+            </p>
+
+            <!-- 底部懸停金邊指示 -->
+            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-[#154337] to-[#C5A880] transition-all duration-500 group-hover:w-1/2"></span>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 </template>
 

@@ -24,7 +24,7 @@ useSchemaOrg([
     },
     geo: { latitude: '25.0726592', longitude: '121.491917' },
     url: 'https://hervive-pages.pages.dev',
-    openingHours: [{ opens: '11:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
+    openingHours: [{ opens: '10:00', closes: '21:00', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }],
     description: '芯荷肌膚養護專注於提供客製化的美容護膚服務，包含水光透亮、緊顏管理、皮膚管理、霧眉等服務體驗。',
   })
 ])
@@ -36,20 +36,45 @@ const photos = [
   { src: '/view_photo/views3.jpg', mode: 'cover' },
 ]
 let timer = null
-  
-const resetTimer = () => {
-  if (timer) clearInterval(timer)
+let prefersReducedMotion = false
+const isPaused = ref(false)
+
+const stopTimer = () => {
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
+}
+
+const startTimer = () => {
+  stopTimer()
+  if (prefersReducedMotion || isPaused.value) return
   timer = setInterval(() => {
     currentImage.value = (currentImage.value + 1) % photos.length
   }, 4000)
 }
+
+const resetTimer = () => {
+  startTimer()
+}
+
+const pauseCarousel = () => {
+  isPaused.value = true
+  stopTimer()
+}
+
+const resumeCarousel = () => {
+  isPaused.value = false
+  startTimer()
+}
   
 onMounted(() => {
-  resetTimer()
+  prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  startTimer()
 })
   
 onUnmounted(() => {
-  if (timer) clearInterval(timer)
+  stopTimer()
 })
   
 const selectImage = (index) => {
@@ -59,7 +84,7 @@ const selectImage = (index) => {
 </script>
 
 <template>
-  <div class="space-y-24 sm:space-y-32 py-8 max-w-5xl mx-auto">
+  <div class="space-y-14 sm:space-y-24 py-8 max-w-5xl mx-auto">
     <!-- Hero 品牌故事 (Variance 5 / Motion 7 / Density 3) -->
     <section class="relative overflow-hidden">
       <!-- 柔光背景光影 -->
@@ -71,13 +96,13 @@ const selectImage = (index) => {
       <div class="relative flex flex-col md:flex-row items-start justify-between gap-8 md:gap-12">
         <!-- 左側：品牌標題 (左上角, 簡潔比例) -->
         <div class="w-full md:w-4/12 space-y-3 text-left shrink-0 self-start">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/80 border border-[#C5A880]/40 text-[10px] uppercase tracking-[0.2em] font-semibold text-[#C5A880] shadow-sm backdrop-blur-md">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/80 border border-[#C5A880]/40 text-xs uppercase tracking-[0.2em] font-semibold text-[#8A6A3B] shadow-sm backdrop-blur-md">
             ABOUT US
           </div>
           <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif-luxury text-[#154337] tracking-wider leading-snug">
             HERVIVE STUDIO
           </h1>
-          <p class="text-xs text-[#C5A880] tracking-[0.25em] uppercase font-medium">找回肌膚原本的光采</p>
+          <p class="text-xs text-[#8A6A3B] tracking-[0.25em] uppercase font-medium">找回肌膚原本的光采</p>
         </div>
 
         <!-- 右側：品牌內容 (雙層框體引言卡片, 輕微下移) -->
@@ -109,34 +134,34 @@ const selectImage = (index) => {
           <!-- 左側文字說明 -->
           <div class="md:w-5/12 p-8 sm:p-10 lg:p-12 flex flex-col justify-between gap-8 border-b md:border-b-0 md:border-r border-[#C5A880]/20">
             <div class="space-y-3">
-              <span class="inline-block px-3.5 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] bg-[#154337]/10 text-[#154337] font-semibold">SISTER BEAUTY CARE</span>
+              <span class="inline-block px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.2em] bg-[#154337]/10 text-[#154337] font-semibold">SISTER BEAUTY CARE</span>
               <h3 class="text-2xl sm:text-3xl font-bold font-serif-luxury text-[#154337] tracking-widest">Skincare Specilalist</h3>
-              <p class="text-[#C5A880] text-xs font-medium tracking-[0.25em] uppercase">具有專業與溫度的美學空間</p>
+              <p class="text-[#8A6A3B] text-xs font-medium tracking-[0.25em] uppercase">具有專業與溫度的美學空間</p>
             </div>
 
             <!-- 姐妹個人介紹卡片 (Haptic Hover Physics) -->
             <div class="space-y-4">
               <!-- Ning -->
-              <div class="group w-full text-left rounded-[1.25rem] border border-[#C5A880]/30 bg-white/90 p-5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-md hover:border-[#154337] active:scale-[0.99]">
+              <div class="w-full text-left rounded-[1.25rem] border border-[#C5A880]/30 bg-white/90 p-5">
                 <div class="mb-2 flex items-center gap-3">
-                  <span class="w-8 h-8 rounded-full bg-[#154337] text-white flex items-center justify-center font-serif-luxury font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">N</span>
+                  <span class="w-8 h-8 rounded-full bg-[#154337] text-white flex items-center justify-center font-serif-luxury font-bold text-sm shadow-sm">N</span>
                   <span class="text-lg font-bold text-[#154337]">Ning</span>
-                  <span class="text-xs text-[#C5A880] font-medium tracking-widest">/ 姐姐</span>
+                  <span class="text-xs text-[#8A6A3B] font-medium tracking-widest">/ 姐姐</span>
                 </div>
-                <p class="text-gray-600 leading-relaxed tracking-wider text-xs sm:text-sm pl-3 border-l-2 border-[#C5A880]/40 group-hover:border-[#154337] transition-colors">
+                <p class="text-gray-600 leading-relaxed tracking-wider text-xs sm:text-sm pl-3 border-l-2 border-[#C5A880]/40">
                   文靜細膩，擅長傾聽，<br>
                   像一位能安心訴說的朋友，用最細緻的手法呵護你/妳
                 </p>
               </div>
 
               <!-- Yuna -->
-              <div class="group w-full text-left rounded-[1.25rem] border border-[#C5A880]/30 bg-white/90 p-5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-md hover:border-[#154337] active:scale-[0.99]">
+              <div class="w-full text-left rounded-[1.25rem] border border-[#C5A880]/30 bg-white/90 p-5">
                 <div class="mb-2 flex items-center gap-3">
-                  <span class="w-8 h-8 rounded-full bg-[#C5A880] text-white flex items-center justify-center font-serif-luxury font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">容</span>
+                  <span class="w-8 h-8 rounded-full bg-[#C5A880] text-white flex items-center justify-center font-serif-luxury font-bold text-sm shadow-sm">容</span>
                   <span class="text-lg font-bold text-[#154337]">Yuna</span>
-                  <span class="text-xs text-[#C5A880] font-medium tracking-widest">/ 妹妹</span>
+                  <span class="text-xs text-[#8A6A3B] font-medium tracking-widest">/ 妹妹</span>
                 </div>
-                <p class="text-gray-600 leading-relaxed tracking-wider text-xs sm:text-sm pl-3 border-l-2 border-[#C5A880]/40 group-hover:border-[#154337] transition-colors">
+                <p class="text-gray-600 leading-relaxed tracking-wider text-xs sm:text-sm pl-3 border-l-2 border-[#C5A880]/40">
                   活潑熱情，溫暖陪伴，<br>
                   像始終在身旁支持妳的家人，為你/妳注入自信的能量
                 </p>
@@ -145,7 +170,13 @@ const selectImage = (index) => {
           </div>
 
           <!-- 右側工作室實景輪播圖 (Studio Views Carousel) -->
-          <div class="md:w-7/12 relative h-[340px] sm:h-[420px] md:h-auto min-h-[380px] bg-[#154337]/5 overflow-hidden">
+          <div
+            class="md:w-7/12 relative h-[340px] sm:h-[420px] md:h-auto min-h-[380px] bg-[#154337]/5 overflow-hidden"
+            @mouseenter="pauseCarousel"
+            @mouseleave="resumeCarousel"
+            @focusin="pauseCarousel"
+            @focusout="resumeCarousel"
+          >
             <transition name="reveal">
               <div :key="currentImage" class="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden">
                 <img
@@ -164,13 +195,14 @@ const selectImage = (index) => {
             </transition>
 
             <!-- 輪播指標條 (Fluid Glass Pill) -->
-            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 md:bottom-6 md:right-8 md:left-auto md:translate-x-0 flex gap-3 z-20 bg-black/40 backdrop-blur-lg px-4 py-2 rounded-full border border-white/20 shadow-md">
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 md:bottom-5 md:right-6 md:left-auto md:translate-x-0 flex items-center gap-1 z-20 bg-black/40 backdrop-blur-lg px-3 py-1.5 rounded-full border border-white/20 shadow-md">
               <button
                 v-for="(_, index) in photos"
                 :key="index"
                 @click="selectImage(index)"
-                class="group py-1 focus:outline-none"
+                class="group h-8 w-8 flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880]"
                 :aria-label="`切換到畫面 ${index + 1}`"
+                :aria-current="currentImage === index ? 'true' : undefined"
               >
                 <div
                   class="h-[3px] transition-all duration-500 rounded-full"
@@ -196,8 +228,8 @@ const selectImage = (index) => {
               <Icon name="mdi:clock-outline" size="28" />
             </div>
             <div>
-              <p class="text-[11px] text-[#C5A880] font-semibold tracking-widest uppercase">OPENING HOURS</p>
-              <p class="text-[#154337] font-bold text-base sm:text-lg leading-snug">10:00 AM - 22:00 PM (完全預約制)</p>
+              <p class="text-xs text-[#8A6A3B] font-semibold tracking-widest uppercase">OPENING HOURS</p>
+              <p class="text-[#154337] font-bold text-base sm:text-lg leading-snug">每日 10:00–21:00（完全預約制）</p>
             </div>
           </div>
         </div>
@@ -209,9 +241,9 @@ const selectImage = (index) => {
               <Icon name="mdi:map-marker-radius-outline" size="28" />
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-[11px] text-[#C5A880] font-semibold tracking-widest uppercase">OUR LOCATION</p>
+              <p class="text-xs text-[#8A6A3B] font-semibold tracking-widest uppercase">OUR LOCATION</p>
               <p class="text-[#154337] font-bold text-base sm:text-lg leading-tight truncate">新北市三重區三和路三段103號1樓</p>
-              <p class="text-xs text-[#C5A880] mt-1.5 font-medium flex items-center justify-center sm:justify-start gap-1.5 group-hover:text-[#154337] transition-colors">
+              <p class="text-xs text-[#8A6A3B] mt-1.5 font-medium flex items-center justify-center sm:justify-start gap-1.5 group-hover:text-[#154337] transition-colors">
                 <span>點擊開啟 Google Maps 導航</span>
                 <span class="w-5 h-5 rounded-full bg-[#C5A880]/15 flex items-center justify-center group-hover:translate-x-1 group-hover:-translate-y-[1px] transition-transform">
                   <Icon name="mdi:arrow-top-right" size="14" />
@@ -233,7 +265,7 @@ const selectImage = (index) => {
         </div>
 
         <div class="relative z-10 space-y-5 max-w-2xl mx-auto">
-          <span class="inline-block px-4 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] bg-white/10 text-[#C5A880] border border-[#C5A880]/30 backdrop-blur-md">PRIVATE SKIN SPA</span>
+          <span class="inline-block px-4 py-1 rounded-full text-xs uppercase tracking-[0.25em] bg-white/10 text-[#C5A880] border border-[#C5A880]/30 backdrop-blur-md">PRIVATE SKIN SPA</span>
           <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif-luxury tracking-widest text-[#FAF4EE]">HERVIVE STUDIO 專屬療癒空間</h3>
           <p class="text-sm sm:text-base text-[#FAF4EE]/85 font-light leading-relaxed">「讓肌膚與心靈都被溫柔對待，找回發光的自己」</p>
           
