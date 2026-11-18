@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   ],
 
   // 🌟 新增：啟用 SPA 預設載入畫面，解決一開始的「未渲染破圖/閃爍」問題
-  spaLoadingTemplate: 'app/spa-loading-template.html',
+  spaLoadingTemplate: 'spa-loading-template.html',
 
   // SEO 全域設定 (Nuxt SEO 模組需要這些資訊)
   site: {
@@ -24,6 +24,27 @@ export default defineNuxtConfig({
   app: {
     head: {
       titleTemplate: '%s | 芯荷肌膚養護 HERVIVE STUDIO',
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap' }
+      ],
+      style: [
+        {
+          children: `
+            html, body {
+              background-color: #FAF4EE !important;
+              margin: 0;
+              padding: 0;
+            }
+            .fouc-hidden {
+              opacity: 0 !important;
+              visibility: hidden !important;
+              pointer-events: none !important;
+            }
+          `
+        }
+      ]
     }
   },
   
@@ -33,7 +54,7 @@ export default defineNuxtConfig({
   },
   
   tailwindcss: {
-    // exposeConfig: true,
+    cssPath: '~/css/main.css',
   },
   
   build: {

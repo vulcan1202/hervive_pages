@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { useToast } from '~/composables/useToast'
 
+const toast = useToast()
 const currentUser = ref<any>(null)
 const activeTab = ref('history') 
 const status = ref('idle')
@@ -47,7 +49,7 @@ const backendUrl = config.public.backendUrl
 onMounted(async () => {
   const storedUser = localStorage.getItem('hervive_user')
   if (!storedUser) {
-    alert('請先登入會員！')
+    toast.error('請先登入會員！')
     return navigateTo('/login')
   }
   
@@ -261,8 +263,24 @@ const updateProfile = async () => {
         </button>
       </div>
 
+      <!-- 骨架屏載入動態 -->
+      <div v-if="isRefreshingHistory && bookingHistory.length === 0" class="space-y-4 animate-pulse">
+        <div v-for="i in 2" :key="i" class="double-bezel-outer">
+          <div class="double-bezel-inner p-5 sm:p-6 bg-white space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+              <span class="w-20 h-4 bg-gray-200 rounded"></span>
+              <span class="w-16 h-4 bg-gray-200 rounded"></span>
+            </div>
+            <div class="space-y-2">
+              <div class="w-1/3 h-5 bg-gray-200 rounded"></div>
+              <div class="w-1/2 h-4 bg-gray-100 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 尚無紀錄空狀態 -->
-      <div v-if="bookingHistory.length === 0" class="double-bezel-outer">
+      <div v-else-if="bookingHistory.length === 0" class="double-bezel-outer">
         <div class="double-bezel-inner p-10 text-center text-gray-500 bg-white">
           <div class="w-16 h-16 bg-[#FAF4EE] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#C5A880]/30 text-[#154337]">
             <Icon name="mdi:calendar-blank" size="32" />

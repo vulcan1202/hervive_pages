@@ -39,21 +39,44 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-  <div :class="['min-h-screen flex flex-col font-sans bg-[#FAF4EE]', isLiffMode ? (route.path === '/booking' ? 'pb-[145px]' : 'pb-[75px]') : '']">
+  <div :class="['min-h-[100dvh] flex flex-col font-sans bg-[#FAF4EE]', isLiffMode ? (route.path === '/booking' ? 'pb-[145px]' : 'pb-[75px]') : '']">
 
-    <!-- 一般網頁版 Header - 懸浮精品膠囊導覽列 -->
+    <!-- 一般網頁版 Header - 懸浮精品膠囊導覽列 (含 Week 08 純 CSS 巢狀下拉選單) -->
     <header v-if="!isLiffMode" class="sticky top-3 sm:top-4 z-50 px-3 sm:px-6">
-      <div class="max-w-6xl mx-auto bg-white/80 backdrop-blur-xl border border-[#C5A880]/30 shadow-[0_8px_30px_rgba(21,67,55,0.06)] rounded-full px-5 sm:px-8 h-16 sm:h-[72px] flex items-center justify-between transition-all duration-300">
+      <div class="max-w-6xl mx-auto bg-white/85 backdrop-blur-xl border border-[#C5A880]/30 shadow-[0_8px_30px_rgba(21,67,55,0.06)] rounded-full px-5 sm:px-8 h-16 sm:h-[72px] flex items-center justify-between transition-all duration-300">
         
         <div class="flex items-center gap-8 lg:gap-12">
           <NuxtLink to="/" class="group flex items-center gap-2" @click="closeMenu">
             <img src="/logo.png" alt="HERVIVE STUDIO Logo" class="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105" />
           </NuxtLink>
 
+          <!-- 桌面端導覽列 (含純 CSS 下拉選單) -->
           <nav class="hidden md:flex items-center gap-8 text-xs sm:text-sm font-medium text-gray-600 tracking-wider">
-            <NuxtLink to="/" active-class="text-[#154337] font-semibold" class="hover:text-[#154337] transition py-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-[2px] after:bg-[#C5A880] after:transition-all hover:after:w-full">首頁</NuxtLink>
-            <NuxtLink to="/services" active-class="text-[#154337] font-semibold" class="hover:text-[#154337] transition py-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-[2px] after:bg-[#C5A880] after:transition-all hover:after:w-full">服務項目</NuxtLink>
-            <NuxtLink to="/about" active-class="text-[#154337] font-semibold" class="hover:text-[#154337] transition py-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-[2px] after:bg-[#C5A880] after:transition-all hover:after:w-full">關於我們</NuxtLink>
+            <NuxtLink to="/" active-class="text-[#154337] font-semibold" class="hover:text-[#154337] transition py-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-[2px] after:bg-[#C5A880] after:transition-all hover:after:w-full">
+              首頁
+            </NuxtLink>
+
+            <!-- Week 08 純 CSS 巢狀下拉選單：服務項目 -->
+            <div class="nav-dropdown py-2">
+              <NuxtLink to="/services" active-class="text-[#154337] font-semibold" class="hover:text-[#154337] transition flex items-center gap-1 py-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-[2px] after:bg-[#C5A880] after:transition-all hover:after:w-full">
+                <span>服務項目</span>
+                <Icon name="mdi:chevron-down" size="14" class="text-[#C5A880] transition-transform duration-300 group-hover:rotate-180" />
+              </NuxtLink>
+
+              <!-- 下拉子清單 (Pure CSS Dropdown Menu) -->
+              <div class="dropdown-menu">
+                <NuxtLink to="/services">全系列課程總覽</NuxtLink>
+                <div class="h-[1px] bg-gray-100 my-1"></div>
+                <NuxtLink to="/services" class="text-xs text-gray-500">01 基礎韓式管理</NuxtLink>
+                <NuxtLink to="/services" class="text-xs text-gray-500">02 客製安瓶管理</NuxtLink>
+                <NuxtLink to="/services" class="text-xs text-gray-500">03 進階肌膚管理</NuxtLink>
+                <NuxtLink to="/services" class="text-xs text-[#8A6A3B] font-semibold">04 頂級奢華管理</NuxtLink>
+              </div>
+            </div>
+
+            <NuxtLink to="/about" active-class="text-[#154337] font-semibold" class="hover:text-[#154337] transition py-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-[2px] after:bg-[#C5A880] after:transition-all hover:after:w-full">
+              關於我們
+            </NuxtLink>
           </nav>
         </div>
 
@@ -66,7 +89,7 @@ watch(() => route.path, () => {
           </NuxtLink>
 
           <!-- 嵌套按鈕 Button-in-Button -->
-          <NuxtLink to="/booking" class="hidden md:inline-flex bg-[#154337] text-[#FAF4EE] pl-5 pr-2 py-1.5 rounded-full text-xs sm:text-sm font-medium hover:bg-[#0D2C24] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 items-center gap-2 group border border-[#C5A880]/30">
+          <NuxtLink to="/booking" class="hidden md:inline-flex bg-[#154337] text-[#FAF4EE] pl-5 pr-2 py-1.5 rounded-full text-xs sm:text-sm font-medium hover:bg-[#0D2C24] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 items-center gap-2 group border border-[#C5A880]/30 active:scale-[0.98]">
             <span>立即預約</span>
             <span class="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center text-[#FAF4EE] group-hover:translate-x-0.5 transition-transform">
               <Icon name="mdi:arrow-right" size="14" />
@@ -160,4 +183,4 @@ watch(() => route.path, () => {
   opacity: 0;
   transform: translateY(-10px) scale(0.98);
 }
-</style>
+</style>

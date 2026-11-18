@@ -31,9 +31,9 @@ useSchemaOrg([
 
 const currentImage = ref(0)
 const photos = [
-  { src: '/view_photo/views1.jpg', mode: 'cover' },
-  { src: '/view_photo/views2.jpg', mode: 'contain' },
-  { src: '/view_photo/views3.jpg', mode: 'cover' },
+  { src: '/view_photo/views1.jpg', title: '靜謐放鬆的護理環境' },
+  { src: '/view_photo/views2.jpg', title: '細緻溫柔的專業空間' },
+  { src: '/view_photo/views3.jpg', title: '舒心雅緻的個人氛圍' },
 ]
 let timer = null
 let prefersReducedMotion = false
@@ -169,33 +169,47 @@ const selectImage = (index) => {
             </div>
           </div>
 
-          <!-- 右側工作室實景輪播圖 (Studio Views Carousel) -->
+          <!-- 右側工作室實景輪播圖 (方案 A：高斯景深動態光暈底層 + 完整無損展示) -->
           <div
-            class="md:w-7/12 relative h-[340px] sm:h-[420px] md:h-auto min-h-[380px] bg-[#154337]/5 overflow-hidden"
+            class="md:w-7/12 relative h-[360px] sm:h-[440px] md:h-auto min-h-[400px] bg-[#154337]/10 overflow-hidden"
             @mouseenter="pauseCarousel"
             @mouseleave="resumeCarousel"
             @focusin="pauseCarousel"
             @focusout="resumeCarousel"
           >
             <transition name="reveal">
-              <div :key="currentImage" class="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden">
-                <img
-                  v-if="photos[currentImage].mode === 'cover'"
-                  :src="photos[currentImage].src"
-                  class="w-full h-full object-cover stable-zoom"
-                  alt="Studio View"
-                />
-                <img
-                  v-else
-                  :src="photos[currentImage].src"
-                  class="w-full h-full object-contain stable-zoom bg-[#FAF4EE]"
-                  alt="Studio View"
-                />
+              <div :key="currentImage" class="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center">
+                <!-- 1. 背景高斯景深動態光暈 (填補長寬比例差異之邊界，消除突兀空隙) -->
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img
+                    :src="photos[currentImage].src"
+                    class="w-full h-full object-cover scale-125 blur-2xl opacity-40 brightness-95 saturate-150"
+                    alt=""
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-[#154337]/40 via-transparent to-[#154337]/20"></div>
+                </div>
+
+                <!-- 2. 前景完整無損照片 (保持 100% 構圖細節，直式與方型皆完美展示) -->
+                <div class="relative z-10 w-full h-full p-4 sm:p-7 flex items-center justify-center">
+                  <img
+                    :src="photos[currentImage].src"
+                    class="max-w-full max-h-full object-contain rounded-2xl shadow-[0_20px_40px_-10px_rgba(21,67,55,0.35)] ring-1 ring-white/30 stable-zoom"
+                    :alt="photos[currentImage].title"
+                  />
+                </div>
               </div>
             </transition>
 
+            <!-- 空間說明微標籤 (Micro Eyebrow Badge) -->
+            <div class="absolute top-4 left-4 z-20 pointer-events-none">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-md text-white text-[11px] font-medium tracking-widest border border-white/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse"></span>
+                <span>{{ photos[currentImage].title }}</span>
+              </span>
+            </div>
+
             <!-- 輪播指標條 (Fluid Glass Pill) -->
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 md:bottom-5 md:right-6 md:left-auto md:translate-x-0 flex items-center gap-1 z-20 bg-black/40 backdrop-blur-lg px-3 py-1.5 rounded-full border border-white/20 shadow-md">
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 md:bottom-5 md:right-6 md:left-auto md:translate-x-0 flex items-center gap-1 z-20 bg-black/45 backdrop-blur-lg px-3 py-1.5 rounded-full border border-white/20 shadow-md">
               <button
                 v-for="(_, index) in photos"
                 :key="index"
@@ -218,25 +232,28 @@ const selectImage = (index) => {
       </div>
     </section>
 
-    <!-- 營業時間與位置卡片 (Doppelrand Architecture + Island CTA Physics) -->
+    <!-- 營業時間與位置卡片 (Doppelrand Architecture + 完美等高對齊) -->
     <section class="max-w-4xl mx-auto">
-      <div class="grid gap-6 md:grid-cols-2">
-        <!-- 營業時間 -->
-        <div class="p-1 rounded-[2rem] bg-black/5 border border-[#C5A880]/20 shadow-sm">
-          <div class="bg-white rounded-[calc(2rem-0.25rem)] p-6 sm:p-7 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-5 hover:border-[#154337]/40 transition-colors">
+      <div class="grid gap-6 md:grid-cols-2 items-stretch">
+        <!-- 營業時間 (等高 flex h-full) -->
+        <div class="p-1 rounded-[2rem] bg-black/5 border border-[#C5A880]/20 shadow-sm flex flex-col h-full">
+          <div class="bg-white rounded-[calc(2rem-0.25rem)] p-6 sm:p-7 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-5 hover:border-[#154337]/40 transition-colors h-full">
             <div class="w-14 h-14 shrink-0 bg-[#FAF4EE] rounded-2xl border border-[#C5A880]/30 flex items-center justify-center text-[#154337] mx-auto sm:mx-0 shadow-inner">
               <Icon name="mdi:clock-outline" size="28" />
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
               <p class="text-xs text-[#8A6A3B] font-semibold tracking-widest uppercase">OPENING HOURS</p>
-              <p class="text-[#154337] font-bold text-base sm:text-lg leading-snug">每日 10:00–21:00（完全預約制）</p>
+              <p class="text-[#154337] font-bold text-base sm:text-lg leading-tight">每日 10:00–21:00（完全預約制）</p>
+              <p class="text-xs text-[#8A6A3B] mt-1.5 font-medium flex items-center justify-center sm:justify-start gap-1.5">
+                <span>專屬私密空間 • 敬請提前預約</span>
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- 導航位置 (Button-in-Button Physics) -->
-        <a href="https://maps.app.goo.gl/XFr72zB2CA26n8A68" target="_blank" class="group p-1 rounded-[2rem] bg-black/5 border border-[#C5A880]/20 shadow-sm hover:shadow-md transition-all active:scale-[0.99]">
-          <div class="bg-[#FDFBF7] rounded-[calc(2rem-0.25rem)] p-6 sm:p-7 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-5 group-hover:bg-white transition-colors">
+        <!-- 導航位置 (等高 flex h-full + Button-in-Button Physics) -->
+        <a href="https://maps.app.goo.gl/XFr72zB2CA26n8A68" target="_blank" class="group p-1 rounded-[2rem] bg-black/5 border border-[#C5A880]/20 shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex flex-col h-full">
+          <div class="bg-[#FDFBF7] rounded-[calc(2rem-0.25rem)] p-6 sm:p-7 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-5 group-hover:bg-white transition-colors h-full">
             <div class="w-14 h-14 shrink-0 bg-[#FAF4EE] rounded-2xl border border-[#C5A880]/30 flex items-center justify-center text-[#154337] group-hover:bg-[#154337] group-hover:text-white transition-colors mx-auto sm:mx-0 shadow-inner">
               <Icon name="mdi:map-marker-radius-outline" size="28" />
             </div>

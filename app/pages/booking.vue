@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useToast } from '~/composables/useToast'
 
 const router = useRouter()
 const route = useRoute()
+const toast = useToast()
 const currentUser = ref<any>(null)
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl
@@ -68,7 +70,7 @@ const syncWeekStart = (d: Date) => {
 onMounted(async () => {
   const storedUser = localStorage.getItem('hervive_user')
   if (!storedUser) {
-    alert('請先登入會員才能進行預約！')
+    toast.error('請先登入會員才能進行預約！')
     return router.push('/login?redirect=/booking')
   }
   currentUser.value = JSON.parse(storedUser)
@@ -520,15 +522,15 @@ const handleSendLineMessage = async () => {
       $liff.closeWindow() 
     } catch (err) {
       console.error('傳送訊息失敗', err)
-      alert('自動傳送失敗，請手動複製編號')
+      toast.error('自動傳送失敗，請手動複製編號')
     }
   } else {
     try {
       await navigator.clipboard.writeText(appointmentCode.value)
-      alert('✅ 預約編號已複製！請前往 LINE 貼上發送。')
+      toast.success('預約編號已複製！請前往 LINE 貼上發送')
       window.open('https://lin.ee/HmMJftl', '_blank')
     } catch (err) {
-      alert('複製失敗，請手動複製')
+      toast.error('複製失敗，請手動複製')
     }
   }
 }
@@ -536,9 +538,9 @@ const handleSendLineMessage = async () => {
 const copyCode = async () => {
   try {
     await navigator.clipboard.writeText(appointmentCode.value)
-    alert('✅ 預約編號已複製！')
+    toast.success('預約編號已複製')
   } catch (err) {
-    alert('複製失敗，請手動複製')
+    toast.error('複製失敗，請手動複製')
   }
 }
 
@@ -738,7 +740,14 @@ const finishAndRedirect = () => {
               </button>
             </div>
             
-            <div v-if="!form.date" class="text-gray-400 text-xs sm:text-sm py-10 text-center bg-[#FAF4EE]/50 rounded-2xl border border-dashed border-[#C5A880]/30 font-light">
+            <!-- 時段骨架屏載入動態 -->
+            <div v-if="isRefreshingSlots" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-2.5 border border-[#C5A880]/30 rounded-2xl bg-[#FAF4EE]/40 animate-pulse">
+              <div v-for="i in 4" :key="i" class="h-16 rounded-xl bg-white/80 border border-[#C5A880]/20 flex items-center justify-center">
+                <span class="w-12 h-4 bg-gray-200/80 rounded-md"></span>
+              </div>
+            </div>
+
+            <div v-else-if="!form.date" class="text-gray-400 text-xs sm:text-sm py-10 text-center bg-[#FAF4EE]/50 rounded-2xl border border-dashed border-[#C5A880]/30 font-light">
               請先點選上方日期以載入可預約時段
             </div>
             
