@@ -23,6 +23,7 @@ const profileForm = reactive({
   lastName: '',
   firstName: '',
   gender: '',
+  phone: '',
   dateOfBirth: '', 
   location: '',    
   email: '',
@@ -68,6 +69,7 @@ onMounted(async () => {
           id: latestUser.id,
           lastName: latestUser.last_name || latestUser.lastName,
           firstName: latestUser.first_name || latestUser.firstName,
+          phone: latestUser.phone || currentUser.value.phone || '',
           gender: latestUser.gender,
           dateOfBirth: latestUser.date_of_birth || latestUser.dateOfBirth,
           location: latestUser.location,
@@ -83,6 +85,7 @@ onMounted(async () => {
   
   profileForm.lastName = currentUser.value.lastName || currentUser.value.last_name || ''
   profileForm.firstName = currentUser.value.firstName || currentUser.value.first_name || ''
+  profileForm.phone = currentUser.value.phone || ''
   profileForm.gender = currentUser.value.gender || ''
   profileForm.email = currentUser.value.email || ''
 
@@ -136,6 +139,7 @@ const updateProfile = async () => {
         id: currentUser.value.id,
         last_name: profileForm.lastName,
         first_name: profileForm.firstName,
+        phone: profileForm.phone,
         gender: profileForm.gender,
         date_of_birth: profileForm.dateOfBirth,
         location: profileForm.location,
@@ -149,6 +153,7 @@ const updateProfile = async () => {
 
     currentUser.value.lastName = profileForm.lastName
     currentUser.value.firstName = profileForm.firstName
+    currentUser.value.phone = profileForm.phone
     currentUser.value.gender = profileForm.gender
     currentUser.value.dateOfBirth = profileForm.dateOfBirth
     currentUser.value.location = profileForm.location
@@ -421,6 +426,23 @@ const updateProfile = async () => {
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div class="space-y-1.5">
+              <label for="member-phone" class="text-xs sm:text-sm font-bold text-gray-700">
+                手機號碼 <span class="text-xs text-gray-400 font-normal">（登入帳號憑證）</span>
+              </label>
+              <input 
+                id="member-phone"
+                v-model="profileForm.phone" 
+                type="tel" 
+                inputmode="numeric"
+                pattern="[0-9]{10}"
+                required
+                autocomplete="tel"
+                placeholder="0912345678"
+                class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#154337] focus:border-[#154337] bg-[#FAF4EE]/40 focus:bg-white transition font-mono" 
+              />
+            </div>
+
+            <div class="space-y-1.5">
               <label for="member-email" class="text-xs sm:text-sm font-bold text-gray-700">電子信箱</label>
               <input 
                 id="member-email"
@@ -432,7 +454,7 @@ const updateProfile = async () => {
               />
             </div>
 
-            <div class="space-y-1.5">
+            <div class="space-y-1.5 sm:col-span-2">
               <label for="member-location" class="text-xs sm:text-sm font-bold text-gray-700">來自哪裡</label>
               <select 
                 id="member-location"
